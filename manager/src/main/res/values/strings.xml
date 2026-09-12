@@ -688,7 +688,8 @@
     <string name="doctor_wallet_risk_busybox">Security Risk (BusyBox Mocking active)</string>
     <string name="doctor_wallet_risk_spoof">Attestation Risk (Device Spoofing active)</string>
     <string name="doctor_tip_wallet_integrity">Google Wallet &amp; Banking Apps: Detected root artifacts or active Magisk/BusyBox mocking cause "Device doesn\'t meet security standards" errors. Run the one-tap fix to purge su binaries and restore compliance.</string>
-    <string name="doctor_fix_wallet_success">Security cleaned! Removed su binaries and disabled root mocking. If Google Wallet still alerts, clear cache for Google Play Services.</string>
+    <string name="doctor_fix_wallet_success">Security cleaned! Removed su binaries and cleared the Play Integrity verdict cache. Open Google Wallet to verify.</string>
+    <string name="doctor_fix_wallet_success_no_cache_clear">Security cleaned! Removed su binaries and restarted Google Wallet. Shizuku wasn\'t available to clear the Play Integrity cache — if Wallet still shows a security warning, tap \"Clear Play Services Cache\" below.</string>
     <string name="doctor_fix_wallet_failed">Unable to delete root binaries automatically. You can copy the ADB command below to remove them manually via terminal.</string>
     <string name="doctor_action_clear_gms_cache">Clear Play Services Cache</string>
     <string name="doctor_action_open_wallet">Open Google Wallet</string>

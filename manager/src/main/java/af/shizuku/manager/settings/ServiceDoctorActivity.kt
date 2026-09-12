@@ -203,12 +203,18 @@ class ServiceDoctorActivity : AppBarActivity() {
                             }
                             af.shizuku.manager.ShizukuSettings.syncAllPlusFeaturesToServer()
 
-                            RootCompatHelper.refreshGoogleWalletAttestation(this@ServiceDoctorActivity)
+                            val refreshResult = RootCompatHelper.refreshGoogleWalletAttestation(this@ServiceDoctorActivity)
 
                             if (cleaned) {
+                                val successMsg = when (refreshResult) {
+                                    RootCompatHelper.WalletRefreshResult.CACHE_CLEARED ->
+                                        getString(R.string.doctor_fix_wallet_success)
+                                    RootCompatHelper.WalletRefreshResult.FORCE_STOPPED_ONLY ->
+                                        getString(R.string.doctor_fix_wallet_success_no_cache_clear)
+                                }
                                 MaterialAlertDialogBuilder(this@ServiceDoctorActivity)
                                     .setTitle(R.string.doctor_check_wallet_integrity)
-                                    .setMessage(R.string.doctor_fix_wallet_success)
+                                    .setMessage(successMsg)
                                     .setPositiveButton(R.string.doctor_action_open_wallet) { _, _ ->
                                         try {
                                             val pm = packageManager
@@ -217,16 +223,22 @@ class ServiceDoctorActivity : AppBarActivity() {
                                         } catch (_: Exception) {}
                                         runDiagnostics()
                                     }
-                                    .setNeutralButton(R.string.doctor_action_clear_gms_cache) { _, _ ->
-                                        try {
-                                            val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                                data = android.net.Uri.parse("package:com.google.android.gms")
+                                    .apply {
+                                        // Only show the GMS settings shortcut when the cache
+                                        // clear didn't run — it's the manual equivalent.
+                                        if (refreshResult == RootCompatHelper.WalletRefreshResult.FORCE_STOPPED_ONLY) {
+                                            setNeutralButton(R.string.doctor_action_clear_gms_cache) { _, _ ->
+                                                try {
+                                                    val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                                        data = android.net.Uri.parse("package:com.google.android.gms")
+                                                    }
+                                                    startActivity(intent)
+                                                } catch (e: Exception) {
+                                                    Timber.w(e, "Could not open GMS settings")
+                                                }
+                                                runDiagnostics()
                                             }
-                                            startActivity(intent)
-                                        } catch (e: Exception) {
-                                            Timber.w(e, "Could not open GMS settings")
                                         }
-                                        runDiagnostics()
                                     }
                                     .show()
                             } else {
