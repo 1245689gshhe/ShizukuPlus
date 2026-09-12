@@ -294,45 +294,53 @@ object RootCompatHelper {
 
     /**
      * Describes what level of Play Integrity refresh was achieved.
-     * Callers use this to show appropriate follow-up messaging.
+     * Callers use this to show appropriate follow-up messaging and recovery options.
      */
     enum class WalletRefreshResult {
         /**
-         * Shizuku ran as root (uid 0) and deleted the GMS DroidGuard/integrity verdict files
-         * directly. Wallet should recover on next launch without any user action.
+         * Shizuku root (uid 0): GMS DroidGuard/integrity verdict files deleted directly.
+         * Wallet should recover on next launch with no further user action needed.
          */
         CACHE_CLEARED_ROOT,
         /**
-         * Shizuku ran as ADB shell (uid 2000). The shell cannot write to GMS's data directory
-         * (owned by GMS's UID; SELinux-enforced), so the verdict cache is still on disk.
-         * GMS's DroidGuard process and Wallet were force-stopped. The cached verdict will expire
-         * on its own TTL (~1 hour typical), or the user can clear GMS data manually for
-         * immediate recovery.
+         * Shizuku ADB shell (uid 2000): GMS data dir is SELinux-protected and unwritable by
+         * shell, so the verdict file is still on disk. Best-effort steps taken:
+         *   1. DroidGuard process (com.google.android.gms.unstable) force-stopped — clears
+         *      in-memory verdict state so GMS must re-read or re-attest on next start.
+         *   2. GMS core force-stopped.
+         *   3. Wallet data cleared (pm clear) — forces Wallet to make a fresh Play Integrity
+         *      API call on next launch rather than re-using its own cached result.
+         *   4. NFC payment component re-asserted — pm clear on Wallet doesn't wipe this
+         *      setting, but we write it explicitly as a safeguard.
+         * Wallet may recover immediately (disk verdict can be re-evaluated after a cold
+         * DroidGuard start). If still blocked, the verdict expires on TTL (~1 hour typical)
+         * or the user can clear GMS data for guaranteed immediate recovery.
          */
-        PROCESSES_KILLED_ONLY,
-        /** Shizuku not available. Only Wallet itself was force-stopped. */
+        WALLET_CLEARED_PROCESSES_KILLED,
+        /** Shizuku not available. Only unprivileged Wallet force-stop attempted. */
         FORCE_STOPPED_ONLY,
     }
 
     /**
      * Best-effort Play Integrity verdict refresh after su bridge cleanup.
      *
-     * Why a simple force-stop isn't enough: Play Integrity verdicts are cached in GMS's DATA
-     * directory (not cache dir), owned by GMS's UID and protected by SELinux. A "compromised"
-     * verdict generated while the su bridge was present persists on disk through process restarts
-     * until its TTL expires or the files are deleted. This means:
+     * Play Integrity verdicts live in GMS's DATA directory (not cache), owned by GMS's UID
+     * and guarded by SELinux. A "compromised" verdict from when the su bridge was present
+     * persists through process restarts until its TTL expires or the files are deleted.
      *
-     *  - ADB/shell mode (uid 2000): cannot delete the files. Force-stopping GMS's DroidGuard
-     *    process (com.google.android.gms.unstable) is the best available action; the verdict
-     *    expires on TTL (~1 hour) or via manual GMS data clear.
-     *  - Root mode (uid 0): can delete the verdict files directly. Wallet recovers immediately.
+     * Confirmed no-ops (tested on Android 16, intentionally omitted):
+     *  - `pm clear-cache`: removed from Android 10+, returns "Unknown command" with exit 0.
+     *  - `com.google.android.gms.INITIALIZE` broadcast: result=0, no registered receivers.
      *
-     * Note: `pm clear-cache` was removed in Android 10+; `com.google.android.gms.INITIALIZE`
-     * broadcast has no registered receivers — both are no-ops and intentionally omitted.
+     * What each mode actually does:
+     *  - Root (uid 0): deletes verdict files directly → immediate recovery.
+     *  - ADB shell (uid 2000): clears Wallet data + kills DroidGuard + kills GMS → gives
+     *    Wallet the best chance at a fresh cold-start re-attestation; manual GMS data clear
+     *    available as guaranteed fallback.
+     *  - No Shizuku: unprivileged Wallet force-stop only.
      */
     suspend fun refreshGoogleWalletAttestation(context: Context? = null): WalletRefreshResult = withContext(Dispatchers.IO) {
         if (!isShizukuAvailable()) {
-            // Best effort without Shizuku: kill Wallet only.
             try { Runtime.getRuntime().exec(arrayOf("am", "force-stop", "com.google.android.apps.walletnfcrel")).waitFor() } catch (_: Exception) {}
             return@withContext WalletRefreshResult.FORCE_STOPPED_ONLY
         }
@@ -340,37 +348,56 @@ object RootCompatHelper {
         val shizukuUid = try { Shizuku.getUid() } catch (_: Exception) { -1 }
         val isRoot = shizukuUid == 0
 
+        // Root path: delete verdict files directly.
         val cacheCleared = if (isRoot) clearPlayIntegrityCacheAsRoot() else false
 
-        // Kill the DroidGuard process (com.google.android.gms.unstable) — this is the isolated
-        // process that holds the in-memory verdict state. In root mode this is redundant (files
-        // are gone), but in ADB mode it's the best available action: the verdict is still on disk
-        // but at least the in-memory state is reset.
+        // Kill DroidGuard first (the isolated process holding in-memory verdict state),
+        // then GMS core. Order matters — killing unstable before GMS core prevents GMS
+        // from restarting unstable immediately during its own teardown.
         try {
             ShizukuProcessUtils.runPrivilegedCapture(
                 arrayOf("am", "force-stop", "com.google.android.gms.unstable"),
                 joinTimeoutMs = 1500
             )
         } catch (_: Exception) {}
-
-        // Force-stop the main GMS process and Wallet.
         try {
             ShizukuProcessUtils.runPrivilegedCapture(
                 arrayOf("am", "force-stop", "com.google.android.gms"),
                 joinTimeoutMs = 1500
             )
         } catch (_: Exception) {}
-        try {
-            ShizukuProcessUtils.runPrivilegedCapture(
-                arrayOf("am", "force-stop", "com.google.android.apps.walletnfcrel"),
-                joinTimeoutMs = 1000
-            )
-        } catch (_: Exception) {}
+
+        // ADB-mode extra steps: clear Wallet's own data so it can't replay its cached
+        // integrity result, and re-assert the NFC payment component as a safeguard.
+        // Confirmed via ADB: pm clear on Wallet succeeds as shell uid 2000, and does NOT
+        // wipe nfc_payment_default_component (safe to do without losing tap-to-pay routing).
+        if (!isRoot) {
+            try {
+                ShizukuProcessUtils.runPrivilegedCapture(
+                    arrayOf("pm", "clear", "com.google.android.apps.walletnfcrel"),
+                    joinTimeoutMs = 3000
+                )
+            } catch (_: Exception) {}
+            try {
+                ShizukuProcessUtils.runPrivilegedCapture(
+                    arrayOf("settings", "put", "secure", "nfc_payment_default_component",
+                        "com.google.android.gms/com.google.android.gms.tapandpay.hce.service.TpHceService"),
+                    joinTimeoutMs = 1000
+                )
+            } catch (_: Exception) {}
+        } else {
+            // Root path: also force-stop Wallet after file deletion.
+            try {
+                ShizukuProcessUtils.runPrivilegedCapture(
+                    arrayOf("am", "force-stop", "com.google.android.apps.walletnfcrel"),
+                    joinTimeoutMs = 1000
+                )
+            } catch (_: Exception) {}
+        }
 
         when {
             cacheCleared -> WalletRefreshResult.CACHE_CLEARED_ROOT
-            isShizukuAvailable() -> WalletRefreshResult.PROCESSES_KILLED_ONLY
-            else -> WalletRefreshResult.FORCE_STOPPED_ONLY
+            else -> WalletRefreshResult.WALLET_CLEARED_PROCESSES_KILLED
         }
     }
 

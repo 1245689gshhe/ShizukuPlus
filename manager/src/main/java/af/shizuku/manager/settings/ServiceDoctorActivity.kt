@@ -209,7 +209,7 @@ class ServiceDoctorActivity : AppBarActivity() {
                                 val successMsg = when (refreshResult) {
                                     RootCompatHelper.WalletRefreshResult.CACHE_CLEARED_ROOT ->
                                         getString(R.string.doctor_fix_wallet_success)
-                                    RootCompatHelper.WalletRefreshResult.PROCESSES_KILLED_ONLY ->
+                                    RootCompatHelper.WalletRefreshResult.WALLET_CLEARED_PROCESSES_KILLED ->
                                         getString(R.string.doctor_fix_wallet_success_adb_mode)
                                     RootCompatHelper.WalletRefreshResult.FORCE_STOPPED_ONLY ->
                                         getString(R.string.doctor_fix_wallet_success_no_shizuku)
@@ -226,9 +226,8 @@ class ServiceDoctorActivity : AppBarActivity() {
                                         runDiagnostics()
                                     }
                                     .apply {
-                                        // In ADB/shell mode the verdict cache is still on disk —
-                                        // offer a direct shortcut to GMS storage settings so the
-                                        // user can do a manual data clear for immediate recovery.
+                                        // Show the GMS data clear shortcut whenever root didn't
+                                        // delete the files — it's the guaranteed immediate fallback.
                                         if (refreshResult != RootCompatHelper.WalletRefreshResult.CACHE_CLEARED_ROOT) {
                                             setNeutralButton(R.string.doctor_action_clear_gms_cache) { _, _ ->
                                                 try {
