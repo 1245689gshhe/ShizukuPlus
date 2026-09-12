@@ -207,10 +207,12 @@ class ServiceDoctorActivity : AppBarActivity() {
 
                             if (cleaned) {
                                 val successMsg = when (refreshResult) {
-                                    RootCompatHelper.WalletRefreshResult.CACHE_CLEARED ->
+                                    RootCompatHelper.WalletRefreshResult.CACHE_CLEARED_ROOT ->
                                         getString(R.string.doctor_fix_wallet_success)
+                                    RootCompatHelper.WalletRefreshResult.PROCESSES_KILLED_ONLY ->
+                                        getString(R.string.doctor_fix_wallet_success_adb_mode)
                                     RootCompatHelper.WalletRefreshResult.FORCE_STOPPED_ONLY ->
-                                        getString(R.string.doctor_fix_wallet_success_no_cache_clear)
+                                        getString(R.string.doctor_fix_wallet_success_no_shizuku)
                                 }
                                 MaterialAlertDialogBuilder(this@ServiceDoctorActivity)
                                     .setTitle(R.string.doctor_check_wallet_integrity)
@@ -224,9 +226,10 @@ class ServiceDoctorActivity : AppBarActivity() {
                                         runDiagnostics()
                                     }
                                     .apply {
-                                        // Only show the GMS settings shortcut when the cache
-                                        // clear didn't run — it's the manual equivalent.
-                                        if (refreshResult == RootCompatHelper.WalletRefreshResult.FORCE_STOPPED_ONLY) {
+                                        // In ADB/shell mode the verdict cache is still on disk —
+                                        // offer a direct shortcut to GMS storage settings so the
+                                        // user can do a manual data clear for immediate recovery.
+                                        if (refreshResult != RootCompatHelper.WalletRefreshResult.CACHE_CLEARED_ROOT) {
                                             setNeutralButton(R.string.doctor_action_clear_gms_cache) { _, _ ->
                                                 try {
                                                     val intent = Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
