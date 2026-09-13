@@ -145,9 +145,10 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
         }
         // Fallback: pm list packages -d lists only disabled packages
         return try {
-            Runtime.getRuntime().exec(arrayOf("pm", "list", "packages", "-d", packageName))
-                .inputStream.bufferedReader().use { it.readText() }
-                .contains(packageName)
+            val proc = Runtime.getRuntime().exec(arrayOf("pm", "list", "packages", "-d", packageName))
+            val text = proc.inputStream.bufferedReader().use { it.readText() }
+            proc.waitFor()
+            text.contains(packageName)
         } catch (e: Exception) { false }
     }
 
@@ -201,8 +202,10 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
         }
         // Fallback: ps -A (may be blocked by SELinux on Samsung OneUI 8)
         return try {
-            Runtime.getRuntime().exec(arrayOf("ps", "-A", "-o", "NAME,RSS,PID"))
-                .inputStream.bufferedReader().use { it.readLines() }
+            val proc = Runtime.getRuntime().exec(arrayOf("ps", "-A", "-o", "NAME,RSS,PID"))
+            val lines = proc.inputStream.bufferedReader().use { it.readLines() }
+            proc.waitFor()
+            lines
         } catch (e: Exception) {
             emptyList()
         }
