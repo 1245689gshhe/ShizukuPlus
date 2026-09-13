@@ -86,6 +86,7 @@ object CrashReporter {
                         sb.append(line).append("\n")
                     }
                 }
+                process.waitFor()
             } finally {
                 process.destroy()
             }
