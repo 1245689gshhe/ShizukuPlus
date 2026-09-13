@@ -292,7 +292,14 @@ class ServiceDoctorActivity : AppBarActivity() {
                 getString(R.string.doctor_status_manual_check),
                 false
             ))
+            checks.add(DoctorCheck(
+                getString(R.string.doctor_check_oppo_battery),
+                getString(R.string.doctor_status_oppo_battery_unknown),
+                false,
+                onFix = { SettingsPage.Oppo.BatterySettings.launch(this) }
+            ))
             tips.add("• " + getString(R.string.doctor_tip_oppo_permission))
+            tips.add("• " + getString(R.string.doctor_tip_oppo_battery))
         }
 
         // 6c. TCL Device Polish

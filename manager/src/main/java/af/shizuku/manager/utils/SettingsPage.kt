@@ -212,6 +212,47 @@ sealed class SettingsPage(
         }
     }
 
+    object Oppo {
+        /** Opens ColorOS/OxygenOS per-app battery settings (Auto-Launch + No restrictions toggle). */
+        object BatterySettings : SettingsPage(Settings.ACTION_APPLICATION_DETAILS_SETTINGS) {
+            override fun buildIntent(context: Context): Intent {
+                return super.buildIntent(context).apply {
+                    data = android.net.Uri.parse("package:${context.packageName}")
+                }
+            }
+            override fun launch(context: Context) {
+                runCatching {
+                    // ColorOS 14+ / OplusOS — per-app battery optimization page
+                    val intent = Intent().apply {
+                        setClassName("com.oplus.battery", "com.oplus.battery.ui.app_manage.AppPowerManagerActivity")
+                        putExtra("package_name", context.packageName)
+                        flags = defaultFlags
+                    }
+                    context.startActivity(intent)
+                }.recoverCatching {
+                    // ColorOS 13 / older — PhoneManager per-app battery page
+                    val intent = Intent().apply {
+                        setClassName("com.coloros.phonemanager", "com.coloros.phonemanager.feature.battery.PerAppBatteryPowerActivity")
+                        putExtra("package_name", context.packageName)
+                        flags = defaultFlags
+                    }
+                    context.startActivity(intent)
+                }.recoverCatching {
+                    // Older ColorOS action string
+                    val intent = Intent("com.coloros.powermanager.action.APP_POWER_MANAGER").apply {
+                        flags = defaultFlags
+                    }
+                    context.startActivity(intent)
+                }.recoverCatching {
+                    // Last resort: standard app-details page
+                    super.launch(context)
+                }.onFailure { e ->
+                    Timber.tag("SettingsUtils").w("Failed to open Oppo/OnePlus battery settings: ${e.message}")
+                }
+            }
+        }
+    }
+
     object Xiaomi {
         /** Opens MIUI/HyperOS per-app battery settings (No restrictions toggle + Autostart). */
         object BatterySettings : SettingsPage(Settings.ACTION_APPLICATION_DETAILS_SETTINGS) {
