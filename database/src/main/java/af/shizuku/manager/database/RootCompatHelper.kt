@@ -3,8 +3,8 @@ package af.shizuku.manager.database
 import android.content.Context
 import android.content.pm.PackageManager
 import com.google.android.gms.tasks.Tasks
-import com.google.android.play.integrity.IntegrityManagerFactory
-import com.google.android.play.integrity.IntegrityTokenRequest
+import com.google.android.play.core.integrity.IntegrityManagerFactory
+import com.google.android.play.core.integrity.IntegrityTokenRequest
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.TimeUnit
@@ -510,7 +510,7 @@ object RootCompatHelper {
     private fun attemptPlayIntegrityWarmup(context: Context): Boolean {
         return try {
             val manager = IntegrityManagerFactory.create(context)
-            val request = IntegrityTokenRequest.newBuilder()
+            val request = IntegrityTokenRequest.builder()
                 .setNonce(UUID.randomUUID().toString())
                 .build()
             Tasks.await(manager.requestIntegrityToken(request), 5, TimeUnit.SECONDS)
