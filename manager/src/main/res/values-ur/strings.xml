@@ -138,7 +138,6 @@
     <string name="doctor_tips_title">مسائل حل کرنے کے طریقے</string>
     <string name="doctor_status_manual_check">دستی جانچ درکار ہے</string>
     <string name="doctor_status_detected">پتہ چل گیا</string>
-    <string name="doctor_status_review">جائزہ درکار ہے</string>
     <string name="doctor_tip_samsung_autoblocker"><![CDATA[<b>Samsung Auto Blocker</b>: یقینی بنائیں کہ یہ <b>OFF</b> ہے یا <b>Maximum Restrictions</b> غیر فعال ہے۔ یہ One UI 7/8+ پر ADB کمانڈز کو خاموشی سے بلاک کرتا ہے۔]]></string>
     <string name="doctor_tip_oneui_connectivity"><![CDATA[<b>One UI 7/8 Connectivity</b>: اگر Wireless Pairing ناکام ہو تو Shizuku اور Developer Options کو بیک وقت کھلا رکھنے کے لیے <b>Split Screen mode</b> آزمائیں۔]]></string>
     <string name="doctor_tip_s22_ultra"><![CDATA[<b>S22 Ultra Tip</b>: مستحکم ADB کے لیے dial `*#0808#` کریں اور اگر کنکشن بار بار ٹوٹے تو `MTP + ADB` منتخب کریں۔]]></string>

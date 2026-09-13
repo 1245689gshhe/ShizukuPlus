@@ -140,7 +140,6 @@
     <string name="doctor_tips_title">Dicas de Solução de Problemas</string>
     <string name="doctor_status_manual_check">Requer Verificação Manual</string>
     <string name="doctor_status_detected">Detectado</string>
-    <string name="doctor_status_review">Revisão necessária</string>
     <string name="doctor_tip_samsung_autoblocker"><b>Bloqueador Automático Samsung</b>: Certifique-se de que esteja <b>DESATIVADO</b> ou que "Restrições Máximas" esteja desativado. Ele bloqueia silenciosamente comandos ADB no One UI 7/8+.</string>
     <string name="doctor_tip_oneui_connectivity"><b>Conectividade One UI 7/8</b>: Se o Pareamento sem Fio falhar, tente usar o modo de <b>Tela Dividida</b> com o Shizuku e as Opções do Desenvolvedor abertos simultaneamente.</string>
     <string name="doctor_tip_s22_ultra"><b>Dica para o S22 Ultra</b>: Para um ADB consistente, disque `*#0808#` e selecione `MTP + ADB` caso ocorram quedas de conexão.</string>

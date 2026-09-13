@@ -164,7 +164,6 @@
     <string name="doctor_tips_title">Troubleshooting Tips</string>
     <string name="doctor_status_manual_check">Needs Manual Check</string>
     <string name="doctor_status_detected">Detected</string>
-    <string name="doctor_status_review">Review required</string>
     <string name="doctor_status_fix_available">Fix Available</string>
     <string name="doctor_status_autoblocker_on">Enabled (Turn OFF)</string>
     <string name="doctor_status_samsung_max_restrictions_on">Enabled (Must be OFF)</string>
