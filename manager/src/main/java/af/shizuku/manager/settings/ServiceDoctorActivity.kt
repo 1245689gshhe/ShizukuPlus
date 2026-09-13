@@ -306,6 +306,12 @@ class ServiceDoctorActivity : AppBarActivity() {
 
         // 6c. TCL Device Polish
         if (EnvironmentUtils.isTCL()) {
+            checks.add(DoctorCheck(
+                getString(R.string.doctor_check_tcl_autostart),
+                getString(R.string.doctor_status_tcl_autostart_unknown),
+                false,
+                onFix = { SettingsPage.TCL.AutoStart.launch(this) }
+            ))
             tips.add("• " + getString(R.string.doctor_tip_tcl_background))
         }
 

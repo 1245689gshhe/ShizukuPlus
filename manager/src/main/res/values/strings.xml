@@ -686,6 +686,8 @@
     <string name="doctor_check_oppo_battery">ColorOS/OxygenOS Auto-Launch</string>
     <string name="doctor_status_oppo_battery_unknown">Enable Auto-Launch to keep service alive</string>
     <string name="doctor_tip_oppo_battery"><b>ColorOS Auto-Launch</b>: Tap Fix to open battery settings. Enable <b>Auto-Launch</b> and set Shizuku+ to <b>No restrictions</b> to prevent ColorOS from killing the background service.</string>
+    <string name="doctor_check_tcl_autostart">TCL Auto-Start</string>
+    <string name="doctor_status_tcl_autostart_unknown">Add to Auto-Start allowlist</string>
     <string name="doctor_tip_tcl_background">TCL: Ensure Shizuku+ is added to "Auto-start" and "High background power consumption" allowlists in Settings.</string>
     <string name="doctor_tip_battery">Disable battery optimization for Shizuku+ to prevent it from being killed in the background.</string>
     <string name="doctor_tip_adb">Wireless debugging must be active for Shizuku+ to start in non-root mode after a reboot.</string>

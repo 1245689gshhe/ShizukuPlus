@@ -253,6 +253,39 @@ sealed class SettingsPage(
         }
     }
 
+    object TCL {
+        /** Opens TCL System Manager's Auto-Start / battery whitelist screen. */
+        object AutoStart : SettingsPage(Settings.ACTION_APPLICATION_DETAILS_SETTINGS) {
+            override fun buildIntent(context: Context): Intent {
+                return super.buildIntent(context).apply {
+                    data = android.net.Uri.parse("package:${context.packageName}")
+                }
+            }
+            override fun launch(context: Context) {
+                runCatching {
+                    // TCL System Manager — Auto-start list (T1 / NxtPaper / Revvl)
+                    val intent = Intent().apply {
+                        setClassName("com.tcl.systemmanager", "com.tcl.systemmanager.ui.autorun.AutoRunActivity")
+                        flags = defaultFlags
+                    }
+                    context.startActivity(intent)
+                }.recoverCatching {
+                    // Older TCL path
+                    val intent = Intent().apply {
+                        setClassName("com.tcl.systemmanager", "com.tcl.systemmanager.MainActivity")
+                        flags = defaultFlags
+                    }
+                    context.startActivity(intent)
+                }.recoverCatching {
+                    // Last resort: standard app-details page
+                    super.launch(context)
+                }.onFailure { e ->
+                    Timber.tag("SettingsUtils").w("Failed to open TCL auto-start settings: ${e.message}")
+                }
+            }
+        }
+    }
+
     object Xiaomi {
         /** Opens MIUI/HyperOS per-app battery settings (No restrictions toggle + Autostart). */
         object BatterySettings : SettingsPage(Settings.ACTION_APPLICATION_DETAILS_SETTINGS) {
