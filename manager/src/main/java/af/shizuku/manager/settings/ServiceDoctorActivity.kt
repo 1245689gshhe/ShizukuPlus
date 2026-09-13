@@ -139,7 +139,7 @@ class ServiceDoctorActivity : AppBarActivity() {
         // 5b. Accessibility (for AI automation features)
         val isAccessibilityEnabled = SettingsHelper.isAccessibilityServiceEnabled(this, AdbPairingAccessibilityService::class.java)
         checks.add(DoctorCheck(
-            "Accessibility Service",
+            getString(R.string.doctor_check_accessibility),
             if (isAccessibilityEnabled) getString(R.string.doctor_status_ok) else getString(R.string.doctor_status_not_enabled),
             isAccessibilityEnabled,
             onFix = if (!isAccessibilityEnabled) { { SettingsPage.Accessibility.launch(this) } } else null
@@ -149,7 +149,7 @@ class ServiceDoctorActivity : AppBarActivity() {
         val isHardeningActive = isIgnoring && hasSecureSettings
         checks.add(DoctorCheck(
             getString(R.string.doctor_check_device_hardening),
-            if (isHardeningActive) getString(R.string.doctor_status_ok) else "Fix Available",
+            if (isHardeningActive) getString(R.string.doctor_status_ok) else getString(R.string.doctor_status_fix_available),
             isHardeningActive,
             onFix = if (!isHardeningActive) { {
                 serviceScope.launch {
@@ -321,7 +321,7 @@ class ServiceDoctorActivity : AppBarActivity() {
             val isAutoBlockerOff = SettingsHelper.isSamsungAutoBlockerDisabled(this)
             checks.add(DoctorCheck(
                 getString(R.string.doctor_check_samsung_autoblocker),
-                if (isAutoBlockerOff) getString(R.string.doctor_status_ok) else "Enabled (Turn OFF)",
+                if (isAutoBlockerOff) getString(R.string.doctor_status_ok) else getString(R.string.doctor_status_autoblocker_on),
                 isAutoBlockerOff,
                 onFix = if (!isAutoBlockerOff || oneUi >= 6) { { SettingsPage.Samsung.AutoBlocker.launch(this) } } else null
             ))
@@ -330,8 +330,8 @@ class ServiceDoctorActivity : AppBarActivity() {
             if (oneUi >= 8) {
                 val isMaxRestrictionsOff = SettingsHelper.isSamsungMaxRestrictionsDisabled(this)
                 checks.add(DoctorCheck(
-                    "Maximum Restrictions (One UI 8)",
-                    if (isMaxRestrictionsOff) getString(R.string.doctor_status_ok) else "Enabled (Must be OFF)",
+                    getString(R.string.doctor_check_samsung_max_restrictions),
+                    if (isMaxRestrictionsOff) getString(R.string.doctor_status_ok) else getString(R.string.doctor_status_samsung_max_restrictions_on),
                     isMaxRestrictionsOff,
                     onFix = if (!isMaxRestrictionsOff) { { SettingsPage.Samsung.AutoBlocker.launch(this) } } else null
                 ))
@@ -345,7 +345,7 @@ class ServiceDoctorActivity : AppBarActivity() {
             // process because the freeze kills it too).
             checks.add(DoctorCheck(
                 getString(R.string.doctor_check_samsung_battery_protection),
-                getString(R.string.doctor_status_review) + " (Check Sleeping Apps)",
+                getString(R.string.doctor_status_samsung_sleeping_apps),
                 false,
                 onFix = { SettingsPage.Samsung.BackgroundUsageLimits.launch(this) }
             ))
@@ -353,7 +353,7 @@ class ServiceDoctorActivity : AppBarActivity() {
             if (oneUi >= 6) {
                 tips.add("• " + getString(R.string.doctor_tip_samsung_autoblocker))
                 if (oneUi >= 8) {
-                    tips.add("• One UI 8: 'Maximum Restrictions' in Auto Blocker disables ADB. Turn it off to use Shizuku.")
+                    tips.add("• " + getString(R.string.doctor_tip_oneui8_max_restrictions))
                 }
                 tips.add("• " + getString(R.string.doctor_tip_oneui_connectivity))
                 tips.add("• " + getString(R.string.doctor_tip_s22_ultra))
@@ -379,17 +379,16 @@ class ServiceDoctorActivity : AppBarActivity() {
             if (isAdbMode) {
                 val hasExportedPath = af.shizuku.manager.ShizukuSettings.getExportDirUri() != null
                 checks.add(DoctorCheck(
-                    "SU Bridge (Android 16+ ADB)",
-                    if (hasExportedPath) getString(R.string.doctor_status_ok) + " — exported path set"
-                    else "Exported path not configured",
+                    getString(R.string.doctor_check_su_bridge_a16),
+                    if (hasExportedPath) getString(R.string.doctor_status_ok) + " — " + getString(R.string.doctor_status_su_bridge_path_set)
+                    else getString(R.string.doctor_status_su_bridge_no_path),
                     hasExportedPath,
                     onFix = if (!hasExportedPath) { {
                         startActivity(android.content.Intent(this, RootCompatibilityActivity::class.java))
                     } } else null
                 ))
                 if (!hasExportedPath) {
-                    tips.add("• Android 16+ restricts /data/local/tmp writes from the ADB shell. " +
-                        "Open the Root Compat Hub and tap \"Export\" to set a SU Bridge path that works on your device.")
+                    tips.add("• " + getString(R.string.doctor_tip_su_bridge_a16))
                 }
             }
         }

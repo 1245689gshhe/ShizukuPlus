@@ -154,14 +154,25 @@
     <!-- Service Doctor -->
     <string name="snackbar_samsung_auto_blocker">Samsung Auto Blocker may block ADB on One UI 7/8. Check Security settings.</string>
     <string name="snackbar_action_check">Check</string>
+    <string name="doctor_check_accessibility">ADB Pairing Accessibility Service</string>
     <string name="doctor_check_samsung_autoblocker">Samsung Auto Blocker</string>
     <string name="doctor_check_samsung_battery_protection">Samsung Battery Protection</string>
+    <string name="doctor_check_samsung_max_restrictions">Maximum Restrictions (One UI 8+)</string>
     <string name="doctor_check_secondary_user">Secondary User / Secure Folder</string>
     <string name="doctor_check_phantom_process">Phantom Process Killer</string>
+    <string name="doctor_check_su_bridge_a16">SU Bridge (Android 16+ ADB)</string>
     <string name="doctor_tips_title">Troubleshooting Tips</string>
     <string name="doctor_status_manual_check">Needs Manual Check</string>
     <string name="doctor_status_detected">Detected</string>
     <string name="doctor_status_review">Review required</string>
+    <string name="doctor_status_fix_available">Fix Available</string>
+    <string name="doctor_status_autoblocker_on">Enabled (Turn OFF)</string>
+    <string name="doctor_status_samsung_max_restrictions_on">Enabled (Must be OFF)</string>
+    <string name="doctor_status_samsung_sleeping_apps">Review required (Check Sleeping Apps)</string>
+    <string name="doctor_status_su_bridge_path_set">exported path set</string>
+    <string name="doctor_status_su_bridge_no_path">Exported path not configured</string>
+    <string name="doctor_tip_oneui8_max_restrictions">One UI 8+: \'Maximum Restrictions\' in Auto Blocker disables ADB. Turn it off to use Shizuku.</string>
+    <string name="doctor_tip_su_bridge_a16">Android 16+ restricts /data/local/tmp writes from the ADB shell. Open the Root Compat Hub and tap \"Export\" to set a SU Bridge path that works on your device.</string>
     <string name="doctor_tip_samsung_autoblocker"><b>Samsung Auto Blocker</b>: Ensure it is turned <b>OFF</b> or that \'Maximum Restrictions\' is disabled. It silently blocks ADB commands on One UI 7/8+.</string>
     <string name="doctor_tip_oneui_connectivity"><b>One UI 7/8 Connectivity</b>: If Wireless Pairing fails, try using <b>Split Screen mode</b> with Shizuku+ and Developer Options open simultaneously.</string>
     <string name="doctor_tip_s22_ultra"><b>S22 Ultra Tip</b>: For consistent ADB, dial `*#0808#` and select `MTP + ADB` if you encounter connection drops.</string>
