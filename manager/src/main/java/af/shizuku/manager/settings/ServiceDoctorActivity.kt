@@ -266,14 +266,23 @@ class ServiceDoctorActivity : AppBarActivity() {
             tips.add("• " + getString(R.string.doctor_tip_wallet_integrity))
         }
 
-        // 6. Xiaomi Restricted ADB
+        // 6. Xiaomi Restricted ADB + HyperOS background kill
         if (EnvironmentUtils.isXiaomi()) {
             checks.add(DoctorCheck(
                 getString(R.string.doctor_check_permission, ""),
                 getString(R.string.doctor_status_limited),
                 false
             ))
+            // HyperOS kills background processes at the Doze interval unless the app has
+            // "No restrictions" set in PowerKeeper. Provide a direct deep-link to that page.
+            checks.add(DoctorCheck(
+                getString(R.string.doctor_check_xiaomi_autostart),
+                getString(R.string.doctor_status_xiaomi_autostart_unknown),
+                false,
+                onFix = { SettingsPage.Xiaomi.BatterySettings.launch(this) }
+            ))
             tips.add("• " + getString(R.string.doctor_tip_xiaomi))
+            tips.add("• " + getString(R.string.doctor_tip_xiaomi_battery))
         }
 
         // 6b. Oppo/OnePlus Restricted ADB (ColorOS/OxygenOS)

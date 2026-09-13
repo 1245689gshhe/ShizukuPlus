@@ -212,6 +212,42 @@ sealed class SettingsPage(
         }
     }
 
+    object Xiaomi {
+        /** Opens MIUI/HyperOS per-app battery settings (No restrictions toggle + Autostart). */
+        object BatterySettings : SettingsPage(Settings.ACTION_APPLICATION_DETAILS_SETTINGS) {
+            override fun buildIntent(context: Context): Intent {
+                return super.buildIntent(context).apply {
+                    data = android.net.Uri.parse("package:${context.packageName}")
+                }
+            }
+            override fun launch(context: Context) {
+                runCatching {
+                    // HyperOS PowerKeeper — direct per-app battery page (most specific)
+                    val intent = Intent().apply {
+                        setClassName("com.miui.powerkeeper", "com.miui.powerkeeper.ui.HoldApplicationsDetailActivity")
+                        putExtra("package_name", context.packageName)
+                        putExtra("package_label", context.getString(af.shizuku.manager.R.string.app_name))
+                        flags = defaultFlags
+                    }
+                    context.startActivity(intent)
+                }.recoverCatching {
+                    // MIUI Security Center — Autostart + battery page fallback
+                    val intent = Intent("miui.intent.action.APP_PERM_EDITOR").apply {
+                        setClassName("com.miui.securitycenter", "com.miui.permcenter.permissions.AppPermissionsEditorActivity")
+                        putExtra("extra_pkgname", context.packageName)
+                        flags = defaultFlags
+                    }
+                    context.startActivity(intent)
+                }.recoverCatching {
+                    // Standard app-details page — user can navigate to Battery manually
+                    super.launch(context)
+                }.onFailure { e ->
+                    Timber.tag("SettingsUtils").w("Failed to open Xiaomi battery settings: ${e.message}")
+                }
+            }
+        }
+    }
+
     protected val defaultFlags =
         Intent.FLAG_ACTIVITY_NEW_TASK or
         Intent.FLAG_ACTIVITY_NO_HISTORY or

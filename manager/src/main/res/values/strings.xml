@@ -676,6 +676,10 @@
     <string name="doctor_status_unlocked">Unlocked</string>
     <string name="doctor_status_restricted_bg">Restricted background execution</string>
     <string name="doctor_tip_xiaomi">Xiaomi/HyperOS: Enable "USB Debugging (Security Settings)" in Developer Options.</string>
+    <string name="doctor_check_xiaomi_autostart">Xiaomi/HyperOS Autostart</string>
+    <string name="doctor_status_xiaomi_autostart_unknown">Grant Autostart to keep service alive</string>
+    <string name="doctor_tip_xiaomi_autostart"><b>HyperOS Autostart</b>: Tap Fix to open MIUI/HyperOS battery settings. Set Shizuku+ to <b>No restrictions</b> and enable <b>Autostart</b> to prevent the OS from killing the background service.</string>
+    <string name="doctor_tip_xiaomi_battery"><b>HyperOS Battery</b>: Open Battery settings and set Shizuku+ to <b>No restrictions</b>. HyperOS kills background processes at its Doze interval (~30 min) unless this is set.</string>
     <string name="doctor_tip_oppo_permission">Oppo/Realme/OnePlus: Disable "Permission Monitoring" in Developer Options to prevent background service kills.</string>
     <string name="doctor_tip_tcl_background">TCL: Ensure Shizuku+ is added to "Auto-start" and "High background power consumption" allowlists in Settings.</string>
     <string name="doctor_tip_battery">Disable battery optimization for Shizuku+ to prevent it from being killed in the background.</string>
