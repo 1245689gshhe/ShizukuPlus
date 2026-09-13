@@ -80,10 +80,14 @@ object CrashReporter {
         sb.append("```text\n")
         try {
             val process = Runtime.getRuntime().exec(arrayOf("logcat", "-d", "-v", "time", "-t", "300"))
-            process.inputStream.bufferedReader().use { reader ->
-                reader.forEachLine { line ->
-                    sb.append(line).append("\n")
+            try {
+                process.inputStream.bufferedReader().use { reader ->
+                    reader.forEachLine { line ->
+                        sb.append(line).append("\n")
+                    }
                 }
+            } finally {
+                process.destroy()
             }
         } catch (e: Exception) {
             sb.append("Failed to capture logcat: ").append(e.message).append("\n")
