@@ -3,8 +3,8 @@ package af.shizuku.manager.database
 import android.content.Context
 import android.content.pm.PackageManager
 import com.google.android.gms.tasks.Tasks
-import com.google.android.play.core.integrity.IntegrityManagerFactory
-import com.google.android.play.core.integrity.IntegrityTokenRequest
+import com.google.android.play.integrity.IntegrityManagerFactory
+import com.google.android.play.integrity.IntegrityTokenRequest
 import java.io.File
 import java.util.UUID
 import java.util.concurrent.TimeUnit
