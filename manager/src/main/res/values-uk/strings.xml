@@ -643,7 +643,6 @@
     <string name="doctor_status_ok">ОК</string>
     <string name="doctor_status_running">Працює</string>
     <string name="doctor_status_stopped">Зупинено</string>
-    <string name="doctor_status_limited">Обмежено (ADB з обмеженнями)</string>
     <string name="doctor_status_restricted">Обмежено (Системна оптимізація увімкнена)</string>
     <string name="doctor_status_not_enabled">Не увімкнено</string>
     <string name="doctor_status_optimized">Оптимізовано (Може вбити службу)</string>

@@ -643,7 +643,6 @@ Execute este comando no PC (a depuração USB deve estar ativada):
     <string name="doctor_status_ok">OK</string>
     <string name="doctor_status_running">Em execução</string>
     <string name="doctor_status_stopped">Parado</string>
-    <string name="doctor_status_limited">Limitado (ADB Restrito)</string>
     <string name="doctor_status_restricted">Restrito (Otimização do sistema ativada)</string>
     <string name="doctor_status_not_enabled">Não ativado</string>
     <string name="doctor_status_optimized">Otimizado (Pode encerrar o serviço)</string>

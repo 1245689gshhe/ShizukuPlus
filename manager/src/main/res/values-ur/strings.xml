@@ -621,7 +621,6 @@
     <string name="doctor_status_ok">ٹھیک ہے</string>
     <string name="doctor_status_running">چل رہا ہے</string>
     <string name="doctor_status_stopped">بند ہے</string>
-    <string name="doctor_status_limited">محدود (Restricted ADB)</string>
     <string name="doctor_status_restricted">محدود (System optimization فعال)</string>
     <string name="doctor_status_not_enabled">فعال نہیں</string>
     <string name="doctor_status_optimized">Optimized (سروس بند ہو سکتی ہے)</string>
