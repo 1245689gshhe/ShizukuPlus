@@ -14,6 +14,7 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import kotlinx.coroutines.CoroutineScope
@@ -512,8 +513,14 @@ class ServiceDoctorActivity : AppBarActivity() {
         private var items = emptyList<DoctorCheck>()
 
         fun submitList(newItems: List<DoctorCheck>) {
+            val diff = DiffUtil.calculateDiff(object : DiffUtil.Callback() {
+                override fun getOldListSize() = items.size
+                override fun getNewListSize() = newItems.size
+                override fun areItemsTheSame(o: Int, n: Int) = items[o].title == newItems[n].title
+                override fun areContentsTheSame(o: Int, n: Int) = items[o] == newItems[n]
+            })
             items = newItems
-            notifyDataSetChanged()
+            diff.dispatchUpdatesTo(this)
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CheckViewHolder {
