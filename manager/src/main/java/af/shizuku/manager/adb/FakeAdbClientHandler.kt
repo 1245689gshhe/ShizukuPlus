@@ -1,9 +1,7 @@
 package af.shizuku.manager.adb
 
 import android.content.Context
-import android.content.Intent
 import android.content.SharedPreferences
-import android.util.Base64
 import rikka.shizuku.Shizuku
 import rikka.shizuku.ShizukuRemoteProcess
 import timber.log.Timber
@@ -11,7 +9,6 @@ import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.Socket
 import java.security.Signature
-import java.security.interfaces.RSAPublicKey
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
