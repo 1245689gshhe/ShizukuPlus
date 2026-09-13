@@ -284,7 +284,8 @@ class PrivilegedDataSourceImpl : IPrivilegedDataSource.Stub() {
         try {
             val binder = ServiceManager.getService("iphonesubinfo") ?: error("no iphonesubinfo")
             val subInfo = Class.forName("com.android.internal.telephony.IPhoneSubInfo\$Stub")
-                .getDeclaredMethod("asInterface", IBinder::class.java).invoke(null, binder)!!
+                .getDeclaredMethod("asInterface", IBinder::class.java).invoke(null, binder)
+                ?: error("asInterface returned null")
             // getImei (API 29+: getImei(slotIndex, pkg); API 22-28: getDeviceId(pkg))
             val imei = subInfo.javaClass.methods.firstNotNullOfOrNull { m ->
                 if (m.name != "getImei" && m.name != "getDeviceId") return@firstNotNullOfOrNull null
