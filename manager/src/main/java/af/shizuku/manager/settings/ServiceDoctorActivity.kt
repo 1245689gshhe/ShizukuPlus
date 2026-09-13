@@ -25,6 +25,7 @@ import kotlinx.coroutines.withContext
 import af.shizuku.manager.R
 import af.shizuku.manager.ktx.themeColor
 import af.shizuku.manager.adb.AdbPairingAccessibilityService
+import af.shizuku.manager.adb.LocalNetworkPermission
 import af.shizuku.core.ui.AppBarActivity
 import af.shizuku.manager.databinding.ActivityServiceDoctorBinding
 import af.shizuku.manager.databinding.ItemDoctorCheckBinding
@@ -45,6 +46,10 @@ class ServiceDoctorActivity : AppBarActivity() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     private val batteryOptimizationListener = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        runDiagnostics()
+    }
+
+    private val localNetworkPermissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) {
         runDiagnostics()
     }
 
@@ -110,6 +115,24 @@ class ServiceDoctorActivity : AppBarActivity() {
             adbOk
         ))
         if (!adbOk && !EnvironmentUtils.isRooted()) tips.add("• " + getString(R.string.doctor_tip_adb))
+
+        // 2b. Local Network Permission (Android 16+ / 17+)
+        // ACCESS_LOCAL_NETWORK (API 37) and NEARBY_WIFI_DEVICES (API 36) gate mDNS discovery of
+        // the wireless-debugging service. Without them Shizuku silently fails to start in ADB mode.
+        if (Build.VERSION.SDK_INT >= 36) {
+            val lnpGranted = LocalNetworkPermission.granted(this)
+            val lnpPermName = if (Build.VERSION.SDK_INT >= 37) "ACCESS_LOCAL_NETWORK" else "NEARBY_WIFI_DEVICES"
+            checks.add(DoctorCheck(
+                getString(R.string.doctor_check_local_network),
+                if (lnpGranted) getString(R.string.doctor_status_ok) else getString(R.string.doctor_status_not_enabled),
+                lnpGranted,
+                onFix = if (!lnpGranted) { {
+                    val perm = LocalNetworkPermission.required()
+                    if (perm != null) localNetworkPermissionLauncher.launch(perm)
+                } } else null
+            ))
+            if (!lnpGranted) tips.add("• " + getString(R.string.doctor_tip_local_network, lnpPermName))
+        }
 
         // 3. Root
         val isRooted = EnvironmentUtils.isRooted()
