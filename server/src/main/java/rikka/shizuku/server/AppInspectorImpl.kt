@@ -31,7 +31,10 @@ class AppInspectorImpl : IAppInspector.Stub() {
     }
 
     private fun execOutput(vararg args: String): String = try {
-        Runtime.getRuntime().exec(args).inputStream.bufferedReader().readText().trim()
+        val proc = Runtime.getRuntime().exec(args)
+        val out = proc.inputStream.bufferedReader().use { it.readText() }
+        proc.waitFor()
+        out.trim()
     } catch (_: Exception) { "" }
 
     private fun pipeProcess(vararg args: String): ParcelFileDescriptor? = try {
