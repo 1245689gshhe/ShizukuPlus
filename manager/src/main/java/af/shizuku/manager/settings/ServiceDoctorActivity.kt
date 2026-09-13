@@ -416,13 +416,17 @@ class ServiceDoctorActivity : AppBarActivity() {
             }
         }
 
-        // 9. Background Limits (Android 14+)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+        // 9. Background Limits (Android 9+ — isBackgroundRestricted() available since API 28)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            val am = getSystemService(android.app.ActivityManager::class.java)
+            val isRestricted = am?.isBackgroundRestricted == true
             checks.add(DoctorCheck(
                 getString(R.string.doctor_check_background),
-                getString(R.string.doctor_status_ok),
-                true
+                if (isRestricted) getString(R.string.doctor_status_optimized) else getString(R.string.doctor_status_ok),
+                !isRestricted,
+                onFix = if (isRestricted) { { SettingsHelper.requestIgnoreBatteryOptimizations(this, batteryOptimizationListener) } } else null
             ))
+            if (isRestricted) tips.add("• " + getString(R.string.doctor_tip_background_restricted))
         }
 
         // 10. Phantom Process Killer (Android 12+)
