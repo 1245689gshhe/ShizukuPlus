@@ -269,9 +269,10 @@ class ServiceDoctorActivity : AppBarActivity() {
         // 6. Xiaomi Restricted ADB + HyperOS background kill
         if (EnvironmentUtils.isXiaomi()) {
             checks.add(DoctorCheck(
-                getString(R.string.doctor_check_permission, ""),
-                getString(R.string.doctor_status_limited),
-                false
+                getString(R.string.doctor_check_xiaomi_adb),
+                getString(R.string.doctor_status_xiaomi_adb_unknown),
+                false,
+                onFix = { SettingsPage.Developer.Options.launch(this) }
             ))
             // HyperOS kills background processes at the Doze interval unless the app has
             // "No restrictions" set in PowerKeeper. Provide a direct deep-link to that page.
@@ -288,9 +289,10 @@ class ServiceDoctorActivity : AppBarActivity() {
         // 6b. Oppo/OnePlus Restricted ADB (ColorOS/OxygenOS)
         if (EnvironmentUtils.isOppo() || EnvironmentUtils.isOnePlus()) {
             checks.add(DoctorCheck(
-                getString(R.string.doctor_check_permission, ""),
+                getString(R.string.doctor_check_oppo_permission),
                 getString(R.string.doctor_status_manual_check),
-                false
+                false,
+                onFix = { SettingsPage.Developer.Options.launch(this) }
             ))
             checks.add(DoctorCheck(
                 getString(R.string.doctor_check_oppo_battery),
