@@ -2600,8 +2600,11 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
             if (isManager) {
                 extra.putParcelable("af.shizuku.plus.api.intent.extra.BINDER", new af.shizuku.api.BinderContainer(binder));
-                extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
             }
+            // rikka key sent to all apps — required for stock Shizuku API clients (dropin) whose
+            // ShizukuProvider only checks "rikka.shizuku.intent.extra.BINDER". Consumer ProGuard
+            // rules now keep rikka.shizuku.BinderContainer so ProGuard-enabled apps won't strip it.
+            extra.putParcelable("rikka.shizuku.intent.extra.BINDER", new rikka.shizuku.BinderContainer(binder));
             extra.putParcelable("moe.shizuku.privileged.api.intent.extra.BINDER", new moe.shizuku.api.BinderContainer(binder));
             extra.putBinder("binder", binder);
 
