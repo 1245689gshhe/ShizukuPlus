@@ -595,14 +595,14 @@ class PrivilegedDataSourceImpl : IPrivilegedDataSource.Stub() {
                     }
                 }
                 inNetworks && current != null && t.startsWith("preSharedKey:") ->
-                    current!!.putString("psk", t.removePrefix("preSharedKey:").trim())
+                    current?.putString("psk", t.removePrefix("preSharedKey:").trim())
                 inNetworks && current != null && t.startsWith("BSSID:") ->
-                    current!!.putString("bssid", t.removePrefix("BSSID:").trim())
+                    current?.putString("bssid", t.removePrefix("BSSID:").trim())
                 inNetworks && current != null && t.startsWith("KeyMgmt:") ->
-                    current!!.putString("key_mgmt", t.removePrefix("KeyMgmt:").trim())
+                    current?.putString("key_mgmt", t.removePrefix("KeyMgmt:").trim())
                 // Blank line or new major section ends the networks block
                 inNetworks && t.isEmpty() && current != null -> {
-                    result.add(current!!)
+                    current?.let { result.add(it) }
                     current = null
                 }
             }

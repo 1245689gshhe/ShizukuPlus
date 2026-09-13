@@ -275,8 +275,9 @@ class AppInspectorImpl : IAppInspector.Stub() {
             val procs = method.invoke(am) as? List<*>
             if (!procs.isNullOrEmpty()) {
                 procs.forEach { p ->
+                    if (p == null) return@forEach
                     try {
-                        val name = p!!.javaClass.getField("processName").get(p) as? String ?: return@forEach
+                        val name = p.javaClass.getField("processName").get(p) as? String ?: return@forEach
                         val pid = p.javaClass.getField("pid").get(p) as? Int ?: return@forEach
                         if (name.contains('.') && !name.startsWith('/')) bundle.putInt(name, pid)
                     } catch (_: Exception) {}

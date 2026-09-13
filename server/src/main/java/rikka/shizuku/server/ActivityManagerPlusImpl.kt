@@ -190,8 +190,9 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
             val procs = method.invoke(am) as? List<*>
             if (!procs.isNullOrEmpty()) {
                 return procs.mapNotNull { p ->
+                    if (p == null) return@mapNotNull null
                     try {
-                        val name = p!!.javaClass.getField("processName").get(p) as? String ?: return@mapNotNull null
+                        val name = p.javaClass.getField("processName").get(p) as? String ?: return@mapNotNull null
                         val pid = p.javaClass.getField("pid").get(p) as? Int ?: 0
                         "$name $pid"
                     } catch (_: Exception) { null }
