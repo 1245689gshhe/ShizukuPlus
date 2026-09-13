@@ -630,12 +630,12 @@ Execute este comando no PC (a depuração USB deve estar ativada):
     <!--Diagnóstico do serviço-->
     <string name="home_service_doctor_title">Diagnóstico do Serviço</string>
     <string name="home_service_doctor_summary">Está com problemas para iniciar o Shizuku? Toque para executar uma verificação de diagnóstico.</string>
-    <string name="doctor_check_battery">Otimização de bateria: %1$s</string>
-    <string name="doctor_check_adb">Depuração sem fio: %1$s</string>
-    <string name="doctor_check_root">Acesso root: %1$s</string>
-    <string name="doctor_check_secure_settings">Configurações Seguras: %1$s</string>
-    <string name="doctor_check_server">Servidor Shizuku: %1$s</string>
-    <string name="doctor_check_background">Limites em segundo plano: %1$s</string>
+    <string name="doctor_check_battery">Otimização de bateria</string>
+    <string name="doctor_check_adb">Depuração sem fio</string>
+    <string name="doctor_check_root">Acesso root</string>
+    <string name="doctor_check_secure_settings">Configurações Seguras</string>
+    <string name="doctor_check_server">Servidor Shizuku</string>
+    <string name="doctor_check_background">Limites em segundo plano</string>
     <string name="doctor_status_ok">OK</string>
     <string name="doctor_status_running">Em execução</string>
     <string name="doctor_status_stopped">Parado</string>

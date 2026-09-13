@@ -99,7 +99,7 @@ class ServiceDoctorActivity : AppBarActivity() {
         // 1. Battery Optimization
         val isIgnoring = SettingsHelper.isIgnoringBatteryOptimizations(this)
         checks.add(DoctorCheck(
-            getString(R.string.doctor_check_battery, ""),
+            getString(R.string.doctor_check_battery),
             if (isIgnoring) getString(R.string.doctor_status_ok) else getString(R.string.doctor_status_optimized),
             isIgnoring,
             onFix = if (!isIgnoring) { { SettingsHelper.requestIgnoreBatteryOptimizations(this, batteryOptimizationListener) } } else null
@@ -110,7 +110,7 @@ class ServiceDoctorActivity : AppBarActivity() {
         val adbPort = EnvironmentUtils.getAdbTcpPort()
         val adbOk = adbPort > 0
         checks.add(DoctorCheck(
-            getString(R.string.doctor_check_adb, ""),
+            getString(R.string.doctor_check_adb),
             if (adbOk) "${getString(R.string.doctor_status_ok)} ($adbPort)" else getString(R.string.doctor_status_not_enabled),
             adbOk
         ))
@@ -137,7 +137,7 @@ class ServiceDoctorActivity : AppBarActivity() {
         // 3. Root
         val isRooted = EnvironmentUtils.isRooted()
         checks.add(DoctorCheck(
-            getString(R.string.doctor_check_root, ""),
+            getString(R.string.doctor_check_root),
             if (isRooted) getString(R.string.doctor_status_ok) else getString(R.string.doctor_status_not_enabled),
             isRooted
         ))
@@ -145,7 +145,7 @@ class ServiceDoctorActivity : AppBarActivity() {
         // 4. Shizuku Server
         val isRunning = ShizukuStateMachine.isRunning()
         checks.add(DoctorCheck(
-            getString(R.string.doctor_check_server, ""),
+            getString(R.string.doctor_check_server),
             if (isRunning) getString(R.string.doctor_status_running) else getString(R.string.doctor_status_stopped),
             isRunning
         ))
@@ -153,7 +153,7 @@ class ServiceDoctorActivity : AppBarActivity() {
         // 5. Secure Settings (WRITE_SECURE_SETTINGS)
         val hasSecureSettings = SettingsHelper.hasWriteSecureSettings(this)
         checks.add(DoctorCheck(
-            getString(R.string.doctor_check_secure_settings, ""),
+            getString(R.string.doctor_check_secure_settings),
             if (hasSecureSettings) getString(R.string.doctor_status_ok) else getString(R.string.doctor_status_not_enabled),
             hasSecureSettings,
             onFix = if (!hasSecureSettings) { { SettingsHelper.promptWriteSecureSettings(this) } } else null
@@ -419,7 +419,7 @@ class ServiceDoctorActivity : AppBarActivity() {
         // 9. Background Limits (Android 14+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             checks.add(DoctorCheck(
-                getString(R.string.doctor_check_background, ""),
+                getString(R.string.doctor_check_background),
                 getString(R.string.doctor_status_ok),
                 true
             ))

@@ -630,12 +630,12 @@
     <!-- Service Doctor -->
     <string name="home_service_doctor_title">Доктор Сервісу</string>
     <string name="home_service_doctor_summary">Маєте проблеми із запуском Shizuku? Натисніть для проведення діагностики.</string>
-    <string name="doctor_check_battery">Оптимізація батареї: %1$s</string>
-    <string name="doctor_check_adb">Бездротове налагодження: %1$s</string>
-    <string name="doctor_check_root">Root доступ: %1$s</string>
-    <string name="doctor_check_secure_settings">Безпечні налаштування: %1$s</string>
-    <string name="doctor_check_server">Сервер Shizuku: %1$s</string>
-    <string name="doctor_check_background">Фонові обмеження: %1$s</string>
+    <string name="doctor_check_battery">Оптимізація батареї</string>
+    <string name="doctor_check_adb">Бездротове налагодження</string>
+    <string name="doctor_check_root">Root доступ</string>
+    <string name="doctor_check_secure_settings">Безпечні налаштування</string>
+    <string name="doctor_check_server">Сервер Shizuku</string>
+    <string name="doctor_check_background">Фонові обмеження</string>
     <string name="doctor_status_ok">ОК</string>
     <string name="doctor_status_running">Працює</string>
     <string name="doctor_status_stopped">Зупинено</string>
