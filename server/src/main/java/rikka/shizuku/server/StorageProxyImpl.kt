@@ -118,9 +118,10 @@ class StorageProxyImpl : IStorageProxy.Stub() {
         if (!direct.isNullOrEmpty()) return direct.toList()
         if (path.contains("/Android/data") || path.contains("/Android/obb")) {
             return try {
-                Runtime.getRuntime().exec(arrayOf("sh", "-c", "ls -1 \"$1\"", "sh", path))
-                    .inputStream.bufferedReader().readLines()
-                    .filter { it.isNotBlank() }
+                val proc = Runtime.getRuntime().exec(arrayOf("sh", "-c", "ls -1 \"$1\"", "sh", path))
+                val lines = proc.inputStream.bufferedReader().use { it.readLines() }
+                proc.waitFor()
+                lines.filter { it.isNotBlank() }
             } catch (_: Exception) { emptyList() }
         }
         // For /data/data/<pkg>/ paths (ADB mode, debuggable apps only)
@@ -128,9 +129,10 @@ class StorageProxyImpl : IStorageProxy.Stub() {
             (path.startsWith("/data/data/") || path.startsWith("/data/user/"))) {
             val pkg = extractPackageName(path) ?: return emptyList()
             return try {
-                Runtime.getRuntime().exec(arrayOf("run-as", pkg, "ls", path))
-                    .inputStream.bufferedReader().readLines()
-                    .filter { it.isNotBlank() }
+                val proc = Runtime.getRuntime().exec(arrayOf("run-as", pkg, "ls", path))
+                val lines = proc.inputStream.bufferedReader().use { it.readLines() }
+                proc.waitFor()
+                lines.filter { it.isNotBlank() }
             } catch (_: Exception) { emptyList() }
         }
         return emptyList()
@@ -148,7 +150,8 @@ class StorageProxyImpl : IStorageProxy.Stub() {
             } else if (path.contains("/Android/data") || path.contains("/Android/obb")) {
                 try {
                     val proc = Runtime.getRuntime().exec(arrayOf("sh", "-c", "stat -c '%s %Y %F' \"$1\" 2>/dev/null", "sh", path))
-                    val out = proc.inputStream.bufferedReader().readLine()
+                    val out = proc.inputStream.bufferedReader().use { it.readLine() }
+                    proc.waitFor()
                     if (!out.isNullOrBlank()) {
                         val parts = out.trim().split(" ")
                         if (parts.size >= 2) {
