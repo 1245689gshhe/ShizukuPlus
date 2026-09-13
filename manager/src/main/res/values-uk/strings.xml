@@ -140,7 +140,6 @@
     <string name="doctor_check_samsung_battery_protection">Захист батареї Samsung</string>
     <string name="doctor_check_secondary_user">Другий користувач / Захищена папка</string>
     <string name="doctor_check_phantom_process">Вбивця фантомних процесів</string>
-    <string name="doctor_tips_title">Поради щодо усунення несправностей</string>
     <string name="doctor_status_manual_check">Потребує ручної перевірки</string>
     <string name="doctor_status_detected">Виявлено</string>
     <string name="doctor_tip_samsung_autoblocker"><b>Samsung Auto Blocker</b>: Переконайтеся, що його <b>ВИМКНЕНО</b> або що \'Максимальні обмеження\' вимкнено. Він непомітно блокує команди ADB на One UI 7/8+.</string>
@@ -631,7 +630,6 @@
     <!-- Service Doctor -->
     <string name="home_service_doctor_title">Доктор Сервісу</string>
     <string name="home_service_doctor_summary">Маєте проблеми із запуском Shizuku? Натисніть для проведення діагностики.</string>
-    <string name="doctor_dialog_title">Діагностика системи</string>
     <string name="doctor_check_battery">Оптимізація батареї: %1$s</string>
     <string name="doctor_check_adb">Бездротове налагодження: %1$s</string>
     <string name="doctor_check_root">Root доступ: %1$s</string>
@@ -641,11 +639,8 @@
     <string name="doctor_status_ok">ОК</string>
     <string name="doctor_status_running">Працює</string>
     <string name="doctor_status_stopped">Зупинено</string>
-    <string name="doctor_status_restricted">Обмежено (Системна оптимізація увімкнена)</string>
     <string name="doctor_status_not_enabled">Не увімкнено</string>
     <string name="doctor_status_optimized">Оптимізовано (Може вбити службу)</string>
-    <string name="doctor_status_unlocked">Розблоковано</string>
-    <string name="doctor_status_restricted_bg">Обмежене фонове виконання</string>
     <string name="doctor_tip_xiaomi">Xiaomi/HyperOS: Увімкніть \"Налагодження USB (Налаштування безпеки)\" в Параметрах розробника.</string>
     <string name="doctor_tip_oppo_permission">Oppo/Realme/OnePlus: Вимкніть \"Моніторинг дозволів\" в Параметрах розробника, щоб запобігти завершенню фонових служб.</string>
     <string name="doctor_tip_tcl_background">TCL: Переконайтеся, що Shizuku+ додано до \"Автозапуску\" та списку \"Високе енергоспоживання у фоновому режимі\" в Налаштуваннях.</string>
