@@ -637,7 +637,6 @@
     <string name="doctor_check_adb">Бездротове налагодження: %1$s</string>
     <string name="doctor_check_root">Root доступ: %1$s</string>
     <string name="doctor_check_secure_settings">Безпечні налаштування: %1$s</string>
-    <string name="doctor_check_permission">Дозвіл ADB: %1$s</string>
     <string name="doctor_check_server">Сервер Shizuku: %1$s</string>
     <string name="doctor_check_background">Фонові обмеження: %1$s</string>
     <string name="doctor_status_ok">ОК</string>

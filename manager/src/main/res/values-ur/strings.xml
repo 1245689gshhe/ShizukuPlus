@@ -615,7 +615,6 @@
     <string name="doctor_check_adb">Wireless debugging: %1$s</string>
     <string name="doctor_check_root">Root access: %1$s</string>
     <string name="doctor_check_secure_settings">Secure Settings: %1$s</string>
-    <string name="doctor_check_permission">ADB اجازت: %1$s</string>
     <string name="doctor_check_server">Shizuku server: %1$s</string>
     <string name="doctor_check_background">Background limits: %1$s</string>
     <string name="doctor_status_ok">ٹھیک ہے</string>

@@ -637,7 +637,6 @@ Execute este comando no PC (a depuração USB deve estar ativada):
     <string name="doctor_check_adb">Depuração sem fio: %1$s</string>
     <string name="doctor_check_root">Acesso root: %1$s</string>
     <string name="doctor_check_secure_settings">Configurações Seguras: %1$s</string>
-    <string name="doctor_check_permission">Permissão ADB: %1$s</string>
     <string name="doctor_check_server">Servidor Shizuku: %1$s</string>
     <string name="doctor_check_background">Limites em segundo plano: %1$s</string>
     <string name="doctor_status_ok">OK</string>
