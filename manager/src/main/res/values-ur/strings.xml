@@ -595,13 +595,13 @@
 
     <!-- Bug Report Dialog -->
     <string name="bug_report_dialog_before_reporting">رپورٹ کرنے سے پہلے درج ذیل کریں:</string>
-    <string name="bug_report_dialog_update">یقینی بنائیں کہ آپ %1$s استعمال کر رہے ہیں۔</string>
+    <string name="bug_report_dialog_update">یقینی بنائیں کہ آپ ^1 استعمال کر رہے ہیں۔</string>
     <string name="bug_report_dialog_link_update">تازہ ترین ورژن</string>
-    <string name="bug_report_dialog_wiki">%1$s پڑھیں اور تمام متعلقہ troubleshooting steps پر عمل کریں۔</string>
+    <string name="bug_report_dialog_wiki">^1 پڑھیں اور تمام متعلقہ troubleshooting steps پر عمل کریں۔</string>
     <string name="bug_report_dialog_link_wiki">wiki</string>
-    <string name="bug_report_dialog_issues">تمام %1$s تلاش کریں تاکہ دیکھ سکیں کہ آپ کا bug پہلے رپورٹ تو نہیں ہو چکا۔</string>
+    <string name="bug_report_dialog_issues">تمام ^1 تلاش کریں تاکہ دیکھ سکیں کہ آپ کا bug پہلے رپورٹ تو نہیں ہو چکا۔</string>
     <string name="bug_report_dialog_link_issues">موجودہ مسائل</string>
-    <string name="bug_report_dialog_method">اگر اکاؤنٹ ہے تو %1$s پر issue جمع کریں۔</string>
+    <string name="bug_report_dialog_method">اگر اکاؤنٹ ہے تو ^1 پر issue جمع کریں۔</string>
     <string name="bug_report_dialog_method_2">ورنہ آپ email بھیج سکتے ہیں۔</string>
     <string name="bug_report_dialog_button_email">Email</string>
 
