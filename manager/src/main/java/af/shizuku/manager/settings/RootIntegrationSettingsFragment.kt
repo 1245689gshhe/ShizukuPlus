@@ -298,7 +298,9 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
         fun readProp(prop: String): String? = try {
             val p = Runtime.getRuntime().exec(arrayOf("getprop", prop))
             try {
-                java.io.BufferedReader(java.io.InputStreamReader(p.inputStream)).use { it.readLine() }
+                val result = java.io.BufferedReader(java.io.InputStreamReader(p.inputStream)).use { it.readLine() }
+                p.waitFor()
+                result
             } finally {
                 p.destroy()
             }
