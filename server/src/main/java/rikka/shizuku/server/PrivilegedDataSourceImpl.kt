@@ -13,8 +13,6 @@ import android.view.MotionEvent
 import af.shizuku.server.IPrivilegedDataSource
 import af.shizuku.common.compat.Android17Compat
 import af.shizuku.common.util.UserHandleCompat
-import rikka.hidden.compat.ActivityManagerApis
-import rikka.shizuku.server.api.IContentProviderUtils
 
 /**
  * Implements IPrivilegedDataSource entirely through shell commands executed under uid 2000.

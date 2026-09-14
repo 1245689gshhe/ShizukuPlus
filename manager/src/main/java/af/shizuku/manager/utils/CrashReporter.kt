@@ -1,7 +1,6 @@
 package af.shizuku.manager.utils
 
 import android.os.Build
-import android.os.PowerManager
 import android.content.Context
 import android.net.Uri
 import af.shizuku.manager.BuildConfig
