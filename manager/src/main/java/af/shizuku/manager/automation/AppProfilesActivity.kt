@@ -1,6 +1,5 @@
 package af.shizuku.manager.automation
 
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -106,11 +105,10 @@ class AppProfilesActivity : AppCompatActivity() {
         super.onStop()
         saveProfilesToJson()
         // Auto-start/stop AutomationService based on current rules.
-        val svcIntent = Intent(this, AutomationService::class.java)
         if (ShizukuSettings.hasAnyAutomationRulesConfigured()) {
-            startService(svcIntent)
+            AutomationService.startIfNeeded(this)
         } else {
-            stopService(svcIntent)
+            AutomationService.stopIfRunning(this)
         }
     }
 

@@ -432,14 +432,20 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         // start/stop it right here as each list is edited, rather than only checking at app launch,
         // so the very first (or last) entry takes effect immediately without needing a restart.
         findPreference<Preference>(KEY_AUTOMATION_TRUSTED_NETWORKS)?.setOnPreferenceChangeListener { _, newValue ->
-            val isConfigured = (newValue as? String).orEmpty().split(",").any { it.isNotBlank() } ||
-                ShizukuSettings.getAutoHidePackagesSet().isNotEmpty()
+            val newHasNetworks = (newValue as? String).orEmpty().split(",").any { it.isNotBlank() }
+            val appProfiles = ShizukuSettings.getAutomationAppProfilesJson()
+            val isConfigured = newHasNetworks ||
+                ShizukuSettings.getAutoHidePackagesSet().isNotEmpty() ||
+                (appProfiles.length > 2 && appProfiles != "{}")
             updateAutomationServiceState(isConfigured)
             true
         }
         findPreference<Preference>(KEY_AUTOMATION_AUTO_HIDE_PACKAGES)?.setOnPreferenceChangeListener { _, newValue ->
-            val isConfigured = (newValue as? String).orEmpty().split(",").any { it.isNotBlank() } ||
-                ShizukuSettings.getTrustedNetworksSet().isNotEmpty()
+            val newHasAutoHide = (newValue as? String).orEmpty().split(",").any { it.isNotBlank() }
+            val appProfiles = ShizukuSettings.getAutomationAppProfilesJson()
+            val isConfigured = newHasAutoHide ||
+                ShizukuSettings.getTrustedNetworksSet().isNotEmpty() ||
+                (appProfiles.length > 2 && appProfiles != "{}")
             updateAutomationServiceState(isConfigured)
             true
         }
