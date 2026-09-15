@@ -52,13 +52,14 @@ MAJOR_REVS = {m[0] for m in MAJORS}
 # critical-fix callout is meant to be occasional and doesn't track "the critical fix of this
 # build's own era" - just the single most recent one, same on every page, like the headline major.
 # Set CRITICAL_REV to None to omit this callout entirely once nothing recent qualifies.
-CRITICAL_REV = 2577
-CRITICAL_TAG = "v13.6.0.r2577"
-CRITICAL_DESC = ("Fixed boot crash (ClassCastException) when boot receiver read trusted-network prefs "
-                 "stored in the old Set<String> format before the migration in Feature Hub ever ran. "
-                 "Fixed WatchdogService silently clearing the watchdog preference on transient "
-                 "OS-refused foreground starts, preventing it from re-arming on next boot. "
-                 "Fixed Kotlin compile error from removed Material3 SearchBar inputFieldColors parameters.")
+CRITICAL_REV = 2582
+CRITICAL_TAG = "v13.6.0.r2582"
+CRITICAL_DESC = ("Fixed Feature Hub crash (ClassCastException on open) caused by "
+                 "migrateAutomationTrustedNetworks reading the wrong SharedPreferences file. "
+                 "Fixed boot ClassCastException when trusted-network prefs were stored in old "
+                 "Set<String> format. Fixed WatchdogService clearing watchdog setting on transient "
+                 "foreground-start rejections. Fixed AutomationService double-firing network firewall "
+                 "rule and not starting the app monitor for auto-hide users.")
 
 
 def sh(args, retries=4):

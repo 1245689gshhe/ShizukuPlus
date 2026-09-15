@@ -409,8 +409,8 @@ jobs:
           # above: not new capability, but a regression severe enough that users on the
           # affected range should know to update. Same update procedure as MAJOR_RELEASE.
           # Leave both blank ("") to omit this callout entirely once nothing recent qualifies.
-          CRITICAL_RELEASE="v13.6.0.r2577"
-          CRITICAL_DESC="Fixed boot crash (ClassCastException) when boot receiver read trusted-network prefs stored in the old Set<String> format before the migration in Feature Hub ever ran. Fixed WatchdogService silently clearing the watchdog preference on transient OS-refused foreground starts, preventing it from re-arming on next boot. Fixed Kotlin compile error from removed Material3 SearchBar inputFieldColors parameters."
+          CRITICAL_RELEASE="v13.6.0.r2582"
+          CRITICAL_DESC="Fixed Feature Hub crash (ClassCastException on open) caused by migrateAutomationTrustedNetworks reading the wrong SharedPreferences file. Fixed boot ClassCastException when trusted-network prefs were stored in old Set<String> format. Fixed WatchdogService clearing watchdog setting on transient foreground-start rejections. Fixed AutomationService double-firing network firewall rule and not starting the app monitor for auto-hide users."
 
           # Style: Keep a Changelog's category vocabulary (keepachangelog.com), formatted as
           # GitHub Release notes in the thedjchi-fork sibling-project style (this fork's closest
