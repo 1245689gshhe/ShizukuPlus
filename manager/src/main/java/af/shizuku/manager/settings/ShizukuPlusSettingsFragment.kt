@@ -428,9 +428,10 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             true
         }
 
-        // AutomationService (#435) only runs while at least one of these two lists is non-empty -
-        // start/stop it right here as each list is edited, rather than only checking at app launch,
-        // so the very first (or last) entry takes effect immediately without needing a restart.
+        // AutomationService (#435) only runs while at least one of the three automation lists
+        // (trusted networks, auto-hide packages, app profiles) is non-empty. Start/stop it right
+        // here as each list is edited so the very first (or last) entry takes effect immediately.
+        // App profiles are handled by AppProfilesActivity.onStop() when the profile screen is dismissed.
         findPreference<Preference>(KEY_AUTOMATION_TRUSTED_NETWORKS)?.setOnPreferenceChangeListener { _, newValue ->
             val newHasNetworks = (newValue as? String).orEmpty().split(",").any { it.isNotBlank() }
             val appProfiles = ShizukuSettings.getAutomationAppProfilesJson()
