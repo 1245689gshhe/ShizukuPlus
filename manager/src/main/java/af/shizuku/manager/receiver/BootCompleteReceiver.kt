@@ -49,14 +49,9 @@ class BootCompleteReceiver : BroadcastReceiver() {
             Timber.tag("BootCompleteReceiver").w(e, "Watchdog start skipped")
         }
         // Restart AutomationService if any automation rules were configured before the reboot.
-        // The service self-stops when no rules are configured, so this is safe to call unconditionally
-        // as long as rules exist. startForegroundService() is used because AutomationService
-        // calls startForeground() in onCreate() — required on API 26+.
         if (ShizukuSettings.hasAnyAutomationRulesConfigured()) {
             try {
-                context.startForegroundService(
-                    android.content.Intent(context, af.shizuku.manager.automation.AutomationService::class.java)
-                )
+                af.shizuku.manager.automation.AutomationService.startIfNeeded(context)
             } catch (e: Exception) {
                 Timber.tag("BootCompleteReceiver").w(e, "AutomationService start skipped")
             }
