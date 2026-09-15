@@ -52,14 +52,13 @@ MAJOR_REVS = {m[0] for m in MAJORS}
 # critical-fix callout is meant to be occasional and doesn't track "the critical fix of this
 # build's own era" - just the single most recent one, same on every page, like the headline major.
 # Set CRITICAL_REV to None to omit this callout entirely once nothing recent qualifies.
-CRITICAL_REV = 2571
-CRITICAL_TAG = "v13.6.0.r2571"
-CRITICAL_DESC = ("Eliminated resource leaks in privileged server processes — exec() handles, pipe "
-                 "streams, and background threads were not properly closed/joined after use, causing "
-                 "gradual memory pressure and ADB connection instability on long-running sessions. "
-                 "All server impl classes now properly drain stdout/stderr, call waitFor() + "
-                 "destroy() on every exec() lifecycle, and mark fire-and-forget threads as daemon "
-                 "so they can't prevent JVM exit.")
+CRITICAL_REV = 2577
+CRITICAL_TAG = "v13.6.0.r2577"
+CRITICAL_DESC = ("Fixed boot crash (ClassCastException) when boot receiver read trusted-network prefs "
+                 "stored in the old Set<String> format before the migration in Feature Hub ever ran. "
+                 "Fixed WatchdogService silently clearing the watchdog preference on transient "
+                 "OS-refused foreground starts, preventing it from re-arming on next boot. "
+                 "Fixed Kotlin compile error from removed Material3 SearchBar inputFieldColors parameters.")
 
 
 def sh(args, retries=4):
