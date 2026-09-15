@@ -1,7 +1,6 @@
 package af.shizuku.manager.utils
 
 import android.content.Context
-import android.content.SharedPreferences
 import org.json.JSONObject
 import af.shizuku.manager.ShizukuSettings
 
@@ -18,8 +17,13 @@ object SettingsBackupManager {
         ShizukuSettings.Keys.KEY_MIGRATION_OFFERED,
     )
 
-    fun export(context: Context): String {
-        val prefs: SharedPreferences = context.getSharedPreferences(ShizukuSettings.NAME, Context.MODE_PRIVATE)
+    fun export(@Suppress("UNUSED_PARAMETER") context: Context): String {
+        // Use ShizukuSettings.getPreferences() — not context.getSharedPreferences() — because
+        // ShizukuSettings.initialize() stores settings in device-protected storage
+        // (createDeviceProtectedStorageContext()) on API 24+, which is a different file than the
+        // credential-encrypted storage that plain getSharedPreferences() returns. Always use the
+        // same SharedPreferences instance that the rest of the app reads and writes.
+        val prefs = ShizukuSettings.getPreferences() ?: return "{}"
         val json = JSONObject()
         json.put(VERSION_KEY, BACKUP_VERSION)
         for ((key, value) in prefs.all) {
@@ -36,13 +40,13 @@ object SettingsBackupManager {
         return json.toString(2)
     }
 
-    fun import(context: Context, json: String): Boolean {
+    fun import(@Suppress("UNUSED_PARAMETER") context: Context, json: String): Boolean {
         return try {
             val obj = JSONObject(json)
             val version = obj.optInt(VERSION_KEY, -1)
             if (version < 1) return false
 
-            val prefs = context.getSharedPreferences(ShizukuSettings.NAME, Context.MODE_PRIVATE)
+            val prefs = ShizukuSettings.getPreferences() ?: return false
             val editor = prefs.edit()
 
             val keys = obj.keys()
