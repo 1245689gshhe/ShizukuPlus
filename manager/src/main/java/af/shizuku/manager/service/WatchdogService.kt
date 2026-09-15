@@ -32,6 +32,10 @@ class WatchdogService : Service() {
     private var consecutiveCrashes = 0
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var job: Job? = null
+    // Only true when the user explicitly taps "Turn off" from the notification — keeps
+    // onDestroy() from clearing the watchdog setting when the service self-stops due to a
+    // transient foreground-start rejection (background restrictions, FGS time limit, etc.).
+    private var intentionalStop = false
 
     // Returns false on failure so callers can bail out via stopSelf() instead of crashing
     // (RemoteServiceException$CannotPostForegroundServiceNotificationException, background-start
@@ -114,6 +118,7 @@ class WatchdogService : Service() {
             return START_NOT_STICKY
         }
         if (intent?.action == ACTION_STOP_SERVICE) {
+            intentionalStop = true
             stopSelf()
             return START_NOT_STICKY
         }
@@ -124,7 +129,12 @@ class WatchdogService : Service() {
         job?.cancel()
         scope.cancel()
         isRunning.set(false)
-        ShizukuSettings.setWatchdog(applicationContext, false)
+        // Only clear the user's preference when the service was deliberately stopped via the
+        // notification action. Transient stops (failed foreground-start, background-start
+        // restrictions) must not wipe the setting — the watchdog should re-arm on next boot.
+        if (intentionalStop) {
+            ShizukuSettings.setWatchdog(applicationContext, false)
+        }
         super.onDestroy()
     }
 
