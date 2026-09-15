@@ -254,14 +254,14 @@ class ShizukuApplication : Application(), Configuration.Provider {
                         return@setBeforeSend null
                     }
 
-                    // 6. Drop SQLiteCantOpenDatabaseException for missing databases directory
+                    // 9. Drop SQLiteCantOpenDatabaseException for missing databases directory
                     // (Happens sporadically when OS or user clears data/cache while in background)
                     if (simpleName == "SQLiteCantOpenDatabaseException" &&
                         throwable?.message?.contains("doesn't exist") == true) {
                         return@setBeforeSend null
                     }
 
-                    // 7. Drop Hardware Keystore failures (KeyPermanentlyInvalidatedException / KeyStoreException)
+                    // 10. Drop Hardware Keystore failures (KeyPermanentlyInvalidatedException / KeyStoreException)
                     if (throwable is java.security.KeyStoreException ||
                         throwable is java.security.UnrecoverableKeyException ||
                         simpleName == "KeyPermanentlyInvalidatedException" ||
@@ -269,12 +269,12 @@ class ShizukuApplication : Application(), Configuration.Provider {
                         return@setBeforeSend null
                     }
 
-                    // 8. Drop DeadObjectException from binder IPC when process terminates
+                    // 11. Drop DeadObjectException from binder IPC when process terminates
                     if (throwable is android.os.DeadObjectException || simpleName == "DeadObjectException") {
                         return@setBeforeSend null
                     }
 
-                    // 9. Drop SecurityException for non-changeable system permissions
+                    // 12. Drop SecurityException for non-changeable system permissions
                     if (throwable is SecurityException && throwable.message?.contains("is not a changeable permission type") == true) {
                         return@setBeforeSend null
                     }
