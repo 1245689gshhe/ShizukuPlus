@@ -172,6 +172,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
 
     override fun onCreateSettingsPreferences(savedInstanceState: Bundle?, rootKey: String?) {
         if (!isAdded) return
+        migrateAutomationTrustedNetworks()
         setPreferencesFromResource(R.xml.settings_shizuku_plus, rootKey)
 
         ShizukuSettings.syncAllPlusFeaturesToServer()
@@ -755,6 +756,25 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         val hide = ShizukuSettings.isHideBackupSettingsEnabled()
         findPreference<af.shizuku.manager.settings.CollapsiblePreferenceCategory>("category_backup")
             ?.isVisible = !hide
+    }
+
+    // Must be called before setPreferencesFromResource(). In builds prior to r2436 this key was
+    // stored as Set<String>; EditTextPreference calls getString() during XML inflation and Android
+    // throws ClassCastException immediately — crashing the Feature Hub screen (#499).
+    private fun migrateAutomationTrustedNetworks() {
+        val ctx = context ?: return
+        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(ctx)
+        try {
+            prefs.getString(ShizukuSettings.Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, null)
+        } catch (e: ClassCastException) {
+            val oldSet = try {
+                @Suppress("UNCHECKED_CAST")
+                prefs.getStringSet(ShizukuSettings.Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, null)
+            } catch (ignored: Exception) { null }
+            prefs.edit()
+                .putString(ShizukuSettings.Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, oldSet?.joinToString(",") ?: "")
+                .apply()
+        }
     }
 
 }

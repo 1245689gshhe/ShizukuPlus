@@ -25,14 +25,18 @@ class BootCompleteReceiver : BroadcastReceiver() {
         if (!handled) return
 
         Timber.tag("BootCompleteReceiver").i("Triggered by: $action")
-        try {
-            ShizukuReceiverStarter.start(context)
-        } catch (e: Exception) {
-            // LOCKED_BOOT_COMPLETED fires during direct boot, before credential-encrypted storage
-            // is available — WorkManager can't initialize and prefs may be inaccessible. This is
-            // expected; the later BOOT_COMPLETED (post-unlock) handles auto-start. Catch broadly so
-            // no variant crashes the receiver, and log at warn (breadcrumb, not a billed Sentry event).
-            Timber.tag("BootCompleteReceiver").w(e, "Auto-start skipped (service not ready, e.g. direct boot)")
+        // LOCKED_BOOT_COMPLETED fires before credential-encrypted storage is unlocked, so prefs
+        // (launch mode, shell commands, etc.) are unavailable. Attempting to start here would either
+        // crash or spawn a server using stale defaults, and BOOT_COMPLETED fires seconds later once
+        // the user unlocks and handles the actual start (#504). Skip auto-start for LOCKED_BOOT_COMPLETED.
+        if (action != Intent.ACTION_LOCKED_BOOT_COMPLETED) {
+            try {
+                ShizukuReceiverStarter.start(context)
+            } catch (e: Exception) {
+                Timber.tag("BootCompleteReceiver").w(e, "Auto-start skipped (service not ready, e.g. direct boot)")
+            }
+        } else {
+            Timber.tag("BootCompleteReceiver").d("LOCKED_BOOT_COMPLETED — deferring start to BOOT_COMPLETED")
         }
         try {
             if (ShizukuSettings.getWatchdog()) {
