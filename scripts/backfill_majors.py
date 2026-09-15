@@ -30,16 +30,21 @@ MAJORS = [
     (2149, "v13.6.0.r2149", "SU Bridge — root features for third-party apps on non-root"),
     (2202, "v13.6.0.r2202", "Cached Apps Freezer fix — third-party apps reliably detect Shizuku+"),
     (2341, "v13.6.0.r2341", "Watchdog crash-recovery and permission grant-notification fixes"),
+    (2393, "v13.6.0.r2393", "Binder IPC migration — ADB-mode for all features, Android 17, exec() security hardening"),
+    (2535, "v13.6.0.r2535", "Third-party app detection fix + AppOps IPC Parcel alignment (#480, #488, #491)"),
 ]
 
 HEADLINE_REV, HEADLINE_TAG, _ = MAJORS[-1]
-HEADLINE_DESC = ("Fixed two separate reasons Shizuku+ could look broken even when it appeared to be "
-                 "running: the privileged server could silently die during normal use and never "
-                 "recover, even with Watchdog enabled (a bug in the watchdog's own crash-detection "
-                 "logic defeated the external re-arm added for #415/#417); and an app authorized "
-                 "from Shizuku+'s own screen could stay stuck showing \"no access\" until manually "
-                 "force-stopped, because nothing told its already-running process the grant had "
-                 "changed.")
+HEADLINE_DESC = ("Fixed two compounding failures that prevented third-party apps (NetToggle, "
+                 "SamFonts, App Ops, Hail, InstallerX) from connecting to Shizuku+ even after "
+                 "authorization, and caused AppOps Usage History to show empty/greyed fields on "
+                 "Samsung OneUI 8.5: (1) binder delivery now sends only the canonical "
+                 "moe.shizuku.api.BinderContainer to non-manager apps, avoiding the "
+                 "ClassNotFoundException that poisoned the entire binder bundle for apps compiled "
+                 "against the official Maven Shizuku library; (2) a 4-byte Parcel misalignment in "
+                 "transactRemote corrupted every system service IPC argument for API v13+ clients "
+                 "whose client record wasn't yet attached — both the usage-history calls and "
+                 "Secure Folder profile enumeration failed silently as a result (#480, #488, #491).")
 MAJOR_REVS = {m[0] for m in MAJORS}
 
 # Most recent CRITICAL FIX to spotlight - mirrors app.yml's CRITICAL_RELEASE/CRITICAL_DESC (keep
@@ -47,14 +52,14 @@ MAJOR_REVS = {m[0] for m in MAJORS}
 # critical-fix callout is meant to be occasional and doesn't track "the critical fix of this
 # build's own era" - just the single most recent one, same on every page, like the headline major.
 # Set CRITICAL_REV to None to omit this callout entirely once nothing recent qualifies.
-CRITICAL_REV = 2244
-CRITICAL_TAG = "v13.6.0.r2244"
-CRITICAL_DESC = ("attachApplication (binder code 17) had fallen into a dead branch of "
-                 "Service.onTransact() — the call appeared to succeed to the connecting app, but "
-                 "the server never actually registered it as a client, so every API v13+ client's "
-                 "connection silently failed at the first step. Affected Morphe, InstallerX "
-                 "Revived, Droid-ify, ObtainX, Obtainium, MT Manager, Termux rish, and others. If "
-                 "you're still on a build before this, update.")
+CRITICAL_REV = 2571
+CRITICAL_TAG = "v13.6.0.r2571"
+CRITICAL_DESC = ("Eliminated resource leaks in privileged server processes — exec() handles, pipe "
+                 "streams, and background threads were not properly closed/joined after use, causing "
+                 "gradual memory pressure and ADB connection instability on long-running sessions. "
+                 "All server impl classes now properly drain stdout/stderr, call waitFor() + "
+                 "destroy() on every exec() lifecycle, and mark fire-and-forget threads as daemon "
+                 "so they can't prevent JVM exit.")
 
 
 def sh(args, retries=4):
