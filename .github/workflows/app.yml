@@ -350,23 +350,25 @@ jobs:
 
       - name: Create Release Tag
         env:
-          RELEASE_PAT: ${{ secrets.RELEASE_PAT }}
+          GH_TOKEN: ${{ github.token }}
         run: |
           TAG_NAME="${VERSION}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          # The default GITHUB_TOKEN can't push ANY ref (including a plain tag) once the
-          # commit history it's reachable from touches .github/workflows/ - there is no
-          # "workflows" permission key that can be granted to it, only a PAT with the
-          # `workflow` scope can push past that restriction. Use RELEASE_PAT (repo + workflow
-          # scope) for this push specifically instead of relying on origin's checkout auth.
-          PUSH_URL="https://x-access-token:${RELEASE_PAT}@github.com/${{ github.repository }}.git"
-          if git rev-parse "$TAG_NAME" >/dev/null 2>&1; then
-            git tag -d "$TAG_NAME"
-            git push "$PUSH_URL" ":refs/tags/$TAG_NAME" || true
-          fi
-          git tag "$TAG_NAME" -m "Release version $VERSION"
-          git push "$PUSH_URL" "$TAG_NAME"
+          # Create the tag via the GitHub REST API instead of git push. git push requires the
+          # token to have `workflow` scope once any commit in the history touches
+          # .github/workflows/ — there is no way to grant this to GITHUB_TOKEN, and a PAT
+          # with workflow scope would be rotated out of sync with repo changes. The REST API
+          # endpoint (POST /git/refs) only needs `contents: write`, which GITHUB_TOKEN already
+          # holds from the job-level permissions block above.
+          gh api "repos/${{ github.repository }}/git/refs/tags/$TAG_NAME" \
+            --method DELETE 2>/dev/null || true
+          gh api "repos/${{ github.repository }}/git/refs" \
+            --method POST \
+            -f "ref=refs/tags/$TAG_NAME" \
+            -f "sha=${{ github.sha }}"
+          # Mirror the tag locally so git tag --list in the release-notes step sees this release.
+          git tag "$TAG_NAME" "${{ github.sha }}" 2>/dev/null || true
 
       - name: Download ShizukuPlus Artifact
         uses: actions/download-artifact@v4
