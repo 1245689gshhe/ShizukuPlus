@@ -248,10 +248,7 @@ fun SettingsScreen(
                     modifier = Modifier.fillMaxWidth(),
                     colors = SearchBarDefaults.colors(
                         containerColor = if (isBlackTheme) Color.Black else MaterialTheme.colorScheme.surface,
-                        inputFieldColors = if (isBlackTheme) SearchBarDefaults.inputFieldColors(
-                            focusedContainerColor = Color.Black,
-                            unfocusedContainerColor = Color.Black,
-                        ) else SearchBarDefaults.inputFieldColors()
+                        inputFieldColors = SearchBarDefaults.inputFieldColors()
                     ),
                     leadingIcon = {
                         IconButton(onClick = {
