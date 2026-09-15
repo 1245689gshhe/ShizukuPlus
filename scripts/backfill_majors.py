@@ -52,8 +52,8 @@ MAJOR_REVS = {m[0] for m in MAJORS}
 # critical-fix callout is meant to be occasional and doesn't track "the critical fix of this
 # build's own era" - just the single most recent one, same on every page, like the headline major.
 # Set CRITICAL_REV to None to omit this callout entirely once nothing recent qualifies.
-CRITICAL_REV = 2589
-CRITICAL_TAG = "v13.6.0.r2589"
+CRITICAL_REV = 2590
+CRITICAL_TAG = "v13.6.0.r2590"
 CRITICAL_DESC = ("Fixed Settings import/export silently reading/writing the wrong storage file on "
                  "Android 7+ (exports were empty; imports had no effect). Fixed Feature Hub crash "
                  "(ClassCastException) caused by migrateAutomationTrustedNetworks reading the wrong "
