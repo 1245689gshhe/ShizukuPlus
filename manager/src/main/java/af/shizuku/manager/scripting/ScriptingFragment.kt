@@ -8,8 +8,8 @@ import android.text.InputType
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.CheckBox
 import android.widget.EditText
+import com.google.android.material.checkbox.MaterialCheckBox
 import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.Toast
@@ -151,7 +151,7 @@ class ScriptingFragment : Fragment() {
             minLines = 4
             existing?.let { setText(it.script) }
         }
-        val autoRunCheck = CheckBox(ctx).apply {
+        val autoRunCheck = MaterialCheckBox(ctx).apply {
             text = getString(R.string.scripting_auto_run_label)
             isChecked = existing?.autoRun ?: false
         }
