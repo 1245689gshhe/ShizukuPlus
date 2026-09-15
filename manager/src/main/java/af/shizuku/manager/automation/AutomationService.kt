@@ -28,9 +28,10 @@ class AutomationService : Service() {
     private var callbackRegistered = false
     private var isForeground = false
 
-    // Rule instances kept as fields so state (isSafeNetwork, currentApp) persists across events.
-    private val networkFirewallRule = NetworkFirewallRule()
-    private val appProfileRule = AppSpecificProfileRule()
+    // NetworkFirewallRule, AppAutoHideRule, and AppSpecificProfileRule are registered globally in
+    // ShizukuApplication via registerDefaultRules() — no per-service registration needed here.
+    // Registering them again in onCreate()/onDestroy() would cause double-fire while the service
+    // is running and lose rule state (isSafeNetwork, savedGlobalFirewall) across service restarts.
 
     private val networkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onAvailable(network: Network) {
@@ -105,9 +106,6 @@ class AutomationService : Service() {
             return
         }
 
-        AutomationEngine.registerRule(networkFirewallRule)
-        AutomationEngine.registerRule(appProfileRule)
-
         val cm = getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
         connectivityManager = cm
         if (cm != null) {
@@ -127,10 +125,13 @@ class AutomationService : Service() {
         }
 
         // App profile monitor polls UsageStats every 2 seconds — skip it entirely when no
-        // per-app profiles are configured. The network callback alone is sufficient for users
-        // who only use Trusted Networks automation.
+        // foreground-app rules are configured. Both app profiles (AppSpecificProfileRule) and
+        // auto-hide packages (AppAutoHideRule) need ForegroundAppEvent, so start the monitor
+        // when either is configured. The network callback alone handles Trusted Networks.
         val appProfilesJson = ShizukuSettings.getAutomationAppProfilesJson()
-        if (appProfilesJson != "{}" && appProfilesJson.length > 2) {
+        val hasAppProfiles = appProfilesJson != "{}" && appProfilesJson.length > 2
+        val hasAutoHide = ShizukuSettings.getAutoHidePackagesSet().isNotEmpty()
+        if (hasAppProfiles || hasAutoHide) {
             startForegroundAppMonitor()
         }
     }
@@ -273,8 +274,6 @@ class AutomationService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        AutomationEngine.unregisterRule(networkFirewallRule)
-        AutomationEngine.unregisterRule(appProfileRule)
         if (callbackRegistered) {
             try {
                 connectivityManager?.unregisterNetworkCallback(networkCallback)

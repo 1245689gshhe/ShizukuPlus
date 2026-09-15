@@ -119,4 +119,5 @@ class AppSpecificProfileRule : AutomationRule {
 fun registerDefaultRules() {
     AutomationEngine.registerRule(NetworkFirewallRule())
     AutomationEngine.registerRule(AppAutoHideRule())
+    AutomationEngine.registerRule(AppSpecificProfileRule())
 }
