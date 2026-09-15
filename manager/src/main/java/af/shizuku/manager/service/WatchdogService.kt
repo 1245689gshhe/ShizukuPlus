@@ -177,7 +177,7 @@ class WatchdogService : Service() {
         val channelId = CRASH_CHANNEL_ID
         val channelName = "Crash Reports"
 
-        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? NotificationManager ?: return
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId,
@@ -188,7 +188,8 @@ class WatchdogService : Service() {
         }
 
         val learnMoreIntent = Intent(Intent.ACTION_VIEW).apply {
-                                    setData(Uri.parse("https://github.com/thejaustin/ShizukuPlus/wiki#shizuku-keeps-stopping-randomly"))        }
+            setData(Uri.parse("https://github.com/thejaustin/ShizukuPlus/wiki#shizuku-keeps-stopping-randomly"))
+        }
         val learnMorePendingIntent = PendingIntent.getActivity(this, 10, learnMoreIntent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
 
         val disableIntent = SettingsPage.Notifications.NotificationChannel.buildIntent(applicationContext)
