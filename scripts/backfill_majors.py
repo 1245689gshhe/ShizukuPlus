@@ -52,14 +52,15 @@ MAJOR_REVS = {m[0] for m in MAJORS}
 # critical-fix callout is meant to be occasional and doesn't track "the critical fix of this
 # build's own era" - just the single most recent one, same on every page, like the headline major.
 # Set CRITICAL_REV to None to omit this callout entirely once nothing recent qualifies.
-CRITICAL_REV = 2582
-CRITICAL_TAG = "v13.6.0.r2582"
-CRITICAL_DESC = ("Fixed Feature Hub crash (ClassCastException on open) caused by "
-                 "migrateAutomationTrustedNetworks reading the wrong SharedPreferences file. "
-                 "Fixed boot ClassCastException when trusted-network prefs were stored in old "
-                 "Set<String> format. Fixed WatchdogService clearing watchdog setting on transient "
-                 "foreground-start rejections. Fixed AutomationService double-firing network firewall "
-                 "rule and not starting the app monitor for auto-hide users.")
+CRITICAL_REV = 2589
+CRITICAL_TAG = "v13.6.0.r2589"
+CRITICAL_DESC = ("Fixed Settings import/export silently reading/writing the wrong storage file on "
+                 "Android 7+ (exports were empty; imports had no effect). Fixed Feature Hub crash "
+                 "(ClassCastException) caused by migrateAutomationTrustedNetworks reading the wrong "
+                 "SharedPreferences file. Fixed AutomationService double-firing network firewall rule, "
+                 "not starting the app monitor for auto-hide-only users, and not restarting correctly "
+                 "at boot on API 24-25. Fixed WatchdogService clearing watchdog setting on transient "
+                 "foreground-start rejections.")
 
 
 def sh(args, retries=4):
