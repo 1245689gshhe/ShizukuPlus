@@ -904,7 +904,17 @@ public class ShizukuSettings {
      *  - deliberately opt-in, matching AutomationService only running once something is configured. */
     public static String getTrustedNetworks() {
         SharedPreferences p = getPreferences();
-        return p != null ? p.getString(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, "") : "";
+        if (p == null) return "";
+        try {
+            return p.getString(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, "");
+        } catch (ClassCastException e) {
+            // Pre-r2436 stored this as Set<String>; migrate and return the string form.
+            java.util.Set<String> old = null;
+            try { old = p.getStringSet(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, null); } catch (Exception ignored) {}
+            String migrated = old != null ? TextUtils.join(",", old) : "";
+            p.edit().putString(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, migrated).apply();
+            return migrated;
+        }
     }
 
     public static void setTrustedNetworks(String commaSeparatedSsids) {
@@ -1383,7 +1393,19 @@ public class ShizukuSettings {
     public static boolean hasAnyAutomationRulesConfigured() {
         SharedPreferences p = getPreferences();
         if (p == null) return false;
-        String trustedNetworks = p.getString(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, "");
+        // KEY_AUTOMATION_TRUSTED_NETWORKS was stored as Set<String> in builds before r2436.
+        // Reading it with getString() throws ClassCastException in those builds. Migrate inline
+        // so this method is safe to call from BootCompleteReceiver (before the user ever opens
+        // Feature Hub, where the fragment-level migration would otherwise run).
+        String trustedNetworks;
+        try {
+            trustedNetworks = p.getString(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, "");
+        } catch (ClassCastException e) {
+            java.util.Set<String> old = null;
+            try { old = p.getStringSet(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, null); } catch (Exception ignored) {}
+            trustedNetworks = old != null ? TextUtils.join(",", old) : "";
+            p.edit().putString(Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, trustedNetworks).apply();
+        }
         String autoHide = p.getString(Keys.KEY_AUTOMATION_AUTO_HIDE_PACKAGES, "");
         String appProfiles = p.getString(Keys.KEY_AUTOMATION_APP_PROFILES_JSON, "{}");
         boolean hasNetworks = trustedNetworks != null && !trustedNetworks.trim().isEmpty();
