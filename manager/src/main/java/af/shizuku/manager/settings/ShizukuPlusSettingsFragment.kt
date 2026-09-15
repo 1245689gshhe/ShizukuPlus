@@ -761,9 +761,11 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
     // Must be called before setPreferencesFromResource(). In builds prior to r2436 this key was
     // stored as Set<String>; EditTextPreference calls getString() during XML inflation and Android
     // throws ClassCastException immediately — crashing the Feature Hub screen (#499).
+    // Uses preferenceManager.sharedPreferences (not PreferenceManager.getDefaultSharedPreferences)
+    // so it reads the same "settings" file that BaseSettingsFragment configures via
+    // preferenceManager.sharedPreferencesName = ShizukuSettings.NAME.
     private fun migrateAutomationTrustedNetworks() {
-        val ctx = context ?: return
-        val prefs = androidx.preference.PreferenceManager.getDefaultSharedPreferences(ctx)
+        val prefs = preferenceManager.sharedPreferences ?: return
         try {
             prefs.getString(ShizukuSettings.Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, null)
         } catch (e: ClassCastException) {
