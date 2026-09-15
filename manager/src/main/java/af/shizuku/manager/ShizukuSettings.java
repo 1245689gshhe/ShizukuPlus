@@ -950,9 +950,14 @@ public class ShizukuSettings {
     }
 
     /** True once the user has configured at least one automation list - gates whether
-     *  AutomationService (and its notification/polling) should run at all. */
+     *  AutomationService (and its notification/polling) should run at all. Mirrors the same
+     *  check as hasAnyAutomationRulesConfigured() to cover all three automation types. */
     public static boolean isAnyAutomationConfigured() {
-        return !getTrustedNetworksSet().isEmpty() || !getAutoHidePackagesSet().isEmpty();
+        if (!getTrustedNetworksSet().isEmpty() || !getAutoHidePackagesSet().isEmpty()) return true;
+        SharedPreferences p = getPreferences();
+        if (p == null) return false;
+        String appProfiles = p.getString(Keys.KEY_AUTOMATION_APP_PROFILES_JSON, "{}");
+        return appProfiles != null && appProfiles.length() > 2 && !appProfiles.equals("{}");
     }
 
     /** The hidden-packages value that should actually be pushed to the server right now: the
