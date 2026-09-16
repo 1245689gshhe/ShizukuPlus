@@ -1,6 +1,5 @@
 package af.shizuku.manager.backup
 
-import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.view.Menu
@@ -24,6 +23,7 @@ class AppBackupActivity : AppBarActivity() {
     private lateinit var binding: ActivityAppBackupBinding
     private lateinit var adapter: BackupAdapter
     private var includeSystem = false
+    private var backupAllItem: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,16 +41,7 @@ class AppBackupActivity : AppBarActivity() {
         binding.recyclerView.adapter = adapter
 
         adapter.onBackupClick = { entry ->
-            // Use the SAF export directory the user configured in Settings if available and the
-            // permission is still active (permissions survive reboots once takePersistableUriPermission
-            // is called; we verify here to avoid a SecurityException in the ViewModel).
-            val safUri = ShizukuSettings.getExportDirUri()?.let { uriStr ->
-                val uri = Uri.parse(uriStr)
-                val hasWritePermission = contentResolver.persistedUriPermissions.any {
-                    it.uri == uri && it.isWritePermission
-                }
-                if (hasWritePermission) uri else null
-            }
+            val safUri = getSafUri()
             if (safUri != null) {
                 viewModel.backupAppData(entry, safTreeUri = safUri)
             } else {
@@ -97,6 +88,12 @@ class AppBackupActivity : AppBarActivity() {
                                 getString(R.string.backup_app_complete, event.pkg, event.path),
                                 Snackbar.LENGTH_LONG
                             ).show()
+                        is BackupViewModel.BackupEvent.BatchComplete ->
+                            Snackbar.make(
+                                rootView,
+                                getString(R.string.backup_batch_complete, event.succeeded, event.failed, event.path),
+                                Snackbar.LENGTH_LONG
+                            ).show()
                         is BackupViewModel.BackupEvent.FreezeChanged -> {
                             val msg = if (event.nowFrozen) R.string.backup_freeze_success else R.string.backup_unfreeze_success
                             Snackbar.make(rootView, msg, Snackbar.LENGTH_SHORT).show()
@@ -108,18 +105,36 @@ class AppBackupActivity : AppBarActivity() {
             }
         }
 
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.batchRunning.collect { running ->
+                    backupAllItem?.isEnabled = !running
+                }
+            }
+        }
+
         viewModel.loadApps(includeSystem)
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.app_backup_menu, menu)
         menu.findItem(R.id.action_show_system)?.isChecked = includeSystem
+        backupAllItem = menu.findItem(R.id.action_backup_all)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
             android.R.id.home -> { finish(); true }
+            R.id.action_backup_all -> {
+                val safUri = getSafUri()
+                if (safUri != null) {
+                    viewModel.backupAll(safTreeUri = safUri)
+                } else {
+                    viewModel.backupAll(outputDir = getExternalFilesDir(null) ?: filesDir)
+                }
+                true
+            }
             R.id.action_show_system -> {
                 includeSystem = !includeSystem
                 item.isChecked = includeSystem
@@ -127,6 +142,16 @@ class AppBackupActivity : AppBarActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    private fun getSafUri(): Uri? {
+        return ShizukuSettings.getExportDirUri()?.let { uriStr ->
+            val uri = Uri.parse(uriStr)
+            val hasWritePermission = contentResolver.persistedUriPermissions.any {
+                it.uri == uri && it.isWritePermission
+            }
+            if (hasWritePermission) uri else null
         }
     }
 

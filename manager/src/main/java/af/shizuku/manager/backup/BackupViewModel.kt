@@ -41,6 +41,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
 
     sealed class BackupEvent {
         data class BackupComplete(val pkg: String, val path: String) : BackupEvent()
+        data class BatchComplete(val succeeded: Int, val failed: Int, val path: String) : BackupEvent()
         data class FreezeChanged(val pkg: String, val nowFrozen: Boolean) : BackupEvent()
         data class Failure(val msg: String) : BackupEvent()
     }
@@ -54,6 +55,10 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
     // Packages currently being backed up — drives per-row busy state in the adapter.
     private val _busyPackages = MutableStateFlow<Set<String>>(emptySet())
     val busyPackages: StateFlow<Set<String>> = _busyPackages
+
+    // True while a batch backup is running; disables the "Backup All" menu item.
+    private val _batchRunning = MutableStateFlow(false)
+    val batchRunning: StateFlow<Boolean> = _batchRunning
 
     fun loadApps(includeSystem: Boolean = false) {
         _state.value = UiState.Loading
@@ -170,6 +175,61 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 _busyPackages.value = _busyPackages.value - pkg
             }
+        }
+    }
+
+    /**
+     * Sequentially backs up all currently loaded user apps. Emits [BackupEvent.BatchComplete]
+     * when done, or individual [BackupEvent.Failure] events for apps that fail.
+     */
+    fun backupAll(outputDir: File? = null, safTreeUri: Uri? = null) {
+        if (_batchRunning.value) return
+        val apps = (_state.value as? UiState.Loaded)?.apps ?: return
+        viewModelScope.launch(Dispatchers.IO) {
+            _batchRunning.value = true
+            var succeeded = 0
+            var failed = 0
+            val cr = getApplication<Application>().contentResolver
+            for (entry in apps) {
+                val pkg = entry.packageName
+                if (pkg in _busyPackages.value) continue
+                _busyPackages.value = _busyPackages.value + pkg
+                var prepared = false
+                try {
+                    ShizukuPlusAPI.BackupRestorePlus.forceStop(pkg)
+                    prepared = try {
+                        ShizukuPlusAPI.ApkPatcher.prepareTempDebug(pkg)
+                    } catch (e: Exception) { false }
+
+                    var backedUpSomething = false
+                    val dataPfd = try { ShizukuPlusAPI.ApkPatcher.streamDataDir(pkg) } catch (e: Exception) { null }
+                    if (dataPfd != null) {
+                        if (writeBackupStream(safTreeUri, outputDir, pkg, "data.tar.gz", cr) { out ->
+                            dataPfd.use { pfd -> FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) } }
+                        }) backedUpSomething = true
+                    }
+                    val extPfd = try { ShizukuPlusAPI.BackupRestorePlus.backupExternalData(pkg) } catch (e: Exception) { null }
+                    if (extPfd != null) {
+                        if (writeBackupStream(safTreeUri, outputDir, pkg, "external.tar.gz", cr) { out ->
+                            extPfd.use { pfd -> FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) } }
+                        }) backedUpSomething = true
+                    }
+                    if (backedUpSomething) succeeded++ else failed++
+                } catch (e: Exception) {
+                    Timber.e(e, "Batch backup failed for $pkg")
+                    failed++
+                } finally {
+                    if (prepared) try { ShizukuPlusAPI.ApkPatcher.restoreOriginal(pkg) } catch (_: Exception) {}
+                    _busyPackages.value = _busyPackages.value - pkg
+                }
+            }
+            val outputDesc = if (safTreeUri != null) {
+                EnvironmentUtils.resolveExportedPath("") ?: safTreeUri.lastPathSegment ?: "backup folder"
+            } else {
+                outputDir?.absolutePath ?: "backup folder"
+            }
+            _events.emit(BackupEvent.BatchComplete(succeeded, failed, outputDesc.trimEnd('/')))
+            _batchRunning.value = false
         }
     }
 

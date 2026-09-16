@@ -4,7 +4,6 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import af.shizuku.manager.R
 import af.shizuku.manager.databinding.ItemBackupAppBinding
-import java.util.Locale
 
 class BackupAppViewHolder(private val binding: ItemBackupAppBinding) :
     RecyclerView.ViewHolder(binding.root) {
