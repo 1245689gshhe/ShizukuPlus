@@ -168,6 +168,18 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                     }) backedUpSomething = true
                 }
 
+                val obbPfd = try { ShizukuPlusAPI.BackupRestorePlus.backupObbData(pkg) } catch (e: Exception) {
+                    Timber.w(e, "backupObbData failed for $pkg")
+                    null
+                }
+                if (obbPfd != null) {
+                    if (writeBackupStream(safTreeUri, outputDir, pkg, "obb.tar.gz", cr) { out ->
+                        obbPfd.use { pfd ->
+                            FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) }
+                        }
+                    }) backedUpSomething = true
+                }
+
                 // Resolve SAF URI to a human-readable path for the snackbar; fall back to the raw
                 // last path segment if EnvironmentUtils can't map the tree doc ID to a real path.
                 val outputDesc = if (safTreeUri != null) {
@@ -263,6 +275,12 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                     if (extPfd != null) {
                         if (writeBackupStream(safTreeUri, outputDir, pkg, "external.tar.gz", cr) { out ->
                             extPfd.use { pfd -> FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) } }
+                        }) backedUpSomething = true
+                    }
+                    val obbPfd = try { ShizukuPlusAPI.BackupRestorePlus.backupObbData(pkg) } catch (e: Exception) { null }
+                    if (obbPfd != null) {
+                        if (writeBackupStream(safTreeUri, outputDir, pkg, "obb.tar.gz", cr) { out ->
+                            obbPfd.use { pfd -> FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) } }
                         }) backedUpSomething = true
                     }
                     if (backedUpSomething) succeeded++ else failed++
