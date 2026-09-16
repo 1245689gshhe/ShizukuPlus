@@ -94,16 +94,15 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                             val info = pm.getApplicationInfo(pkg, 0)
                             pm.getApplicationLabel(info).toString()
                         } catch (e: Exception) { pkg }
-                        val isFrozen = try {
-                            ShizukuPlusAPI.BackupRestorePlus.isAppFrozen(pkg)
-                        } catch (e: Exception) { false }
                         AppEntry(
                             packageName = pkg,
                             label = label,
                             versionName = b.getString("versionName") ?: "",
                             isSystem = b.getBoolean("isSystem"),
-                            allowBackup = b.getBoolean("allowBackup"),
-                            isFrozen = isFrozen
+                            // allowBackup defaults true if absent (old server without this key)
+                            allowBackup = b.getBoolean("allowBackup", true),
+                            // isFrozen now comes from the server bundle — no extra per-app IPC
+                            isFrozen = b.getBoolean("isFrozen", false)
                         )
                     }
                     .sortedBy { it.label.lowercase() }
@@ -236,7 +235,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun backupAll(outputDir: File? = null, safTreeUri: Uri? = null) {
         if (_batchRunning.value) return
-        val apps = allApps.ifEmpty { (_state.value as? UiState.Loaded)?.apps ?: return }
+        val apps = allApps.ifEmpty { return }
         viewModelScope.launch(Dispatchers.IO) {
             _batchRunning.value = true
             var succeeded = 0
@@ -347,13 +346,9 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                     ShizukuPlusAPI.BackupRestorePlus.freezeApp(pkg)
                     true
                 }
-                // Update the frozen state directly in the loaded list.
-                val current = _state.value
-                if (current is UiState.Loaded) {
-                    _state.value = UiState.Loaded(
-                        current.apps.map { if (it.packageName == pkg) it.copy(isFrozen = nowFrozen) else it }
-                    )
-                }
+                // Update master list so subsequent filter/search retains the new frozen state.
+                allApps = allApps.map { if (it.packageName == pkg) it.copy(isFrozen = nowFrozen) else it }
+                applyFilter()
                 _events.emit(BackupEvent.FreezeChanged(pkg, nowFrozen))
             } catch (e: Exception) {
                 Timber.e(e, "toggleFreeze failed for $pkg")

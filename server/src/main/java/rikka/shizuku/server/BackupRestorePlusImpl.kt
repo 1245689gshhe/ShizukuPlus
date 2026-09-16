@@ -93,25 +93,38 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
         val userId = callingUserId()
         // Primary: InstalledPackagesCompat — works on Android 17 without exec
         try {
-            val flags: Long = if (includeSystem) 0L else PackageManager.MATCH_SYSTEM_ONLY.toLong().inv().and(0xFFFFL)
             val packages = InstalledPackagesCompat.getInstalledPackagesNoThrow(0L, userId)
             if (packages.isNotEmpty()) {
                 return packages
                     .filter { pi -> includeSystem || (pi.applicationInfo?.flags?.and(android.content.pm.ApplicationInfo.FLAG_SYSTEM) == 0) }
                     .map { pi ->
                         val ai = pi.applicationInfo
+                        val flags = ai?.flags ?: 0
                         Bundle().apply {
                             putString("packageName", pi.packageName)
-                            putString("sourceDir", ai?.sourceDir)
+                            putString("versionName", pi.versionName ?: "")
                             putLong("versionCode", pi.longVersionCode)
-                            putBoolean("isSystem", (ai?.flags ?: 0) and android.content.pm.ApplicationInfo.FLAG_SYSTEM != 0)
+                            putString("sourceDir", ai?.sourceDir)
+                            putString("dataDir", ai?.dataDir)
+                            putInt("uid", ai?.uid ?: -1)
+                            putInt("targetSdk", ai?.targetSdkVersion ?: -1)
+                            putBoolean("isSystem", flags and android.content.pm.ApplicationInfo.FLAG_SYSTEM != 0)
+                            putBoolean("isDebuggable", flags and android.content.pm.ApplicationInfo.FLAG_DEBUGGABLE != 0)
+                            putBoolean("allowBackup", flags and android.content.pm.ApplicationInfo.FLAG_ALLOW_BACKUP != 0)
+                            // An app is "frozen" when it is disabled for this user (pm disable-user).
+                            putBoolean("isFrozen", ai?.enabled == false)
                         }
                     }
             }
         } catch (e: Exception) {
             Log.w(TAG, "listInstalledPackages IPC failed, falling back to exec", e)
         }
-        // Fallback: pm list packages
+        // Fallback: pm list packages — get disabled set once for isFrozen, versionName/allowBackup
+        // are unavailable without per-package queries in this path so left as safe defaults.
+        val disabledPkgs = try {
+            exec("pm", "list", "packages", "-d").lines()
+                .map { it.removePrefix("package:").trim() }.toHashSet()
+        } catch (_: Exception) { emptySet<String>() }
         val args = if (includeSystem)
             arrayOf("pm", "list", "packages", "-f", "--show-versioncode")
         else
@@ -130,9 +143,12 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
                 ?.removePrefix("versionCode:")?.toLongOrNull() ?: -1L
             result.add(Bundle().apply {
                 putString("packageName", packageName)
-                putString("sourceDir", apkPath)
+                putString("versionName", "")
                 putLong("versionCode", versionCode)
+                putString("sourceDir", apkPath)
                 putBoolean("isSystem", apkPath.startsWith("/system/") || apkPath.startsWith("/product/") || apkPath.startsWith("/vendor/"))
+                putBoolean("allowBackup", true)
+                putBoolean("isFrozen", packageName in disabledPkgs)
             })
         }
         return result
