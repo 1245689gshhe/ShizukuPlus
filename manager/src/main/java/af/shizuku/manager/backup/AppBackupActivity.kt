@@ -6,6 +6,7 @@ import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
+import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -120,6 +121,24 @@ class AppBackupActivity : AppBarActivity() {
         menuInflater.inflate(R.menu.app_backup_menu, menu)
         menu.findItem(R.id.action_show_system)?.isChecked = includeSystem
         backupAllItem = menu.findItem(R.id.action_backup_all)
+
+        val searchItem = menu.findItem(R.id.action_search)
+        val searchView = searchItem?.actionView as? SearchView
+        searchView?.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(query: String?) = true
+            override fun onQueryTextChange(newText: String?): Boolean {
+                viewModel.setQuery(newText.orEmpty())
+                return true
+            }
+        })
+        searchItem?.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(item: MenuItem) = true
+            override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+                viewModel.setQuery("")
+                return true
+            }
+        })
+
         return true
     }
 

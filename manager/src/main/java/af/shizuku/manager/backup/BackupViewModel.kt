@@ -60,6 +60,21 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
     private val _batchRunning = MutableStateFlow(false)
     val batchRunning: StateFlow<Boolean> = _batchRunning
 
+    private var allApps: List<AppEntry> = emptyList()
+    private val _query = MutableStateFlow("")
+
+    fun setQuery(q: String) {
+        _query.value = q
+        applyFilter()
+    }
+
+    private fun applyFilter() {
+        val q = _query.value.trim().lowercase()
+        val filtered = if (q.isEmpty()) allApps
+        else allApps.filter { it.label.lowercase().contains(q) || it.packageName.lowercase().contains(q) }
+        _state.value = UiState.Loaded(filtered)
+    }
+
     fun loadApps(includeSystem: Boolean = false) {
         _state.value = UiState.Loading
         viewModelScope.launch(Dispatchers.IO) {
@@ -90,7 +105,8 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                         )
                     }
                     .sortedBy { it.label.lowercase() }
-                _state.value = UiState.Loaded(entries)
+                allApps = entries
+                applyFilter()
             } catch (e: Exception) {
                 Timber.e(e, "loadApps failed")
                 _state.value = UiState.Error(e.message ?: "Unknown error")
@@ -184,7 +200,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
      */
     fun backupAll(outputDir: File? = null, safTreeUri: Uri? = null) {
         if (_batchRunning.value) return
-        val apps = (_state.value as? UiState.Loaded)?.apps ?: return
+        val apps = allApps.ifEmpty { (_state.value as? UiState.Loaded)?.apps ?: return }
         viewModelScope.launch(Dispatchers.IO) {
             _batchRunning.value = true
             var succeeded = 0
