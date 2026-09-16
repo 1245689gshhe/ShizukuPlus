@@ -1402,6 +1402,12 @@
     <string name="device_control_bluetooth">Bluetooth</string>
     <string name="device_control_mobile_data">Mobile Data</string>
     <string name="device_control_nfc">NFC</string>
+    <string name="device_control_private_dns">Private DNS</string>
+    <string name="device_control_dns_off">Off</string>
+    <string name="device_control_dns_auto">Auto</string>
+    <string name="device_control_dns_custom">Custom</string>
+    <string name="device_control_dns_hostname_label">DNS hostname</string>
+    <string name="device_control_dns_apply">Apply</string>
     <string name="device_control_section_display">Display</string>
     <string name="device_control_auto_brightness">Auto-Brightness</string>
     <string name="device_control_brightness">Brightness: %1$d</string>

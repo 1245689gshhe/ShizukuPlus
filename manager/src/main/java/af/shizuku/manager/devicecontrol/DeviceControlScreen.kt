@@ -34,6 +34,9 @@ fun DeviceControlScreen(onBackClick: () -> Unit) {
     var bluetooth by remember { mutableStateOf(false) }
     var mobileData by remember { mutableStateOf(false) }
     var nfc by remember { mutableStateOf(false) }
+    // private_dns_mode: "off" | "opportunistic" | "hostname"
+    var dnsMode by remember { mutableStateOf("opportunistic") }
+    var dnsHostname by remember { mutableStateOf("") }
 
     // ── Display state ─────────────────────────────────────────────────────────
     var autoBrightness by remember { mutableStateOf(true) }
@@ -69,6 +72,8 @@ fun DeviceControlScreen(onBackClick: () -> Unit) {
                 mobileData = dc.getSetting("global", "mobile_data") == "1"
                 // nfc_on is in secure namespace on most Android versions
                 nfc = dc.getSetting("secure", "nfc_on") == "1"
+                dnsMode = dc.getSetting("global", "private_dns_mode") ?: "opportunistic"
+                dnsHostname = dc.getSetting("global", "private_dns_specifier") ?: ""
 
                 autoBrightness = dc.getSetting("system", "screen_brightness_mode") == "1"
                 brightness = dc.getSetting("system", "screen_brightness")?.toIntOrNull() ?: 128
@@ -211,6 +216,19 @@ fun DeviceControlScreen(onBackClick: () -> Unit) {
                         nfc = v
                         scope.launch(Dispatchers.IO) {
                             runCatching { ShizukuPlusAPI.DeviceControl.setNfcEnabled(v) }
+                        }
+                    }
+                )
+            }
+            item {
+                PrivateDnsRow(
+                    mode = dnsMode,
+                    hostname = dnsHostname,
+                    onApply = { mode, host ->
+                        dnsMode = mode
+                        dnsHostname = host
+                        scope.launch(Dispatchers.IO) {
+                            runCatching { ShizukuPlusAPI.NetworkGovernor.setPrivateDns(mode, host) }
                         }
                     }
                 )
@@ -483,6 +501,69 @@ private fun ScreenTimeoutRow(currentMs: Int, onSelect: (Int) -> Unit) {
                     )
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun PrivateDnsRow(
+    mode: String,
+    hostname: String,
+    onApply: (mode: String, hostname: String) -> Unit
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var editHostname by remember(hostname) { mutableStateOf(hostname) }
+
+    val modeLabel = when (mode) {
+        "off" -> stringResource(R.string.device_control_dns_off)
+        "hostname" -> stringResource(R.string.device_control_dns_custom)
+        else -> stringResource(R.string.device_control_dns_auto)
+    }
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.device_control_private_dns),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.weight(1f)
+            )
+            Box {
+                OutlinedButton(onClick = { expanded = true }) { Text(modeLabel) }
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.device_control_dns_off)) },
+                        onClick = { expanded = false; onApply("off", "") }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.device_control_dns_auto)) },
+                        onClick = { expanded = false; onApply("opportunistic", "") }
+                    )
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.device_control_dns_custom)) },
+                        onClick = { expanded = false; onApply("hostname", editHostname) }
+                    )
+                }
+            }
+        }
+
+        if (mode == "hostname") {
+            OutlinedTextField(
+                value = editHostname,
+                onValueChange = { editHostname = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text(stringResource(R.string.device_control_dns_hostname_label)) },
+                singleLine = true,
+                trailingIcon = {
+                    TextButton(onClick = { onApply("hostname", editHostname) }) {
+                        Text(stringResource(R.string.device_control_dns_apply))
+                    }
+                }
+            )
         }
     }
 }
