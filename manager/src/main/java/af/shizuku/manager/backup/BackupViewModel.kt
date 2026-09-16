@@ -61,7 +61,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
     private val _batchRunning = MutableStateFlow(false)
     val batchRunning: StateFlow<Boolean> = _batchRunning
 
-    private var allApps: List<AppEntry> = emptyList()
+    @Volatile private var allApps: List<AppEntry> = emptyList()
     private val _query = MutableStateFlow("")
 
     fun setQuery(q: String) {
@@ -70,6 +70,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
     }
 
     private fun applyFilter() {
+        if (allApps.isEmpty()) return
         val q = _query.value.trim().lowercase()
         val filtered = if (q.isEmpty()) allApps
         else allApps.filter { it.label.lowercase().contains(q) || it.packageName.lowercase().contains(q) }
