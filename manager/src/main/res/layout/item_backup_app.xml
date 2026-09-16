@@ -48,6 +48,35 @@
                 android:maxLines="1"
                 android:ellipsize="end" />
 
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:id="@+id/version_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?textAppearanceLabelSmall"
+                    android:textColor="?colorOnSurfaceVariant" />
+
+                <TextView
+                    android:id="@+id/no_backup_badge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:paddingHorizontal="5dp"
+                    android:paddingVertical="1dp"
+                    android:text="@string/backup_badge_no_backup"
+                    android:textAppearance="?textAppearanceLabelSmall"
+                    android:textColor="?colorOnTertiaryContainer"
+                    android:background="@drawable/badge_no_backup_bg"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
         </LinearLayout>
 
         <com.google.android.material.button.MaterialButton

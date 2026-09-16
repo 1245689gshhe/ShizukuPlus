@@ -4,6 +4,7 @@ import android.view.View
 import androidx.recyclerview.widget.RecyclerView
 import af.shizuku.manager.R
 import af.shizuku.manager.databinding.ItemBackupAppBinding
+import java.util.Locale
 
 class BackupAppViewHolder(private val binding: ItemBackupAppBinding) :
     RecyclerView.ViewHolder(binding.root) {
@@ -19,6 +20,8 @@ class BackupAppViewHolder(private val binding: ItemBackupAppBinding) :
 
         binding.appLabel.text = entry.label
         binding.packageName.text = entry.packageName
+        binding.versionName.text = entry.versionName
+        binding.noBackupBadge.visibility = if (entry.allowBackup) View.GONE else View.VISIBLE
 
         try {
             val info = pm.getApplicationInfo(entry.packageName, 0)
