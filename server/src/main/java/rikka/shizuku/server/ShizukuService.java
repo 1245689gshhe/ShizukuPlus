@@ -63,6 +63,7 @@ import af.shizuku.server.IAppInspector;
 import af.shizuku.server.IPrivilegedDataSource;
 import af.shizuku.server.IBackupRestorePlus;
 import af.shizuku.server.IApkPatcher;
+import af.shizuku.server.IDeviceControlPlus;
 import rikka.hidden.compat.ActivityManagerApis;
 import rikka.hidden.compat.DeviceIdleControllerApis;
 import rikka.hidden.compat.PackageManagerApis;
@@ -146,6 +147,7 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     private final PrivilegedDataSourceImpl privilegedDataSource = new PrivilegedDataSourceImpl();
     private final BackupRestorePlusImpl backupRestorePlus = new BackupRestorePlusImpl();
     private final ApkPatcherImpl apkPatcher = new ApkPatcherImpl();
+    private final DeviceControlPlusImpl deviceControlPlus = new DeviceControlPlusImpl();
 
     private void grantRuntimePermissionRobust(String packageName, String permName, int userId) throws Throwable {
         Android17Compat.grantRuntimePermission(packageName, permName, userId);
@@ -2793,6 +2795,12 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
     public IApkPatcher getApkPatcher() {
         enforceCallingPermission("getApkPatcher");
         return apkPatcher;
+    }
+
+    @Override
+    public IDeviceControlPlus getDeviceControlPlus() {
+        enforceCallingPermission("getDeviceControlPlus");
+        return deviceControlPlus;
     }
 
     @Override

@@ -1,6 +1,8 @@
 package rikka.shizuku.server
 
+import android.content.ClipData
 import android.os.Binder
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.os.ParcelFileDescriptor
@@ -647,6 +649,44 @@ class PrivilegedDataSourceImpl : IPrivilegedDataSource.Stub() {
             Log.w("PrivilegedDataSource", "getClipboard IPC failed, falling back to exec", e)
         }
         return exec("cmd", "clipboard", "get-text")
+    }
+
+    override fun setClipboard(text: String?): Boolean {
+        if (text == null) return false
+        val userId = UserHandleCompat.getUserId(Binder.getCallingUid())
+        // Primary: IClipboard.setPrimaryClip — works at shell UID on all Android versions.
+        // ClipData is a public API so we can instantiate it directly.
+        try {
+            val binder = ServiceManager.getService("clipboard") ?: error("no clipboard service")
+            val cb = Class.forName("android.content.IClipboard\$Stub")
+                .getDeclaredMethod("asInterface", IBinder::class.java).invoke(null, binder)
+                ?: error("asInterface null")
+            val clip = ClipData.newPlainText("shizukuplus", text)
+            // setPrimaryClip signature varies by Android version:
+            //   API < 32: setPrimaryClip(ClipData, String callingPackage, int userId)
+            //   API 32+ : setPrimaryClip(ClipData, String callingPackage, String attributionTag, int userId)
+            val methods = cb.javaClass.methods.filter { it.name == "setPrimaryClip" }
+            for (m in methods.sortedByDescending { it.parameterTypes.size }) {
+                try {
+                    when (m.parameterTypes.size) {
+                        4 -> m.invoke(cb, clip, "com.android.shell", null, userId)
+                        3 -> m.invoke(cb, clip, "com.android.shell", userId)
+                        else -> continue
+                    }
+                    return true
+                } catch (_: Exception) {}
+            }
+        } catch (e: Exception) {
+            Log.w("PrivilegedDataSource", "setClipboard IPC failed, trying cmd fallback", e)
+        }
+        // Fallback: cmd clipboard set-text (Android 13+, API 33)
+        if (Build.VERSION.SDK_INT >= 33) {
+            return try {
+                val proc = Runtime.getRuntime().exec(arrayOf("cmd", "clipboard", "set-text", text))
+                proc.waitFor() == 0
+            } catch (_: Exception) { false }
+        }
+        return false
     }
 
     // ── Notifications (DUMP — install permission) ─────────────────────────────
