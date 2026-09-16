@@ -42,6 +42,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
     sealed class BackupEvent {
         data class BackupComplete(val pkg: String, val path: String) : BackupEvent()
         data class BatchComplete(val succeeded: Int, val failed: Int, val path: String) : BackupEvent()
+        data class RestoreComplete(val pkg: String) : BackupEvent()
         data class FreezeChanged(val pkg: String, val nowFrozen: Boolean) : BackupEvent()
         data class Failure(val msg: String) : BackupEvent()
     }
@@ -189,6 +190,40 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                         Timber.w(ex, "restoreOriginal failed for $pkg")
                     }
                 }
+                _busyPackages.value = _busyPackages.value - pkg
+            }
+        }
+    }
+
+    /**
+     * Restores external data for [entry] from [externalTarUri] (a SAF URI pointing to an
+     * external.tar.gz file). Uses [ShizukuPlusAPI.BackupRestorePlus.restoreExternalData].
+     */
+    fun restoreExternalData(entry: AppEntry, externalTarUri: Uri) {
+        val pkg = entry.packageName
+        if (pkg in _busyPackages.value) return
+        viewModelScope.launch(Dispatchers.IO) {
+            _busyPackages.value = _busyPackages.value + pkg
+            try {
+                ShizukuPlusAPI.BackupRestorePlus.forceStop(pkg)
+                val cr = getApplication<Application>().contentResolver
+                val pfd = cr.openFileDescriptor(externalTarUri, "r")
+                    ?: run {
+                        _events.emit(BackupEvent.Failure("Could not open backup file for $pkg"))
+                        return@launch
+                    }
+                val ok = pfd.use {
+                    ShizukuPlusAPI.BackupRestorePlus.restoreExternalData(pkg, it)
+                }
+                if (ok) {
+                    _events.emit(BackupEvent.RestoreComplete(pkg))
+                } else {
+                    _events.emit(BackupEvent.Failure("Restore failed for $pkg"))
+                }
+            } catch (e: Exception) {
+                Timber.e(e, "restoreExternalData failed for $pkg")
+                _events.emit(BackupEvent.Failure("Restore failed for $pkg: ${e.message}"))
+            } finally {
                 _busyPackages.value = _busyPackages.value - pkg
             }
         }

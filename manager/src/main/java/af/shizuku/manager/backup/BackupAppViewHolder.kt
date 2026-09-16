@@ -12,6 +12,7 @@ class BackupAppViewHolder(private val binding: ItemBackupAppBinding) :
         entry: BackupViewModel.AppEntry,
         isBusy: Boolean,
         onBackup: ((BackupViewModel.AppEntry) -> Unit)?,
+        onRestore: ((BackupViewModel.AppEntry) -> Unit)?,
         onFreeze: ((BackupViewModel.AppEntry) -> Unit)?
     ) {
         val context = binding.root.context
@@ -33,12 +34,14 @@ class BackupAppViewHolder(private val binding: ItemBackupAppBinding) :
         binding.btnBackup.isEnabled = !isBusy
         binding.btnBackup.setText(if (isBusy) R.string.backup_in_progress else R.string.backup_action_backup)
 
+        binding.btnRestore.isEnabled = !isBusy
         binding.btnFreeze.isEnabled = !isBusy
         binding.btnFreeze.setText(
             if (entry.isFrozen) R.string.backup_action_unfreeze else R.string.backup_action_freeze
         )
 
         binding.btnBackup.setOnClickListener { if (!isBusy) onBackup?.invoke(entry) }
+        binding.btnRestore.setOnClickListener { if (!isBusy) onRestore?.invoke(entry) }
         binding.btnFreeze.setOnClickListener { if (!isBusy) onFreeze?.invoke(entry) }
     }
 }

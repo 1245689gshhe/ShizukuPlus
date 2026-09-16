@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.appcompat.widget.SearchView
 import androidx.lifecycle.Lifecycle
@@ -25,6 +26,13 @@ class AppBackupActivity : AppBarActivity() {
     private lateinit var adapter: BackupAdapter
     private var includeSystem = false
     private var backupAllItem: MenuItem? = null
+
+    private var pendingRestoreEntry: BackupViewModel.AppEntry? = null
+    private val restoreFilePicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        val entry = pendingRestoreEntry ?: return@registerForActivityResult
+        pendingRestoreEntry = null
+        if (uri != null) viewModel.restoreExternalData(entry, uri)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +56,10 @@ class AppBackupActivity : AppBarActivity() {
             } else {
                 viewModel.backupAppData(entry, outputDir = getExternalFilesDir(null) ?: filesDir)
             }
+        }
+        adapter.onRestoreClick = { entry ->
+            pendingRestoreEntry = entry
+            restoreFilePicker.launch(arrayOf("application/octet-stream", "*/*"))
         }
         adapter.onFreezeClick = { entry ->
             viewModel.toggleFreeze(entry)
@@ -93,6 +105,12 @@ class AppBackupActivity : AppBarActivity() {
                             Snackbar.make(
                                 rootView,
                                 getString(R.string.backup_batch_complete, event.succeeded, event.failed, event.path),
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                        is BackupViewModel.BackupEvent.RestoreComplete ->
+                            Snackbar.make(
+                                rootView,
+                                getString(R.string.backup_restore_complete, event.pkg),
                                 Snackbar.LENGTH_LONG
                             ).show()
                         is BackupViewModel.BackupEvent.FreezeChanged -> {

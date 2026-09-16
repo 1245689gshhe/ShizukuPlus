@@ -9,6 +9,7 @@ import af.shizuku.manager.databinding.ItemBackupAppBinding
 class BackupAdapter : ListAdapter<BackupViewModel.AppEntry, BackupAppViewHolder>(DIFF) {
 
     var onBackupClick: ((BackupViewModel.AppEntry) -> Unit)? = null
+    var onRestoreClick: ((BackupViewModel.AppEntry) -> Unit)? = null
     var onFreezeClick: ((BackupViewModel.AppEntry) -> Unit)? = null
 
     private var busyPackages: Set<String> = emptySet()
@@ -30,7 +31,7 @@ class BackupAdapter : ListAdapter<BackupViewModel.AppEntry, BackupAppViewHolder>
 
     override fun onBindViewHolder(holder: BackupAppViewHolder, position: Int) {
         val entry = getItem(position)
-        holder.bind(entry, entry.packageName in busyPackages, onBackupClick, onFreezeClick)
+        holder.bind(entry, entry.packageName in busyPackages, onBackupClick, onRestoreClick, onFreezeClick)
     }
 
     companion object {
