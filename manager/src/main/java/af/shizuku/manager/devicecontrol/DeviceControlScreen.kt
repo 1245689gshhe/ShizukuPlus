@@ -39,6 +39,8 @@ fun DeviceControlScreen(onBackClick: () -> Unit) {
     var autoBrightness by remember { mutableStateOf(true) }
     var brightness by remember { mutableIntStateOf(128) }
     var autoRotate by remember { mutableStateOf(false) }
+    // screen_off_timeout in ms; -1 = index 0 (Never) in TIMEOUT_OPTIONS
+    var screenTimeoutMs by remember { mutableIntStateOf(60000) }
 
     // ── Audio state ───────────────────────────────────────────────────────────
     var volumeMedia by remember { mutableIntStateOf(8) }
@@ -58,12 +60,19 @@ fun DeviceControlScreen(onBackClick: () -> Unit) {
         withContext(Dispatchers.IO) {
             try {
                 val dc = ShizukuPlusAPI.DeviceControl
-                val ds = ShizukuPlusAPI.PrivilegedDataSource
-
-                // Read settings via getSetting
                 airplane = dc.getSetting("global", "airplane_mode_on") == "1"
+                // wifi_on: 0=off, 1=on (Settings.Global)
+                wifi = dc.getSetting("global", "wifi_on") == "1"
+                // bluetooth_on: 0=off, 1=on
+                bluetooth = dc.getSetting("global", "bluetooth_on") == "1"
+                // mobile_data: 0=off, 1=on
+                mobileData = dc.getSetting("global", "mobile_data") == "1"
+                // nfc_on is in secure namespace on most Android versions
+                nfc = dc.getSetting("secure", "nfc_on") == "1"
+
                 autoBrightness = dc.getSetting("system", "screen_brightness_mode") == "1"
                 brightness = dc.getSetting("system", "screen_brightness")?.toIntOrNull() ?: 128
+                screenTimeoutMs = dc.getSetting("system", "screen_off_timeout")?.toIntOrNull() ?: 60000
                 autoRotate = dc.getSetting("system", "accelerometer_rotation") == "1"
                 animations = dc.getSetting("global", "window_animation_scale") != "0.0"
                 fontScale = dc.getSetting("system", "font_scale")?.toFloatOrNull() ?: 1.0f
@@ -252,6 +261,17 @@ fun DeviceControlScreen(onBackClick: () -> Unit) {
                     }
                 )
             }
+            item {
+                ScreenTimeoutRow(
+                    currentMs = screenTimeoutMs,
+                    onSelect = { ms ->
+                        screenTimeoutMs = ms
+                        scope.launch(Dispatchers.IO) {
+                            runCatching { ShizukuPlusAPI.DeviceControl.setScreenTimeout(ms) }
+                        }
+                    }
+                )
+            }
 
             // ── Audio ──────────────────────────────────────────────────────────
             item { Spacer(Modifier.height(8.dp)) }
@@ -418,5 +438,51 @@ private fun ControlSliderRow(
             valueRange = valueRange,
             steps = steps
         )
+    }
+}
+
+private data class TimeoutOption(val ms: Int, val label: String)
+
+private val TIMEOUT_OPTIONS = listOf(
+    TimeoutOption(15_000,   "15 seconds"),
+    TimeoutOption(30_000,   "30 seconds"),
+    TimeoutOption(60_000,   "1 minute"),
+    TimeoutOption(120_000,  "2 minutes"),
+    TimeoutOption(300_000,  "5 minutes"),
+    TimeoutOption(600_000,  "10 minutes"),
+    TimeoutOption(1_800_000,"30 minutes"),
+)
+
+@Composable
+private fun ScreenTimeoutRow(currentMs: Int, onSelect: (Int) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    val label = TIMEOUT_OPTIONS.firstOrNull { it.ms == currentMs }?.label
+        ?: "${currentMs / 1000}s"
+
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = stringResource(R.string.device_control_screen_timeout),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.weight(1f)
+        )
+        Box {
+            OutlinedButton(onClick = { expanded = true }) { Text(label) }
+            DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                TIMEOUT_OPTIONS.forEach { option ->
+                    DropdownMenuItem(
+                        text = { Text(option.label) },
+                        onClick = {
+                            expanded = false
+                            onSelect(option.ms)
+                        }
+                    )
+                }
+            }
+        }
     }
 }

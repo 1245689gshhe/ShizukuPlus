@@ -1406,6 +1406,7 @@
     <string name="device_control_auto_brightness">Auto-Brightness</string>
     <string name="device_control_brightness">Brightness: %1$d</string>
     <string name="device_control_auto_rotate">Auto-Rotate</string>
+    <string name="device_control_screen_timeout">Screen Timeout</string>
     <string name="device_control_section_audio">Audio</string>
     <string name="device_control_volume_media">Media Volume: %1$d</string>
     <string name="device_control_volume_ring">Ring Volume: %1$d</string>
