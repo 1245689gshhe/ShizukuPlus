@@ -33,18 +33,18 @@ MAJORS = [
     (2393, "v13.6.0.r2393", "Binder IPC migration — ADB-mode for all features, Android 17, exec() security hardening"),
     (2535, "v13.6.0.r2535", "Third-party app detection fix + AppOps IPC Parcel alignment (#480, #488, #491)"),
     (2593, "v13.6.0.r2593", "Android system backup compatibility (Google Drive Auto Backup, ADB backup, Swift Backup, Neo Backup)"),
+    (2603, "v13.6.0.r2603", "App Backup overhaul — search, batch backup, restore, system-app filter, allowBackup badge"),
 ]
 
 HEADLINE_REV, HEADLINE_TAG, _ = MAJORS[-1]
-HEADLINE_DESC = ("Added BackupAgent so ShizukuPlus settings are correctly included in Android "
-                 "system backup (Auto Backup to Google Drive and device-to-device transfer) as "
-                 "well as ADB-based backup tools like Swift Backup, Neo Backup, and Migrate. "
-                 "Previously, backup rules pointed at the credential-encrypted SharedPreferences "
-                 "file which is always empty — all settings are stored in device-protected (DE) "
-                 "storage via createDeviceProtectedStorageContext(). The BackupAgent bridges this "
-                 "gap by reading DE storage directly through SettingsBackupManager. On restore, "
-                 "settings are written synchronously (commit()) so they are available the moment "
-                 "Android launches the app after completing the restore.")
+HEADLINE_DESC = ("App Backup overhaul: search/filter the app list by name or package, back up all "
+                 "apps at once with a single menu tap, toggle system-app visibility, and restore "
+                 "external data directly from any backup file (external.tar.gz). Each row now shows "
+                 "the app version name and a 'no-backup' badge when android:allowBackup=false, "
+                 "matching what Swift Backup and Neo Backup display. The SAF export directory is "
+                 "surfaced in the home card summary and in the completion Snackbar. After restoring "
+                 "ShizukuPlus settings a persistent Snackbar offers an immediate restart so "
+                 "theme/language changes apply without manually force-stopping the app.")
 MAJOR_REVS = {m[0] for m in MAJORS}
 
 # Most recent CRITICAL FIX to spotlight - mirrors app.yml's CRITICAL_RELEASE/CRITICAL_DESC (keep
