@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- ShizukuBackupAgent.onFullBackup() handles cloud backup and device transfer — these rules are
+     superseded when a backupAgent overrides onFullBackup(). The previous include of
+     sharedpref/settings.xml was wrong: it referenced credential-encrypted (CE) storage, which is a
+     different file from the device-protected (DE) storage that ShizukuSettings actually writes to,
+     so cloud backup and device transfer backed up nothing useful. -->
 <data-extraction-rules>
     <cloud-backup>
-        <include
-            domain="sharedpref"
-            path="settings.xml" />
+        <exclude domain="sharedpref" path="." />
     </cloud-backup>
     <device-transfer>
-        <include
-            domain="sharedpref"
-            path="settings.xml" />
+        <exclude domain="sharedpref" path="." />
     </device-transfer>
 </data-extraction-rules>

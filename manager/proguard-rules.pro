@@ -134,6 +134,9 @@
 # ClassNotFoundException on the first call after installation.
 -keep class com.google.android.play.core.integrity.** { *; }
 
+# BackupAgent: instantiated by the Android backup framework by class name; must not be renamed.
+-keep class af.shizuku.manager.ShizukuBackupAgent { *; }
+
 # Custom View subclasses inflated from XML by class name — R8 must not rename or remove them.
 -keep class af.shizuku.manager.utils.EmptyStateView { public <init>(android.content.Context, android.util.AttributeSet); }
 
