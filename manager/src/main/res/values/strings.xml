@@ -755,6 +755,7 @@
     <string name="backup_restored_success">Backup restored successfully</string>
     <string name="backup_restored_restart_hint">Settings restored. Restart to apply theme/language changes.</string>
     <string name="backup_restored_restart_now">Restart</string>
+    <string name="backup_menu_show_system">Show system apps</string>
     <string name="backup_failed_generic">Backup failed: %1$s</string>
     <string name="restore_failed_generic">Restore failed: %1$s</string>
     <string name="backup_auth_failed">Authentication failed (%1$s)</string>

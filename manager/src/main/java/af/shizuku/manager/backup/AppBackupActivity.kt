@@ -3,6 +3,7 @@ package af.shizuku.manager.backup
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
+import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import androidx.activity.viewModels
@@ -22,6 +23,7 @@ class AppBackupActivity : AppBarActivity() {
     private val viewModel: BackupViewModel by viewModels()
     private lateinit var binding: ActivityAppBackupBinding
     private lateinit var adapter: BackupAdapter
+    private var includeSystem = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -106,7 +108,26 @@ class AppBackupActivity : AppBarActivity() {
             }
         }
 
-        viewModel.loadApps()
+        viewModel.loadApps(includeSystem)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.app_backup_menu, menu)
+        menu.findItem(R.id.action_show_system)?.isChecked = includeSystem
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            android.R.id.home -> { finish(); true }
+            R.id.action_show_system -> {
+                includeSystem = !includeSystem
+                item.isChecked = includeSystem
+                viewModel.loadApps(includeSystem)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
     private fun showLoading() {
@@ -126,13 +147,5 @@ class AppBackupActivity : AppBarActivity() {
         binding.recyclerView.visibility = View.GONE
         binding.errorText.visibility = View.VISIBLE
         binding.errorText.text = msg
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            finish()
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 }
