@@ -191,6 +191,11 @@
             android:name=".home.SystemHubActivity"
             android:theme="@style/Theme"
             android:exported="false" />
+        <activity
+            android:name=".devicecontrol.DeviceControlActivity"
+            android:theme="@style/Theme"
+            android:exported="false"
+            android:label="@string/home_device_control_title" />
             
         <activity
             android:name=".activitylog.ActivityLogActivity"

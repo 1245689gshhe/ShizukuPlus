@@ -1392,4 +1392,33 @@
     <string name="package_identity_info_detail">MDM and enterprise root-detection systems often scan for known package names (af.shizuku.manager). True package name randomization — like Shevery uses — requires reinstalling the app with a different applicationId baked into the APK at build time. The manager cannot rename itself while it is running.\n\nRoadmap: a future \"Build-Your-Own\" CI workflow will let you generate a custom-named APK. Until then, this setting only stores a display label. For MDM bypass today, use Stealth Mode to remove the launcher icon.</string>
     <string name="settings_package_identity_current">Current package: %1$s</string>
     <string name="settings_package_identity_roadmap">Full runtime rename requires a custom build — see issue #469</string>
+
+    <!-- Device Control card &amp; screen -->
+    <string name="home_device_control_title">Device Control</string>
+    <string name="home_device_control_summary">Connectivity, display, audio &amp; power</string>
+    <string name="device_control_section_connectivity">Connectivity</string>
+    <string name="device_control_airplane_mode">Airplane Mode</string>
+    <string name="device_control_wifi">Wi-Fi</string>
+    <string name="device_control_bluetooth">Bluetooth</string>
+    <string name="device_control_mobile_data">Mobile Data</string>
+    <string name="device_control_nfc">NFC</string>
+    <string name="device_control_section_display">Display</string>
+    <string name="device_control_auto_brightness">Auto-Brightness</string>
+    <string name="device_control_brightness">Brightness: %1$d</string>
+    <string name="device_control_auto_rotate">Auto-Rotate</string>
+    <string name="device_control_section_audio">Audio</string>
+    <string name="device_control_volume_media">Media Volume: %1$d</string>
+    <string name="device_control_volume_ring">Ring Volume: %1$d</string>
+    <string name="device_control_volume_alarm">Alarm Volume: %1$d</string>
+    <string name="device_control_section_system">System Appearance</string>
+    <string name="device_control_animations">System Animations</string>
+    <string name="device_control_font_scale">Font Scale: %1$s×</string>
+    <string name="device_control_section_power">Power</string>
+    <string name="device_control_reboot">Reboot</string>
+    <string name="device_control_reboot_title">Reboot Device</string>
+    <string name="device_control_reboot_confirm">Are you sure you want to reboot the device?</string>
+    <string name="device_control_shutdown">Shut Down</string>
+    <string name="device_control_shutdown_title">Shut Down Device</string>
+    <string name="device_control_shutdown_confirm">Are you sure you want to shut down the device?</string>
+    <string name="nav_back">Back</string>
 </resources>
