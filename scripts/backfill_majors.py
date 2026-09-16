@@ -32,19 +32,19 @@ MAJORS = [
     (2341, "v13.6.0.r2341", "Watchdog crash-recovery and permission grant-notification fixes"),
     (2393, "v13.6.0.r2393", "Binder IPC migration — ADB-mode for all features, Android 17, exec() security hardening"),
     (2535, "v13.6.0.r2535", "Third-party app detection fix + AppOps IPC Parcel alignment (#480, #488, #491)"),
+    (2593, "v13.6.0.r2593", "Android system backup compatibility (Google Drive Auto Backup, ADB backup, Swift Backup, Neo Backup)"),
 ]
 
 HEADLINE_REV, HEADLINE_TAG, _ = MAJORS[-1]
-HEADLINE_DESC = ("Fixed two compounding failures that prevented third-party apps (NetToggle, "
-                 "SamFonts, App Ops, Hail, InstallerX) from connecting to Shizuku+ even after "
-                 "authorization, and caused AppOps Usage History to show empty/greyed fields on "
-                 "Samsung OneUI 8.5: (1) binder delivery now sends only the canonical "
-                 "moe.shizuku.api.BinderContainer to non-manager apps, avoiding the "
-                 "ClassNotFoundException that poisoned the entire binder bundle for apps compiled "
-                 "against the official Maven Shizuku library; (2) a 4-byte Parcel misalignment in "
-                 "transactRemote corrupted every system service IPC argument for API v13+ clients "
-                 "whose client record wasn't yet attached — both the usage-history calls and "
-                 "Secure Folder profile enumeration failed silently as a result (#480, #488, #491).")
+HEADLINE_DESC = ("Added BackupAgent so ShizukuPlus settings are correctly included in Android "
+                 "system backup (Auto Backup to Google Drive and device-to-device transfer) as "
+                 "well as ADB-based backup tools like Swift Backup, Neo Backup, and Migrate. "
+                 "Previously, backup rules pointed at the credential-encrypted SharedPreferences "
+                 "file which is always empty — all settings are stored in device-protected (DE) "
+                 "storage via createDeviceProtectedStorageContext(). The BackupAgent bridges this "
+                 "gap by reading DE storage directly through SettingsBackupManager. On restore, "
+                 "settings are written synchronously (commit()) so they are available the moment "
+                 "Android launches the app after completing the restore.")
 MAJOR_REVS = {m[0] for m in MAJORS}
 
 # Most recent CRITICAL FIX to spotlight - mirrors app.yml's CRITICAL_RELEASE/CRITICAL_DESC (keep

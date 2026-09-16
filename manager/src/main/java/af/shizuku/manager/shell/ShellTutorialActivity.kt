@@ -35,6 +35,15 @@ class ShellTutorialActivity : AppBarActivity() {
         registerForActivityResult(ActivityResultContracts.OpenDocumentTree()) { tree: Uri? ->
             if (tree == null) return@registerForActivityResult
 
+            // Persist the permission across reboots so the URI stays usable in AppBackupActivity
+            // and EnvironmentUtils.resolveExportedPath(). Without this call the grant is session-
+            // scoped only and lost when the process is killed (SHIZUKUPLUS-492).
+            contentResolver.takePersistableUriPermission(
+                tree,
+                android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                    android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            )
+
             val cr = contentResolver
             val doc = DocumentsContract.buildDocumentUriUsingTree(tree, DocumentsContract.getTreeDocumentId(tree))
             val child =

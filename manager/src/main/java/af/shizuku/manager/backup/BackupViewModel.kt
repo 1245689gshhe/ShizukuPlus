@@ -1,6 +1,8 @@
 package af.shizuku.manager.backup
 
 import android.app.Application
+import android.net.Uri
+import android.provider.DocumentsContract
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Dispatchers
@@ -88,15 +90,21 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
         }
     }
 
-    fun backupAppData(entry: AppEntry, outputDir: File) {
+    /**
+     * Back up [entry]'s data. Exactly one of [outputDir] and [safTreeUri] must be non-null.
+     *
+     * - [outputDir]: write to a per-package subdirectory under this File path (app-private storage).
+     * - [safTreeUri]: write to the user-chosen SAF tree (persisted via takePersistableUriPermission)
+     *   using [DocumentsContract]. Preferred when the user has configured an export directory so
+     *   the output is reachable by file managers and other apps on Android 10+ scoped storage.
+     */
+    fun backupAppData(entry: AppEntry, outputDir: File? = null, safTreeUri: Uri? = null) {
         val pkg = entry.packageName
         if (pkg in _busyPackages.value) return
         viewModelScope.launch(Dispatchers.IO) {
             _busyPackages.value = _busyPackages.value + pkg
             var prepared = false
             try {
-                val pkgDir = File(outputDir, pkg).also { it.mkdirs() }
-
                 ShizukuPlusAPI.BackupRestorePlus.forceStop(pkg)
 
                 // prepareTempDebug is best-effort; Shizuku's privileged API can stream data
@@ -109,16 +117,16 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                 }
 
                 var backedUpSomething = false
+                val cr = getApplication<Application>().contentResolver
 
                 val dataPfd = try { ShizukuPlusAPI.ApkPatcher.streamDataDir(pkg) } catch (e: Exception) {
                     Timber.w(e, "streamDataDir failed for $pkg")
                     null
                 }
                 if (dataPfd != null) {
-                    val dataFile = File(pkgDir, "data.tar.gz")
-                    dataPfd.use { pfd ->
-                        FileInputStream(pfd.fileDescriptor).use { input ->
-                            FileOutputStream(dataFile).use { input.copyTo(it) }
+                    writeBackupStream(safTreeUri, outputDir, pkg, "data.tar.gz", cr) { out ->
+                        dataPfd.use { pfd ->
+                            FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) }
                         }
                     }
                     backedUpSomething = true
@@ -129,17 +137,18 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                     null
                 }
                 if (extPfd != null) {
-                    val extFile = File(pkgDir, "external.tar.gz")
-                    extPfd.use { pfd ->
-                        FileInputStream(pfd.fileDescriptor).use { input ->
-                            FileOutputStream(extFile).use { input.copyTo(it) }
+                    writeBackupStream(safTreeUri, outputDir, pkg, "external.tar.gz", cr) { out ->
+                        extPfd.use { pfd ->
+                            FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) }
                         }
                     }
                     backedUpSomething = true
                 }
 
+                val outputDesc = if (safTreeUri != null) safTreeUri.lastPathSegment ?: "backup folder"
+                                 else outputDir?.absolutePath ?: "backup folder"
                 if (backedUpSomething) {
-                    _events.emit(BackupEvent.BackupComplete(pkg, pkgDir.absolutePath))
+                    _events.emit(BackupEvent.BackupComplete(pkg, outputDesc))
                 } else {
                     _events.emit(BackupEvent.Failure("No data could be read for $pkg. The app may block backup access."))
                 }
@@ -154,6 +163,54 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                 }
                 _busyPackages.value = _busyPackages.value - pkg
             }
+        }
+    }
+
+    /**
+     * Writes the output of [block] to a file named [fileName] under [pkg]'s backup directory.
+     * Uses [safTreeUri] (SAF) when provided; otherwise creates a subdirectory under [outputDir].
+     *
+     * SAF strategy: tries a per-package subdirectory first; if the provider doesn't support
+     * subdirectory creation (e.g. the Downloads provider), falls back to a flat "{pkg}_{fileName}"
+     * name in the tree root so the write still succeeds.
+     */
+    private fun writeBackupStream(
+        safTreeUri: Uri?,
+        outputDir: File?,
+        pkg: String,
+        fileName: String,
+        cr: android.content.ContentResolver,
+        block: (java.io.OutputStream) -> Unit
+    ) {
+        if (safTreeUri != null) {
+            val treeDocUri = DocumentsContract.buildDocumentUriUsingTree(
+                safTreeUri, DocumentsContract.getTreeDocumentId(safTreeUri)
+            )
+            // Try to create a per-package subdirectory; some providers (e.g. Downloads) don't
+            // support MIME_TYPE_DIR and return null — in that case fall back to a flat name.
+            val parentUri = try {
+                DocumentsContract.createDocument(
+                    cr, treeDocUri, DocumentsContract.Document.MIME_TYPE_DIR, pkg
+                )
+            } catch (_: Exception) { null }
+
+            val (targetUri, targetName) = if (parentUri != null) {
+                parentUri to fileName
+            } else {
+                treeDocUri to "${pkg}_$fileName"
+            }
+
+            val fileUri = try {
+                DocumentsContract.createDocument(cr, targetUri, "application/octet-stream", targetName)
+            } catch (e: Exception) {
+                Timber.w(e, "createDocument failed for $pkg/$targetName")
+                null
+            } ?: return
+
+            cr.openOutputStream(fileUri)?.use { block(it) }
+        } else {
+            val pkgDir = File(outputDir!!, pkg).also { it.mkdirs() }
+            FileOutputStream(File(pkgDir, fileName)).use { block(it) }
         }
     }
 

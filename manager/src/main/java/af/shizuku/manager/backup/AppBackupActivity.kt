@@ -1,5 +1,7 @@
 package af.shizuku.manager.backup
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -11,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import af.shizuku.core.ui.AppBarActivity
 import af.shizuku.manager.R
+import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.databinding.ActivityAppBackupBinding
 import kotlinx.coroutines.launch
 
@@ -36,8 +39,21 @@ class AppBackupActivity : AppBarActivity() {
         binding.recyclerView.adapter = adapter
 
         adapter.onBackupClick = { entry ->
-            val outputDir = getExternalFilesDir(null) ?: filesDir
-            viewModel.backupAppData(entry, outputDir)
+            // Use the SAF export directory the user configured in Settings if available and the
+            // permission is still active (permissions survive reboots once takePersistableUriPermission
+            // is called; we verify here to avoid a SecurityException in the ViewModel).
+            val safUri = ShizukuSettings.getExportDirUri()?.let { uriStr ->
+                val uri = Uri.parse(uriStr)
+                val hasWritePermission = contentResolver.persistedUriPermissions.any {
+                    it.uri == uri && it.isWritePermission
+                }
+                if (hasWritePermission) uri else null
+            }
+            if (safUri != null) {
+                viewModel.backupAppData(entry, safTreeUri = safUri)
+            } else {
+                viewModel.backupAppData(entry, outputDir = getExternalFilesDir(null) ?: filesDir)
+            }
         }
         adapter.onFreezeClick = { entry ->
             viewModel.toggleFreeze(entry)
