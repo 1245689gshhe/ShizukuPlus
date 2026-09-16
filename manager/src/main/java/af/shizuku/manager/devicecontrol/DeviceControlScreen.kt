@@ -27,6 +27,7 @@ private const val VOLUME_MAX = 15
 @Composable
 fun DeviceControlScreen(onBackClick: () -> Unit) {
     val scope = rememberCoroutineScope()
+    var isLoading by remember { mutableStateOf(true) }
 
     // ── Connectivity state ────────────────────────────────────────────────────
     var airplane by remember { mutableStateOf(false) }
@@ -87,6 +88,8 @@ fun DeviceControlScreen(onBackClick: () -> Unit) {
                 volumeAlarm = dc.getStreamVolume(STREAM_ALARM).coerceIn(0, VOLUME_MAX)
             } catch (e: Exception) {
                 Timber.w(e, "DeviceControl: failed to read initial state")
+            } finally {
+                isLoading = false
             }
         }
     }
@@ -150,6 +153,17 @@ fun DeviceControlScreen(onBackClick: () -> Unit) {
             )
         }
     ) { innerPadding ->
+        if (isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+            return@Scaffold
+        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
