@@ -752,7 +752,9 @@
     <string name="stock_shizuku_restarting_via_root">Restarting via Root…</string>
     <string name="backup_plain_exported">Plain backup exported. Keep this file private — it is not encrypted.</string>
     <string name="backup_exported_success">Backup exported successfully</string>
-    <string name="backup_restored_success">Backup restored successfully. Please restart the app.</string>
+    <string name="backup_restored_success">Backup restored successfully</string>
+    <string name="backup_restored_restart_hint">Settings restored. Restart to apply theme/language changes.</string>
+    <string name="backup_restored_restart_now">Restart</string>
     <string name="backup_failed_generic">Backup failed: %1$s</string>
     <string name="restore_failed_generic">Restore failed: %1$s</string>
     <string name="backup_auth_failed">Authentication failed (%1$s)</string>

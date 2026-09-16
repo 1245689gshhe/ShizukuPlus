@@ -134,7 +134,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             if (!BackupRestoreManager.isEncrypted(payload)) {
                 try {
                     BackupRestoreManager.restoreFromPlainPayload(ctx, payload)
-                    Toast.makeText(ctx, R.string.backup_restored_success, Toast.LENGTH_LONG).show()
+                    onRestoreSuccess()
                 } catch (e: Exception) {
                     Toast.makeText(ctx, ctx.getString(R.string.restore_failed_generic, e.message), Toast.LENGTH_LONG).show()
                 }
@@ -147,7 +147,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 try {
                     val cipher = CryptoUtils.getCipherForDecryption(iv, userAuthRequired = false)
                     BackupRestoreManager.restoreFromPayload(ctx, payload, cipher)
-                    Toast.makeText(ctx, R.string.backup_restored_success, Toast.LENGTH_LONG).show()
+                    onRestoreSuccess()
                 } catch (e: Exception) {
                     Toast.makeText(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG).show()
                 }
@@ -158,7 +158,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
             lock.authenticate(onSuccess = { crypto ->
                 try {
                     BackupRestoreManager.restoreFromPayload(ctx, payload, crypto?.cipher ?: cipher)
-                    Toast.makeText(ctx, R.string.backup_restored_success, Toast.LENGTH_LONG).show()
+                    onRestoreSuccess()
                 } catch (e: Exception) {
                     Toast.makeText(ctx, backupErrorMessage("Restore failed", e), Toast.LENGTH_LONG).show()
                 }
@@ -784,6 +784,18 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 .putString(ShizukuSettings.Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, oldSet?.joinToString(",") ?: "")
                 .apply()
         }
+    }
+
+    private fun onRestoreSuccess() {
+        if (!isAdded) return
+        Toast.makeText(requireContext(), R.string.backup_restored_success, Toast.LENGTH_SHORT).show()
+        com.google.android.material.snackbar.Snackbar.make(
+            requireView(),
+            R.string.backup_restored_restart_hint,
+            com.google.android.material.snackbar.Snackbar.LENGTH_LONG
+        ).setAction(R.string.backup_restored_restart_now) {
+            requireActivity().recreate()
+        }.show()
     }
 
 }
