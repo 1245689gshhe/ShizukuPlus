@@ -34,17 +34,17 @@ MAJORS = [
     (2535, "v13.6.0.r2535", "Third-party app detection fix + AppOps IPC Parcel alignment (#480, #488, #491)"),
     (2593, "v13.6.0.r2593", "Android system backup compatibility (Google Drive Auto Backup, ADB backup, Swift Backup, Neo Backup)"),
     (2603, "v13.6.0.r2603", "App Backup overhaul — search, batch backup, restore, system-app filter, allowBackup badge"),
+    (2609, "v13.6.0.r2609", "Device Control — connectivity, display, audio, power from a new home card"),
 ]
 
 HEADLINE_REV, HEADLINE_TAG, _ = MAJORS[-1]
-HEADLINE_DESC = ("App Backup overhaul: search/filter the app list by name or package, back up all "
-                 "apps at once with a single menu tap, toggle system-app visibility, and restore "
-                 "external data directly from any backup file (external.tar.gz). Each row now shows "
-                 "the app version name and a 'no-backup' badge when android:allowBackup=false, "
-                 "matching what Swift Backup and Neo Backup display. The SAF export directory is "
-                 "surfaced in the home card summary and in the completion Snackbar. After restoring "
-                 "ShizukuPlus settings a persistent Snackbar offers an immediate restart so "
-                 "theme/language changes apply without manually force-stopping the app.")
+HEADLINE_DESC = ("Device Control: a new home screen card gives privileged access to airplane mode, "
+                 "Wi-Fi, Bluetooth, mobile data, NFC, screen brightness and timeout, auto-rotate, "
+                 "media/ring/alarm volume, system animations, font scale, and reboot/shutdown — all "
+                 "using shell uid without root. Initial state is read from Settings on open; writes "
+                 "take effect immediately. The card is draggable and hideable like all other home "
+                 "cards. Also includes the App Backup overhaul: search/filter, batch backup, restore "
+                 "from external file, system-app filter, and allowBackup badge.")
 MAJOR_REVS = {m[0] for m in MAJORS}
 
 # Most recent CRITICAL FIX to spotlight - mirrors app.yml's CRITICAL_RELEASE/CRITICAL_DESC (keep
