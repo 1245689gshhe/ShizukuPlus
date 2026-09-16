@@ -7,11 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import rikka.core.content.asActivity
 import af.shizuku.manager.R
+import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.backup.AppBackupActivity
 import af.shizuku.manager.databinding.HomeAppBackupItemBinding
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.ktx.startWithSceneTransition
 import af.shizuku.manager.model.ServiceStatus
+import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.IconStyleHelper
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
 import rikka.recyclerview.BaseViewHolder
@@ -63,7 +65,15 @@ class AppBackupViewHolder(
         } else {
             itemView.isEnabled = true
             title.setText(R.string.home_backup_title)
-            summary.setText(R.string.home_backup_summary)
+            // Show where backups go: the configured export dir if set, or the default summary.
+            val exportPath = ShizukuSettings.getExportDirUri()
+                ?.let { EnvironmentUtils.resolveExportedPath("") }
+                ?.trimEnd('/')
+            summary.text = if (exportPath != null) {
+                context.getString(R.string.home_backup_summary_with_dir, exportPath)
+            } else {
+                context.getString(R.string.home_backup_summary)
+            }
         }
     }
 
