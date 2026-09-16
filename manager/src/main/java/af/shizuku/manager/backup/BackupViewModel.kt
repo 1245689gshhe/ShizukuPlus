@@ -1,6 +1,7 @@
 package af.shizuku.manager.backup
 
 import android.app.Application
+import android.content.ContentResolver
 import android.net.Uri
 import android.provider.DocumentsContract
 import androidx.lifecycle.AndroidViewModel
@@ -17,6 +18,7 @@ import timber.log.Timber
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
+import java.io.OutputStream
 
 class BackupViewModel(app: Application) : AndroidViewModel(app) {
 
@@ -124,12 +126,11 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                     null
                 }
                 if (dataPfd != null) {
-                    writeBackupStream(safTreeUri, outputDir, pkg, "data.tar.gz", cr) { out ->
+                    if (writeBackupStream(safTreeUri, outputDir, pkg, "data.tar.gz", cr) { out ->
                         dataPfd.use { pfd ->
                             FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) }
                         }
-                    }
-                    backedUpSomething = true
+                    }) backedUpSomething = true
                 }
 
                 val extPfd = try { ShizukuPlusAPI.BackupRestorePlus.backupExternalData(pkg) } catch (e: Exception) {
@@ -137,12 +138,11 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                     null
                 }
                 if (extPfd != null) {
-                    writeBackupStream(safTreeUri, outputDir, pkg, "external.tar.gz", cr) { out ->
+                    if (writeBackupStream(safTreeUri, outputDir, pkg, "external.tar.gz", cr) { out ->
                         extPfd.use { pfd ->
                             FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) }
                         }
-                    }
-                    backedUpSomething = true
+                    }) backedUpSomething = true
                 }
 
                 val outputDesc = if (safTreeUri != null) safTreeUri.lastPathSegment ?: "backup folder"
@@ -168,10 +168,11 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
 
     /**
      * Writes the output of [block] to a file named [fileName] under [pkg]'s backup directory.
-     * Uses [safTreeUri] (SAF) when provided; otherwise creates a subdirectory under [outputDir].
+     * Returns true if the file was successfully written, false if document creation failed.
      *
+     * Uses [safTreeUri] (SAF) when provided; otherwise creates a subdirectory under [outputDir].
      * SAF strategy: tries a per-package subdirectory first; if the provider doesn't support
-     * subdirectory creation (e.g. the Downloads provider), falls back to a flat "{pkg}_{fileName}"
+     * MIME_TYPE_DIR (e.g. the Downloads provider), falls back to a flat "{pkg}_{fileName}"
      * name in the tree root so the write still succeeds.
      */
     private fun writeBackupStream(
@@ -179,9 +180,9 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
         outputDir: File?,
         pkg: String,
         fileName: String,
-        cr: android.content.ContentResolver,
-        block: (java.io.OutputStream) -> Unit
-    ) {
+        cr: ContentResolver,
+        block: (OutputStream) -> Unit
+    ): Boolean {
         if (safTreeUri != null) {
             val treeDocUri = DocumentsContract.buildDocumentUriUsingTree(
                 safTreeUri, DocumentsContract.getTreeDocumentId(safTreeUri)
@@ -205,12 +206,14 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
             } catch (e: Exception) {
                 Timber.w(e, "createDocument failed for $pkg/$targetName")
                 null
-            } ?: return
+            } ?: return false
 
             cr.openOutputStream(fileUri)?.use { block(it) }
+            return true
         } else {
             val pkgDir = File(outputDir!!, pkg).also { it.mkdirs() }
             FileOutputStream(File(pkgDir, fileName)).use { block(it) }
+            return true
         }
     }
 

@@ -404,8 +404,8 @@ jobs:
           # build the headline major == the era major, so a single callout is correct here. When you
           # bump this, also re-run scripts/backfill_majors.py (add the new major to its MAJORS list)
           # so older release pages show BOTH this headline and the major of their own era.
-          MAJOR_RELEASE="v13.6.0.r2535"
-          MAJOR_DESC="Fixed third-party app detection and AppOps IPC Parcel alignment — apps using the official Shizuku Maven library (NetToggle, SamFonts, App Ops, Hail) can now connect reliably after authorization, and AppOps Usage History no longer shows empty/greyed fields on Samsung OneUI 8.5. Root cause: a ClassNotFoundException in the binder bundle poisoned the entire binder for Maven-API clients, and a 4-byte Parcel offset in transactRemote corrupted system service calls for unattached API v13+ clients (#480, #488, #491)."
+          MAJOR_RELEASE="v13.6.0.r2593"
+          MAJOR_DESC="ShizukuPlus settings are now correctly included in Android system backup (Auto Backup to Google Drive, device-to-device transfer) and ADB-based backup apps (Swift Backup, Neo Backup, Migrate). Previous backup rules referenced the credential-encrypted SharedPreferences file — always empty — because all settings are in device-protected (DE) storage. The new BackupAgent reads DE storage directly and writes settings synchronously on restore so they are available the moment Android launches the app."
 
           # Most recent CRITICAL FIX to spotlight — a distinct, lower tier from MAJOR_RELEASE
           # above: not new capability, but a regression severe enough that users on the
