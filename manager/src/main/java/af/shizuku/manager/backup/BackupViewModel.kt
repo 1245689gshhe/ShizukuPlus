@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import rikka.shizuku.ShizukuPlusAPI
+import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.ShizukuStateMachine
 import timber.log.Timber
 import java.io.File
@@ -145,8 +146,14 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                     }) backedUpSomething = true
                 }
 
-                val outputDesc = if (safTreeUri != null) safTreeUri.lastPathSegment ?: "backup folder"
-                                 else outputDir?.absolutePath ?: "backup folder"
+                // Resolve SAF URI to a human-readable path for the snackbar; fall back to the raw
+                // last path segment if EnvironmentUtils can't map the tree doc ID to a real path.
+                val outputDesc = if (safTreeUri != null) {
+                    EnvironmentUtils.resolveExportedPath(pkg)
+                        ?: safTreeUri.lastPathSegment ?: "backup folder"
+                } else {
+                    outputDir?.absolutePath ?: "backup folder"
+                }
                 if (backedUpSomething) {
                     _events.emit(BackupEvent.BackupComplete(pkg, outputDesc))
                 } else {
