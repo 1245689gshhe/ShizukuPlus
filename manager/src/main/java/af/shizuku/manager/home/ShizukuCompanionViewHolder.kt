@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import af.shizuku.manager.R
-import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.databinding.HomeShizukuCompanionBinding
 import af.shizuku.manager.migration.MigrationHelper
@@ -57,7 +56,7 @@ class ShizukuCompanionViewHolder(
             try {
                 process = Shizuku.newProcess(arrayOf("sh", "-c", cmd), null, null)
                 process.waitFor() == 0
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 false
             } finally {
                 // waitFor() can throw if the binder dies mid-command; without the finally the
@@ -67,7 +66,7 @@ class ShizukuCompanionViewHolder(
         } else if (MigrationHelper.isRootAvailable()) {
             try {
                 Shell.cmd(cmd).exec().isSuccess
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 false
             }
         } else {

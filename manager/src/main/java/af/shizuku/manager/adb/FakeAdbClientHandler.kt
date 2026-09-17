@@ -8,7 +8,6 @@ import timber.log.Timber
 import java.io.DataInputStream
 import java.io.DataOutputStream
 import java.net.Socket
-import java.security.Signature
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -165,7 +164,7 @@ class FakeAdbClientHandler(
                         // Actually, ADB requires us to wait for OKAY before sending another WRTE.
                         // We will just blast WRTEs for now (fake adb clients might not care).
                     }
-                } catch (e: Exception) {}
+                } catch (_: Exception) {}
 
                 // Read stderr (optional, usually multiplexed in ADB but we can just blast it)
                 try {
@@ -174,7 +173,7 @@ class FakeAdbClientHandler(
                         if (r <= 0) break
                         writeMessage(AdbMessage(AdbProtocol.A_WRTE, localId, remoteId, buf.copyOf(r)))
                     }
-                } catch (e: Exception) {}
+                } catch (_: Exception) {}
 
                 process.waitFor()
                 process.destroy()

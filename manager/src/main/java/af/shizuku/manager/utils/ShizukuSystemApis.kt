@@ -32,7 +32,7 @@ object ShizukuSystemApis {
                 users.add(UserInfoCompat(ui.id, ui.name, 0))
             }
             return users
-        } catch (tr: Throwable) {
+        } catch (_: Throwable) {
             arrayListOf(UserInfoCompat(UserHandleCompat.myUserId(), "Owner", 0))
         }
     }
@@ -78,7 +78,7 @@ object ShizukuSystemApis {
             PermissionManagerApis.checkPermission(permName, pkgName, userId)
         } catch (tr: RemoteException) {
             throw RuntimeException(tr.message, tr)
-        } catch (tr: Throwable) {
+        } catch (_: Throwable) {
             PackageManager.PERMISSION_DENIED
         }
     }

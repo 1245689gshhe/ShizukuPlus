@@ -1,7 +1,6 @@
 package af.shizuku.manager.utils
 
 import android.content.Context
-import timber.log.Timber
 import java.io.File
 import java.io.PrintWriter
 import java.io.StringWriter
@@ -40,7 +39,7 @@ class CrashHandler(private val context: Context, private val defaultHandler: Thr
             if (!file.exists()) return null
             return try {
                 file.readText()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
         }

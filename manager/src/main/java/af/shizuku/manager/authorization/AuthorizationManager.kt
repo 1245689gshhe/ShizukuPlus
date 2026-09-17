@@ -96,7 +96,7 @@ object AuthorizationManager {
             } else {
                 (Shizuku.getFlagsForUid(uid, MASK_PERMISSION) and FLAG_ALLOWED) == FLAG_ALLOWED
             }
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             false
         }
     }
@@ -108,7 +108,7 @@ object AuthorizationManager {
             } else {
                 Shizuku.updateFlagsForUid(uid, MASK_PERMISSION, FLAG_ALLOWED)
             }
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             // Ignore error from incompatible server
         }
     }
@@ -120,7 +120,7 @@ object AuthorizationManager {
             } else {
                 Shizuku.updateFlagsForUid(uid, MASK_PERMISSION, 0)
             }
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             // Ignore error from incompatible server
         }
     }

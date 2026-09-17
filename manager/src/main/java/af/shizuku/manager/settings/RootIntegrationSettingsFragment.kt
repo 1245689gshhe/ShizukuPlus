@@ -17,7 +17,6 @@ import af.shizuku.manager.database.RootCompatHelper
 import af.shizuku.manager.service.AdbProxyService
 import af.shizuku.manager.utils.EnvironmentUtils
 import af.shizuku.manager.utils.StockShizukuCompat
-import moe.shizuku.server.IShizukuService
 import rikka.shizuku.Shizuku
 
 /**
@@ -304,7 +303,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
             } finally {
                 p.destroy()
             }
-        } catch (e: Exception) { null }
+        } catch (_: Exception) { null }
         return readProp("ro.boot.flash.locked") == "0" ||
                readProp("ro.boot.verifiedbootstate") == "orange"
     }

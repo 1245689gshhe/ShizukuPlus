@@ -83,7 +83,7 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
                 else -> bucket.toString()
             }
             Runtime.getRuntime().exec(arrayOf("am", "set-standby-bucket", packageName, bucketStr)).waitFor() == 0
-        } catch (e: Exception) { false }
+        } catch (_: Exception) { false }
     }
 
     override fun killAllBackgroundProcesses(): Boolean {
@@ -99,7 +99,7 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
         }
         return try {
             Runtime.getRuntime().exec(arrayOf("am", "kill-all")).waitFor() == 0
-        } catch (e: Exception) { false }
+        } catch (_: Exception) { false }
     }
 
     private fun setApplicationEnabledSetting(packageName: String, state: Int): Boolean {
@@ -122,7 +122,7 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
         if (setApplicationEnabledSetting(packageName, 3)) return true
         return try {
             Runtime.getRuntime().exec(arrayOf("pm", "disable-user", "--user", "0", packageName)).waitFor() == 0
-        } catch (e: Exception) { false }
+        } catch (_: Exception) { false }
     }
 
     override fun unfreezeApp(packageName: String?): Boolean {
@@ -131,7 +131,7 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
         if (setApplicationEnabledSetting(packageName, 0)) return true
         return try {
             Runtime.getRuntime().exec(arrayOf("pm", "enable", "--user", "0", packageName)).waitFor() == 0
-        } catch (e: Exception) { false }
+        } catch (_: Exception) { false }
     }
 
     override fun isAppFrozen(packageName: String?): Boolean {
@@ -153,7 +153,7 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
             } finally {
                 proc.destroy()
             }
-        } catch (e: Exception) { false }
+        } catch (_: Exception) { false }
     }
 
     override fun setAppProcessLimit(limit: Int) {
@@ -216,7 +216,7 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
             } finally {
                 proc.destroy()
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             emptyList()
         }
     }
@@ -285,6 +285,6 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
         return try {
             val proc = Runtime.getRuntime().exec(arrayOf("pm", "clear", "--user", "0", packageName))
             try { proc.waitFor() == 0 } finally { proc.destroy() }
-        } catch (e: Exception) { false }
+        } catch (_: Exception) { false }
     }
 }

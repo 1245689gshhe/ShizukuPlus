@@ -54,7 +54,7 @@ class AICorePlusImpl(
             val color = bitmap?.getPixel(0, 0) ?: Color.TRANSPARENT
             bitmap?.recycle()
             color
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Color.TRANSPARENT
         }
     }
@@ -90,7 +90,7 @@ class AICorePlusImpl(
             val screenshotMethod = Class.forName("android.view.SurfaceControl")
                 .getMethod("screenshot", IBinder::class.java, Rect::class.java, Int::class.java, Int::class.java)
             screenshotMethod.invoke(null, displayToken, null, 0, 0) as? Bitmap
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -111,7 +111,7 @@ class AICorePlusImpl(
         return try {
             synchronized(this) {
                 if (inputShellProcess == null) { // Simple alive check
-                    try { inputShellProcess?.exitValue() } catch (e: IllegalThreadStateException) { /* Alive */ }
+                    try { inputShellProcess?.exitValue() } catch (_: IllegalThreadStateException) { /* Alive */ }
                 }
                 if (inputShellProcess == null) {
                     val proc = Runtime.getRuntime().exec("sh")
@@ -122,7 +122,7 @@ class AICorePlusImpl(
                 inputShellWriter?.flush()
             }
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             synchronized(this) {
                 inputShellProcess?.destroy()
                 inputShellProcess = null
@@ -136,7 +136,7 @@ class AICorePlusImpl(
         if (!checkExperimental()) return false
         return try {
             automationBridge?.simulateTouch(p0, p1) ?: injectInput("input tap $p0 $p1")
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -145,7 +145,7 @@ class AICorePlusImpl(
         if (!checkExperimental()) return false
         return try {
             automationBridge?.simulateSwipe(p0, p1, p2, p3, p4) ?: injectInput("input swipe $p0 $p1 $p2 $p3 $p4")
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -158,7 +158,7 @@ class AICorePlusImpl(
                 Runtime.getRuntime().exec(arrayOf("input", "text", text)).waitFor()
                 true
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -167,7 +167,7 @@ class AICorePlusImpl(
         if (!service.isPlusFeatureEnabled("ai_core_master") || !service.isPlusFeatureEnabled("native_window_crawler")) return ""
         return try {
             automationBridge?.windowHierarchy ?: ""
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             ""
         }
     }
@@ -189,7 +189,7 @@ class AICorePlusImpl(
             val displayTokenMethod = Class.forName("android.view.SurfaceControl")
                 .getMethod("getInternalDisplayToken")
             displayTokenMethod.invoke(null) as? IBinder
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

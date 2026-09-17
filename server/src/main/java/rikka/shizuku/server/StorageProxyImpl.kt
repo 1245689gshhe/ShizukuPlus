@@ -41,7 +41,7 @@ class StorageProxyImpl : IStorageProxy.Stub() {
                 }
                 throw e
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -88,7 +88,7 @@ class StorageProxyImpl : IStorageProxy.Stub() {
                 }
             }.also { it.isDaemon = true }.start()
             readSide
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

@@ -1,7 +1,6 @@
 package af.shizuku.manager.home.compose
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -18,7 +16,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -190,7 +187,7 @@ private fun ActivityLogRow(record: ActivityLogRecord, dateFormat: java.text.Date
         val pm = context.packageManager
         val sizePx = with(density) { 40.dp.roundToPx() }
         val ai = withContext(Dispatchers.IO) {
-            try { pm.getApplicationInfo(record.packageName, 0) } catch (e: Exception) { null }
+            try { pm.getApplicationInfo(record.packageName, 0) } catch (_: Exception) { null }
         } ?: return@LaunchedEffect
         appName = AppIconCache.getLabel(context, ai)
         val bitmap = withContext(Dispatchers.IO) {

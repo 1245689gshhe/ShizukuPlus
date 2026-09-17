@@ -7,17 +7,13 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.button.MaterialButton
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.materialswitch.MaterialSwitch
 import af.shizuku.manager.Helps
 import af.shizuku.manager.MainActivity
 import af.shizuku.manager.R
@@ -30,10 +26,7 @@ import af.shizuku.manager.databinding.PageOnboardingSetupBinding
 import af.shizuku.manager.databinding.PageOnboardingSwipeBinding
 import af.shizuku.manager.databinding.PageOnboardingGesturesBinding
 import af.shizuku.manager.databinding.PageOnboardingLongpressBinding
-import af.shizuku.manager.home.AdbDialogFragment
 import af.shizuku.manager.home.AdbPairDialogFragment
-import af.shizuku.manager.home.WadbEnableUsbDebuggingDialogFragment
-import af.shizuku.manager.home.WadbNotEnabledDialogFragment
 import af.shizuku.manager.home.StartWirelessAdbViewHolder
 import af.shizuku.manager.home.showAccessibilityDialog
 import af.shizuku.manager.starter.Starter
@@ -357,7 +350,7 @@ class OnboardingActivity : AppActivity() {
                     startService(serviceIntent)
                 }
                 af.shizuku.manager.utils.SettingsHelper.launchOrHighlightWirelessDebugging(this)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 AdbPairDialogFragment().show(supportFragmentManager, null)
             }
         }

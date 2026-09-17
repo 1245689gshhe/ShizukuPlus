@@ -28,14 +28,12 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import com.google.android.material.chip.Chip
 import com.google.android.material.snackbar.Snackbar
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.core.ui.AppBarActivity
 import af.shizuku.manager.authorization.AuthorizationManager
 import af.shizuku.manager.databinding.AppsActivityBinding
-import af.shizuku.manager.databinding.AppsAppbarActivityBinding
 import af.shizuku.manager.databinding.SwipeHintOverlayBinding
 import timber.log.Timber
 import af.shizuku.manager.management.AppViewHolder.Callbacks
@@ -408,7 +406,7 @@ open class ApplicationManagementActivity : AppBarActivity(), AppViewHolder.Callb
                             if (pos >= 0) adapter.notifyItemChanged(pos, Any())
                             adapter.notifyItemChanged(0) // update toggle-all header
                         }
-                    } catch (e: SecurityException) {
+                    } catch (_: SecurityException) {
                         withContext(Dispatchers.Main) {
                             Toast.makeText(this@ApplicationManagementActivity,
                                 R.string.app_management_dialog_adb_is_limited_title, Toast.LENGTH_SHORT).show()

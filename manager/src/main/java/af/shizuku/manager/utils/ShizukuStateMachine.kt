@@ -1,7 +1,6 @@
 package af.shizuku.manager.utils
 
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
-import android.content.Context
 import android.content.pm.PackageManager
 import android.provider.Settings
 import timber.log.Timber
@@ -42,7 +41,7 @@ object ShizukuStateMachine {
             State.CRASHED.name -> State.CRASHED
             else -> State.STOPPED
         }
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         State.STOPPED
     }
 
@@ -132,7 +131,7 @@ object ShizukuStateMachine {
                     setPackage(context.packageName)
                 }
                 context.sendBroadcast(intent)
-            } catch (e: UninitializedPropertyAccessException) {
+            } catch (_: UninitializedPropertyAccessException) {
                 Timber.tag("ShizukuStateMachine").w("Skipping broadcast: appContext not initialized yet")
             }
         }
@@ -151,7 +150,7 @@ object ShizukuStateMachine {
                     if (shouldDisableUsbDebugging) {
                         Settings.Global.putInt(context.contentResolver, Settings.Global.ADB_ENABLED, 0)
                     }
-                } catch (e: UninitializedPropertyAccessException) {
+                } catch (_: UninitializedPropertyAccessException) {
                     Timber.tag("ShizukuStateMachine").w("Skipping USB debugging disable: appContext not initialized yet")
                 } catch (e: Exception) {
                     Timber.tag("ShizukuStateMachine").w(e, "Failed to disable USB debugging")
@@ -166,7 +165,7 @@ object ShizukuStateMachine {
         val span = Sentry.getSpan()?.startChild("ipc.shizuku", "pingBinder")
         val isAlive = try {
             Shizuku.pingBinder()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         } finally {
             span?.finish()

@@ -1,7 +1,5 @@
 package af.shizuku.manager.security
 
-import android.content.Context
-import android.os.Build
 import java.io.File
 
 object SecurityGuard {
@@ -18,7 +16,7 @@ object SecurityGuard {
             val classLoader = ClassLoader.getSystemClassLoader()
             classLoader.loadClass("de.robv.android.xposed.XposedBridge")
             return true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Not Xposed
         }
         return false

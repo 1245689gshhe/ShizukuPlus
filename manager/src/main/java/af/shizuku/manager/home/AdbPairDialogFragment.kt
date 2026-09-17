@@ -3,11 +3,8 @@ package af.shizuku.manager.home
 import android.annotation.SuppressLint
 import android.app.Application
 import android.app.Dialog
-import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.os.Build.VERSION_CODES
 import android.os.Bundle
-import android.provider.Settings
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.widget.Toast
@@ -81,7 +78,7 @@ class AdbPairDialogFragment : DialogFragment() {
             val portEditText = binding.port.editText
             val port = try {
                 portEditText?.text.toString().toInt()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 -1
             }
             if (port > 65535 || port < 1) {

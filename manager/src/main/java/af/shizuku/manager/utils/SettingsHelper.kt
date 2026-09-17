@@ -99,7 +99,7 @@ object SettingsHelper {
         }
         try {
             launcher?.launch(intent) ?: context.startActivity(intent)
-        } catch (e: IllegalStateException) {
+        } catch (_: IllegalStateException) {
             // Launcher may be unregistered if the fragment was detached — fall back to startActivity
             context.startActivity(intent)
         }
@@ -109,7 +109,7 @@ object SettingsHelper {
         return try {
             val rampart = Settings.Secure.getInt(context.contentResolver, "rampart_enabled", 0)
             rampart == 0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             true
         }
     }
@@ -118,7 +118,7 @@ object SettingsHelper {
         return try {
             val maxRestrictions = Settings.Secure.getInt(context.contentResolver, "rampart_max_restrictions_enabled", 0)
             maxRestrictions == 0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             true
         }
     }

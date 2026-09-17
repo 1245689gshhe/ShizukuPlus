@@ -74,7 +74,7 @@ class RequestPermissionActivity : AppActivity() {
                     while (true) {
                         if (ShizukuStateMachine.get() == ShizukuStateMachine.State.RUNNING) {
                             val alive = withContext(Dispatchers.IO) {
-                    try { Shizuku.pingBinder() } catch (e: Exception) { false }
+                    try { Shizuku.pingBinder() } catch (_: Exception) { false }
                 }
                             if (alive) break
                         }
@@ -122,7 +122,7 @@ class RequestPermissionActivity : AppActivity() {
         val label = ai?.let {
             try {
                 it.loadLabel(packageManager)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 it.packageName
             }
         } ?: callingPackage ?: "Shell"
@@ -159,7 +159,7 @@ class RequestPermissionActivity : AppActivity() {
         dialog.setCanceledOnTouchOutside(false)
         try {
             dialog.show()
-        } catch (e: WindowManager.BadTokenException) {
+        } catch (_: WindowManager.BadTokenException) {
             // Activity window detached by the time the coroutine resumed
             finish()
         }

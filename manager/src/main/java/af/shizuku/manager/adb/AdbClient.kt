@@ -190,19 +190,19 @@ class AdbClient(
     override fun close() {
         try {
             plainInputStream?.close()
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
         } finally {
             plainInputStream = null
         }
         try {
             plainOutputStream?.close()
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
         } finally {
             plainOutputStream = null
         }
         try {
             socket?.close()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
         } finally {
             socket = null
         }
@@ -210,19 +210,19 @@ class AdbClient(
         if (useTls) {
             try {
                 tlsInputStream?.close()
-            } catch (e: Throwable) {
+            } catch (_: Throwable) {
             } finally {
                 tlsInputStream = null
             }
             try {
                 tlsOutputStream?.close()
-            } catch (e: Throwable) {
+            } catch (_: Throwable) {
             } finally {
                 tlsOutputStream = null
             }
             try {
                 tlsSocket?.close()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
             } finally {
                 tlsSocket = null
             }

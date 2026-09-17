@@ -44,7 +44,7 @@ object IntentCrypto {
             System.arraycopy(iv, 0, combined, 0, iv.size)
             System.arraycopy(encrypted, 0, combined, iv.size, encrypted.size)
             Base64.encodeToString(combined, Base64.NO_WRAP)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }
@@ -59,7 +59,7 @@ object IntentCrypto {
             val spec = GCMParameterSpec(TAG_LENGTH, iv)
             cipher.init(Cipher.DECRYPT_MODE, key, spec)
             String(cipher.doFinal(encrypted))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

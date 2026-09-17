@@ -9,7 +9,6 @@ import af.shizuku.server.IApkPatcher
 import af.shizuku.common.compat.Android17Compat
 import af.shizuku.common.util.UserHandleCompat
 import java.io.File
-import java.io.FileInputStream
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
@@ -249,7 +248,7 @@ class ApkPatcherImpl : IApkPatcher.Stub() {
                         ParcelFileDescriptor.AutoCloseOutputStream(pfd).use { dst -> src.copyTo(dst) }
                     }
                     session.javaClass.methods.firstOrNull { it.name == "fsync" }?.invoke(session, pfd)
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     session.javaClass.methods.firstOrNull { it.name == "abandon" }?.invoke(session)
                     return false
                 }
