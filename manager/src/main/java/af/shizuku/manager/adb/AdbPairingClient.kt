@@ -40,7 +40,6 @@ private class PeerInfo(
 
     enum class Type(val value: Byte) {
         ADB_RSA_PUB_KEY(0.toByte()),
-        ADB_DEVICE_GUID(0.toByte()),
     }
 
     fun writeTo(buffer: ByteBuffer) {

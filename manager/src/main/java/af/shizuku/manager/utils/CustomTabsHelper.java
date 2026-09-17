@@ -26,10 +26,6 @@ public class CustomTabsHelper {
 
     private static OnCreateIntentBuilderListener sOnCreateIntentBuilderListener;
 
-    public static void setOnCreateIntentBuilderListener(OnCreateIntentBuilderListener onCreateIntentBuilderListener) {
-        sOnCreateIntentBuilderListener = onCreateIntentBuilderListener;
-    }
-
     public static CustomTabsIntent.Builder createBuilder() {
         CustomTabsIntent.Builder builder = new CustomTabsIntent.Builder();
         builder.setShowTitle(true);

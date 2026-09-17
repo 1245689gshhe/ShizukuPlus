@@ -12,8 +12,6 @@ import java.io.ByteArrayOutputStream
  */
 internal object ApkBinaryXmlPatcher {
 
-    private const val TYPE_STRING_POOL    = 0x0001
-    private const val TYPE_XML_FILE       = 0x0003
     private const val TYPE_RESOURCE_MAP   = 0x0180
     private const val TYPE_START_ELEMENT  = 0x0102
 

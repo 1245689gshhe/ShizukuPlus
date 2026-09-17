@@ -87,7 +87,7 @@ class StartWirelessAdbViewHolder(
     init {
         containerBinding.root.applySpringTouch()
         containerBinding.root.setOnLongClickListener { HomeEditMode.enter(); true }
-        binding.button1.setOnClickListener { v: View ->
+        binding.button1.setOnClickListener { _: View ->
             if (ShizukuStateMachine.get() == ShizukuStateMachine.State.STARTING) {
                 Toast.makeText(context, context.getString(R.string.toast_shizuku_already_starting), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener

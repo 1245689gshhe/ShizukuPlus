@@ -27,19 +27,6 @@ public class EnvironmentUtils {
             return Build.VERSION.SDK_INT >= Build.VERSION_CODES.R;
     }
 
-    public static int getFullSdkVersion() {
-        if (Build.VERSION.SDK_INT >= 36) {
-            try {
-                java.lang.reflect.Field field = Build.VERSION.class.getField("SDK_INT_FULL");
-                return field.getInt(null);
-            } catch (Exception e) {
-                return Build.VERSION.SDK_INT * 100;
-            }
-        } else {
-            return Build.VERSION.SDK_INT * 100;
-        }
-    }
-
     public static boolean isSamsung() {
         return Build.MANUFACTURER.equalsIgnoreCase("samsung");
     }

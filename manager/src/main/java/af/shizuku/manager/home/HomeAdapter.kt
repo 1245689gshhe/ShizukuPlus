@@ -66,13 +66,6 @@ class HomeAdapter(
 
     // Cached inputs from the last successful updateData() render, so moveItem() can rebuild the
     // adapter's real backing list synchronously mid-drag instead of only reordering cardOrder.
-    private var lastRenderStatus: ServiceStatus? = null
-    private var lastRenderGrantedCount: Int? = null
-    private var lastRenderIsEditMode: Boolean = false
-    private var lastRenderCompanionInstalled: Boolean = false
-    private var lastRenderCompatHubInstalled: Boolean = false
-    private var lastRenderIsOriginalShizukuRunning: Boolean = false
-    private var lastRenderHidden: Set<String> = emptySet()
 
     /**
      * Callback to notify when the empty state should be shown/hidden.
@@ -155,14 +148,6 @@ class HomeAdapter(
                     isUpdating = false
                     return@withContext
                 }
-
-                lastRenderStatus = status
-                lastRenderGrantedCount = grantedCount
-                lastRenderIsEditMode = isEditMode
-                lastRenderCompanionInstalled = companionInstalled
-                lastRenderCompatHubInstalled = compatHubInstalled
-                lastRenderIsOriginalShizukuRunning = isOriginalShizukuRunning
-                lastRenderHidden = hidden
 
                 val fixedCardCount = rebuildItems(
                     status, grantedCount, isEditMode, companionInstalled, compatHubInstalled,
@@ -319,5 +304,4 @@ class HomeAdapter(
         if (position < 0 || position >= itemCount) return false
         return getItemId(position) in DEFAULT_ORDER
     }
-    private fun Long.str() = this.toString()
 }

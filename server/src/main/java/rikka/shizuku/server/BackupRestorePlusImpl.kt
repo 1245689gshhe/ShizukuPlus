@@ -74,19 +74,6 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
         readSide
     } catch (_: Exception) { null }
 
-    private fun parseContentRows(output: String): List<Bundle> =
-        output.lines()
-            .filter { it.trimStart().startsWith("Row:") }
-            .map { row ->
-                val b = Bundle()
-                val content = row.substringAfter("Row:").trimStart().substringAfter(" ")
-                for (pair in content.split(", ")) {
-                    val eq = pair.indexOf('=')
-                    if (eq > 0) b.putString(pair.substring(0, eq).trim(), pair.substring(eq + 1).trim())
-                }
-                b
-            }
-
     // ── Package Inventory ─────────────────────────────────────────────────────
 
     override fun listInstalledPackages(includeSystem: Boolean): List<Bundle> {
@@ -406,7 +393,7 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
             try {
                 Android17Compat.grantRuntimePermission(packageName, name, userId)
                 count++
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 if (execExit("pm", "grant", packageName, name) == 0) count++
             }
         }

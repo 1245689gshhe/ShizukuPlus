@@ -9,15 +9,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.utils.EnvironmentUtils
 import rikka.shizuku.Shizuku
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.io.PrintWriter
 import java.net.InetAddress
 import java.net.ServerSocket
 import java.net.Socket
@@ -39,8 +35,6 @@ class AdbProxyService : Service() {
     companion object {
         private const val TAG = "AdbProxyService"
         const val PROXY_PORT = 15555
-        private const val MAX_CMD_LEN = 8192
-        private const val TIMEOUT_MS = 30_000 // 30s per command
 
         private fun execShellCommand(cmd: Array<String>): Boolean {
             // Entire body in try-catch: pingBinder() can throw IllegalStateException on some
@@ -63,7 +57,7 @@ class AdbProxyService : Service() {
                 } else {
                     false
                 }
-            } catch (e: Exception) { false }
+            } catch (_: Exception) { false }
         }
 
         /** Configures adbd TCP mode via Shizuku or Root. */
@@ -182,7 +176,7 @@ class AdbProxyService : Service() {
             try {
                 val handler = af.shizuku.manager.adb.FakeAdbClientHandler(this@AdbProxyService, socket)
                 handler.loop()
-            } catch (e: SocketException) {
+            } catch (_: SocketException) {
                 // Client disconnected — normal
             } catch (e: Exception) {
                 Timber.tag(TAG).e(e, "Client error")

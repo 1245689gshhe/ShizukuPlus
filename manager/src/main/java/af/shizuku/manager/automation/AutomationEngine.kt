@@ -24,10 +24,6 @@ object AutomationEngine {
         }
     }
 
-    fun unregisterRule(rule: AutomationRule) {
-        rules.remove(rule)
-    }
-
     fun dispatchEvent(event: AutomationEvent, context: Context) {
         Timber.tag("AutomationEngine").d("Dispatching event: $event")
         for (rule in rules) {

@@ -35,7 +35,6 @@ public class ShizukuSettings {
         public static final String KEY_AUTO_DISABLE_USB_DEBUGGING = "auto_disable_usb_debugging";
         public static final String KEY_LANGUAGE = "language";
         public static final String KEY_TRANSLATION = "translation";
-        public static final String KEY_TRANSLATION_CONTRIBUTORS = "translation_contributors";
         public static final String KEY_LIGHT_THEME = "light_theme";
         public static final String KEY_NIGHT_MODE = "night_mode";
         public static final String KEY_BLACK_NIGHT_THEME = "black_night_theme";
@@ -120,7 +119,6 @@ public class ShizukuSettings {
         public static final String KEY_ROOT_POWER_GHOSTING_ENABLED = "root_power_ghosting_enabled";
         public static final String KEY_BOOTLOADER_FLASH_OTA_ENABLED = "bootloader_flash_ota_enabled";
         public static final String KEY_BOOTLOADER_FASTBOOTD_REBOOT_ENABLED = "bootloader_fastbootd_reboot_enabled";
-        public static final String KEY_KEEP_SU_APP = "keep_su_app";
         public static final String KEY_LP_OPEN_APP = "lp_open_app";
         public static final String KEY_LP_APP_INFO = "lp_app_info";
         public static final String KEY_LP_TOGGLE_PERMISSION = "lp_toggle_permission";
@@ -674,24 +672,9 @@ public class ShizukuSettings {
         if (p != null) p.edit().putBoolean("enh_" + packageName + "_" + enhancementKey, enabled).apply();
     }
 
-    public static boolean hasSeenOnboarding() {
-        SharedPreferences p = getPreferences();
-        return p != null && p.getBoolean("onboarding_seen", false);
-    }
-
     public static void setOnboardingSeen() {
         SharedPreferences p = getPreferences();
         if (p != null) p.edit().putBoolean("onboarding_seen", true).apply();
-    }
-
-    public static boolean hasMigrationBeenOffered() {
-        SharedPreferences p = getPreferences();
-        return p != null && p.getBoolean(Keys.KEY_MIGRATION_OFFERED, false);
-    }
-
-    public static void setMigrationOffered() {
-        SharedPreferences p = getPreferences();
-        if (p != null) p.edit().putBoolean(Keys.KEY_MIGRATION_OFFERED, true).apply();
     }
 
     public static Locale getLocale() {
@@ -810,19 +793,9 @@ public class ShizukuSettings {
         return p != null && p.getBoolean(Keys.KEY_NPU_ACCELERATION_ENABLED, false);
     }
 
-    public static void setNpuAccelerationEnabled(boolean enabled) {
-        SharedPreferences p = getPreferences();
-        if (p != null) p.edit().putBoolean(Keys.KEY_NPU_ACCELERATION_ENABLED, enabled).apply();
-    }
-
     public static boolean isNativeWindowCrawlerEnabled() {
         SharedPreferences p = getPreferences();
         return p != null && p.getBoolean(Keys.KEY_NATIVE_WINDOW_CRAWLER_ENABLED, false);
-    }
-
-    public static void setNativeWindowCrawlerEnabled(boolean enabled) {
-        SharedPreferences p = getPreferences();
-        if (p != null) p.edit().putBoolean(Keys.KEY_NATIVE_WINDOW_CRAWLER_ENABLED, enabled).apply();
     }
 
     public static boolean isWindowManagerPlusEnabled() {
@@ -890,11 +863,6 @@ public class ShizukuSettings {
     public static String getShadowBinderHiddenPackages() {
         SharedPreferences p = getPreferences();
         return p != null ? p.getString(Keys.KEY_SHADOW_BINDER_HIDDEN_PACKAGES, "") : "";
-    }
-
-    public static void setShadowBinderHiddenPackages(String packages) {
-        SharedPreferences p = getPreferences();
-        if (p != null) p.edit().putString(Keys.KEY_SHADOW_BINDER_HIDDEN_PACKAGES, packages).apply();
     }
 
     // --- Automation Engine (#435) ---
@@ -999,11 +967,6 @@ public class ShizukuSettings {
     public static boolean isOnDeviceAdbTcpEnabled() {
         SharedPreferences p = getPreferences();
         return p != null && p.getBoolean(Keys.KEY_ON_DEVICE_ADB_TCP, false);
-    }
-
-    public static void setOnDeviceAdbTcpEnabled(boolean enable) {
-        SharedPreferences p = getPreferences();
-        if (p != null) p.edit().putBoolean(Keys.KEY_ON_DEVICE_ADB_TCP, enable).apply();
     }
 
     public static boolean isForceStartWadbEnabled() {
@@ -1142,18 +1105,6 @@ public class ShizukuSettings {
     public static void setHiddenHomeCards(java.util.Set<String> hidden) {
         SharedPreferences p = getPreferences();
         if (p != null) p.edit().putStringSet(Keys.KEY_HIDDEN_HOME_CARDS, hidden).apply();
-    }
-
-    public static void addHiddenHomeCard(String cardId) {
-        java.util.Set<String> hidden = new java.util.HashSet<>(getHiddenHomeCards());
-        hidden.add(cardId);
-        setHiddenHomeCards(hidden);
-    }
-
-    public static void removeHiddenHomeCard(String cardId) {
-        java.util.Set<String> hidden = new java.util.HashSet<>(getHiddenHomeCards());
-        hidden.remove(cardId);
-        setHiddenHomeCards(hidden);
     }
 
     @Nullable
@@ -1383,11 +1334,6 @@ public class ShizukuSettings {
         SharedPreferences p = getPreferences();
         String label = p != null ? p.getString(Keys.KEY_CUSTOM_APP_LABEL, null) : null;
         return (label != null && !label.isEmpty()) ? label : null;
-    }
-
-    public static void setCustomAppLabel(@Nullable String label) {
-        SharedPreferences p = getPreferences();
-        if (p != null) p.edit().putString(Keys.KEY_CUSTOM_APP_LABEL, label).apply();
     }
 
     /**
