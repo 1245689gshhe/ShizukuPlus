@@ -1428,4 +1428,14 @@
     <string name="device_control_shutdown_title">Shut Down Device</string>
     <string name="device_control_shutdown_confirm">Are you sure you want to shut down the device?</string>
     <string name="nav_back">Back</string>
+
+    <!-- Permission Manager card &amp; screen -->
+    <string name="home_permission_manager_title">Permission Manager</string>
+    <string name="home_permission_manager_summary">Grant shell-level permissions to any app without root</string>
+    <string name="permission_manager_search_hint">Search apps…</string>
+    <string name="permission_manager_no_apps">No apps found</string>
+    <string name="permission_manager_no_permissions">No runtime or privileged permissions declared</string>
+    <string name="permission_manager_section_privileged">Privileged Permissions (shell-grantable)</string>
+    <string name="permission_manager_section_runtime">Runtime Permissions</string>
+    <string name="permission_manager_privileged_note">These permissions are normally restricted to system or root apps, but can be granted by the ADB shell process. Useful for backup apps (Neo Backup, Swift Backup) that need DUMP, READ_LOGS, or similar access.</string>
 </resources>

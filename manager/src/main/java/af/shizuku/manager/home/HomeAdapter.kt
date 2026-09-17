@@ -36,9 +36,10 @@ class HomeAdapter(
         const val ID_START_VIA_STOCK = 10L
         const val ID_BACKUP = 11L
         const val ID_DEVICE_CONTROL = 12L
+        const val ID_PERMISSION_MANAGER = 13L
 
         private val DEFAULT_ORDER = listOf(
-            ID_TERMINAL, ID_START_ROOT, ID_START_WADB, ID_START_ADB, ID_AUTOMATION, ID_BACKUP, ID_DEVICE_CONTROL, ID_LEARN_MORE, ID_COMPANION
+            ID_TERMINAL, ID_START_ROOT, ID_START_WADB, ID_START_ADB, ID_AUTOMATION, ID_BACKUP, ID_DEVICE_CONTROL, ID_PERMISSION_MANAGER, ID_LEARN_MORE, ID_COMPANION
         )
     }
 
@@ -228,6 +229,7 @@ class HomeAdapter(
                 ID_AUTOMATION -> addItem(AutomationViewHolder.CREATOR, null, id)
                 ID_BACKUP -> addItem(AppBackupViewHolder.CREATOR, status, id)
                 ID_DEVICE_CONTROL -> addItem(DeviceControlViewHolder.CREATOR, status, id)
+                ID_PERMISSION_MANAGER -> addItem(PermissionManagerViewHolder.CREATOR, status, id)
                 ID_LEARN_MORE -> addItem(LearnMoreViewHolder.CREATOR, null, id)
                 ID_COMPANION -> {
                     // The compat hub is what lets third-party apps detect Shizuku+, so surface
