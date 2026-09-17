@@ -1,7 +1,5 @@
 package rikka.shizuku.server
 
-import android.content.ClipData
-import android.os.Build
 import android.os.IBinder
 import android.os.ServiceManager
 import android.util.Log

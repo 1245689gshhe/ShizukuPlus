@@ -2,15 +2,12 @@ package af.shizuku.manager.settings
 
 import android.content.Context
 import android.util.AttributeSet
-import android.view.View
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.preference.Preference
 import androidx.preference.PreferenceViewHolder
 import androidx.preference.TwoStatePreference
 import af.shizuku.manager.R
-import af.shizuku.manager.ShizukuSettings
 
 class HomeLayoutSimulatorPreference @JvmOverloads constructor(
     context: Context,

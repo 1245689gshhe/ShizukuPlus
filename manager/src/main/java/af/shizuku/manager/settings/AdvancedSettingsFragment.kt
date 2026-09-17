@@ -13,8 +13,6 @@ import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.ktx.setComponentEnabled
 import android.widget.Toast
 import timber.log.Timber
-import af.shizuku.manager.ktx.toHtml
-import af.shizuku.manager.BuildConfig
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers

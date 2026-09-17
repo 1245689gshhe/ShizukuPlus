@@ -1,8 +1,6 @@
 package af.shizuku.manager.legacy
 
-import android.content.Context
 import android.content.Intent
-import android.widget.Toast
 import rikka.material.app.MaterialActivity
 import af.shizuku.manager.shell.ShellBinderRequestHandler
 

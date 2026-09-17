@@ -3,9 +3,7 @@ package af.shizuku.manager.home
 import android.os.Build
 import android.view.LayoutInflater
 import android.view.MotionEvent
-import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.view.isVisible
 import com.google.android.material.bottomsheet.BottomSheetDialog

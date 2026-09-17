@@ -1,6 +1,5 @@
 package af.shizuku.manager.utils
 
-import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
@@ -8,7 +7,6 @@ import android.os.Build
 import android.provider.Settings
 import android.service.quicksettings.TileService
 import timber.log.Timber
-import af.shizuku.manager.adb.AdbPairingAccessibilityService
 import af.shizuku.manager.service.WatchdogService
 
 sealed class SettingsPage(

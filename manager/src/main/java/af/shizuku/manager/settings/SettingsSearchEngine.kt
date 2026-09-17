@@ -1,7 +1,6 @@
 package af.shizuku.manager.settings
 
 import android.content.Context
-import android.content.res.XmlResourceParser
 import timber.log.Timber
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings

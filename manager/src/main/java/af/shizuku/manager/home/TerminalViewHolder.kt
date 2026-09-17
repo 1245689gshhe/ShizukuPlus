@@ -6,7 +6,6 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import rikka.core.content.asActivity
-import androidx.core.view.isVisible
 import af.shizuku.manager.R
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.databinding.HomeTerminalBinding
