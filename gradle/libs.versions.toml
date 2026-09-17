@@ -1,7 +1,6 @@
 [versions]
 mockk = "1.13.13"
 agp = "8.11.1"
-kotlin = "2.2.20"
 coreKtx = "1.15.0"
 appcompat = "1.7.0"
 material = "1.14.0"
@@ -34,7 +33,6 @@ libcxx = "27.0.12077973"
 hidden-api = "4.4.0"
 refine = "4.4.0"
 room = "2.6.1"
-ksp = "2.2.20-2.0.2"
 timber = "5.0.1"
 coil = "3.4.0"
 koin = "4.0.2"
@@ -42,7 +40,6 @@ serialization = "1.8.0"
 lottie = "6.6.2"
 markwon = "4.6.2"
 mavericks = "3.0.9"
-spotless = "6.25.0"
 kotestJunit5 = "5.9.1"
 robolectric = "4.14.1"
 coroutines-test = "1.10.2"
@@ -56,7 +53,6 @@ compose-bom = "2024.04.01"
 
 [libraries]
 mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
-mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-annotation = { group = "androidx.annotation", name = "annotation", version = "1.9.1" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -78,7 +74,6 @@ androidx-transition = { group = "androidx.transition", name = "transition-ktx", 
 androidx-dynamicanimation = { group = "androidx.dynamicanimation", name = "dynamicanimation", version.ref = "dynamicanimation" }
 androidx-interpolator = { group = "androidx.interpolator", name = "interpolator", version.ref = "interpolator" }
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
-androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
 androidx-biometric = { group = "androidx.biometric", name = "biometric-ktx", version.ref = "biometric" }
 androidx-core-remoteviews = { group = "androidx.core", name = "core-remoteviews", version = "1.0.0-alpha01" }
 
@@ -97,7 +92,6 @@ robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines-test" }
 
 aboutlibraries-core = { group = "com.mikepenz", name = "aboutlibraries-core", version.ref = "aboutlibraries" }
-aboutlibraries-ui = { group = "com.mikepenz", name = "aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 coil = { group = "io.coil-kt.coil3", name = "coil", version.ref = "coil" }
@@ -126,8 +120,6 @@ rikkax-lifecycle-resource = { group = "dev.rikka.rikkax.lifecycle", name = "life
 hidden-compat = { group = "dev.rikka.hidden", name = "compat", version.ref = "hidden-api" }
 hidden-stub = { group = "dev.rikka.hidden", name = "stub", version.ref = "hidden-api" }
 refine-runtime = { group = "dev.rikka.tools.refine", name = "runtime", version.ref = "refine" }
-refine-annotation = { group = "dev.rikka.tools.refine", name = "annotation", version.ref = "refine" }
-refine-annotation-processor = { group = "dev.rikka.tools.refine", name = "annotation-processor", version.ref = "refine" }
 
 libsu-core = { group = "com.github.topjohnwu.libsu", name = "core", version.ref = "libsu" }
 hiddenapibypass = { group = "org.lsposed.hiddenapibypass", name = "hiddenapibypass", version.ref = "hiddenapibypass" }
@@ -149,13 +141,3 @@ play-integrity = { group = "com.google.android.play", name = "integrity", versio
 androidx-test-core = { group = "androidx.test", name = "core", version.ref = "androidx-test-core" }
 
 [plugins]
-android-application = { id = "com.android.application", version.ref = "agp" }
-android-library = { id = "com.android.library", version.ref = "agp" }
-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
-autoresconfig = { id = "dev.rikka.tools.autoresconfig", version = "1.2.2" }
-materialthemebuilder = { id = "dev.rikka.tools.materialthemebuilder", version = "1.5.1" }
-refine = { id = "dev.rikka.tools.refine", version = "4.4.0" }
-sentry = { id = "io.sentry.android.gradle", version = "6.2.0" }
-spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
-aboutlibraries = { id = "com.mikepenz.aboutlibraries.plugin", version.ref = "aboutlibraries" }
-ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
