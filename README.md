@@ -58,7 +58,7 @@ Shizuku+ makes regular Shizuku apps faster and more compatible without any code 
 
 *   **Transparent Shell Interceptor**: Routes common `pm`, `am`, and `settings` commands through faster native APIs.
 *   **Local ADB Proxy**: Emulates an ADB server on port 15555, so legacy apps can use Shizuku without Wireless ADB staying on.
-*   **SU Bridge**: A Shizuku-backed `su` drop-in for non-rooted apps that support a custom root path.
+*   **SU Bridge**: A Shizuku-backed `su` drop-in for non-rooted apps that support a custom root path. Common root commands are translated into real framework operations where shell UID allows it — `iptables --uid-owner` per-app blocks become live `NetworkPolicy` restrictions, `resetprop` reads/writes real system properties, and `chmod`/`chown` apply for real — falling back to mocked success only when an operation genuinely requires root (e.g. flashing partitions or loading kernel modules).
 *   **`plus` CLI Helper**: A privileged command-line utility, available inside `rish`.
 *   **Dynamic App Database**: Keeps app descriptions and suggestions in the UI up-to-date from GitHub.
 
