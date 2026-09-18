@@ -761,6 +761,73 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
         return isFeatureEnabled(key);
     }
 
+    /**
+     * Translate a per-app iptables rule ("... --uid-owner <uid> ...") into a real framework
+     * restriction. Firewall apps (AFWall+, NetGuard shell mode) emit these to block a UID's
+     * traffic, but shell UID (2000) cannot touch kernel netfilter tables. INetworkPolicyManager
+     * and `cmd netpolicy` can genuinely restrict the UID instead.
+     *
+     * @return true if a real policy change was applied; false if there was nothing to map
+     *         (no --uid-owner) or every mapping attempt failed, so the caller can fall back.
+     */
+    private boolean mapIptablesToNetworkPolicy(String[] cmd) {
+        if (cmd == null) return false;
+        String fullCmd = String.join(" ", cmd);
+        if (!fullCmd.contains("--uid-owner")) return false;
+
+        int index = -1;
+        for (int i = 0; i < cmd.length; i++) {
+            if (cmd[i].equals("--uid-owner")) { index = i + 1; break; }
+        }
+        if (index == -1 || index >= cmd.length) return false;
+
+        int uid;
+        try {
+            uid = Integer.parseInt(cmd[index]);
+        } catch (NumberFormatException e) {
+            return false;
+        }
+        // -A/-I add a rule (restrict); -D deletes it (unrestrict).
+        boolean restricted = !fullCmd.contains("-D");
+        boolean applied = false;
+
+        // Layer 1: INetworkPolicyManager.setUidPolicy (1 = POLICY_REJECT_METERED_BACKGROUND).
+        // Only blocks metered *background* data. A firewall app that issues a DROP rule
+        // expects a broader block, so we stack the data-saver blacklist (layer 2) on top.
+        try {
+            IBinder binder = ServiceManager.getService("netpolicy");
+            if (binder != null) {
+                Object service = Class.forName("android.net.INetworkPolicyManager$Stub")
+                    .getMethod("asInterface", IBinder.class).invoke(null, binder);
+                int policy = restricted ? 1 : 0;
+                service.getClass().getMethod("setUidPolicy", int.class, int.class).invoke(service, uid, policy);
+                LOGGER.i("SUBridge: mapped iptables --uid-owner %d to NetworkPolicy metered-bg (restricted=%b)", uid, restricted);
+                applied = true;
+            }
+        } catch (Exception e) {
+            LOGGER.w(e, "SUBridge: setUidPolicy mapping failed for uid %d, relying on cmd netpolicy", uid);
+        }
+
+        // Layer 2: `cmd netpolicy` data-saver blacklist — broader per-UID metered block,
+        // runnable at shell UID. Applied in addition to layer 1 when restricting, and
+        // removed when unrestricting. Best-effort; failure just leaves layer 1 in place.
+        java.lang.Process p = null;
+        try {
+            String action = restricted ? "add" : "remove";
+            p = Runtime.getRuntime().exec(new String[]{
+                "cmd", "netpolicy", action, "restrict-background-blacklist", String.valueOf(uid)});
+            if (p.waitFor() == 0) {
+                LOGGER.i("SUBridge: mapped iptables --uid-owner %d via cmd netpolicy blacklist (restricted=%b)", uid, restricted);
+                applied = true;
+            }
+        } catch (Exception e) {
+            LOGGER.w(e, "SUBridge: cmd netpolicy fallback failed for uid %d", uid);
+        } finally {
+            if (p != null) p.destroy();
+        }
+        return applied;
+    }
+
     @Override
     protected boolean isBinderCallBlocked(int uid, String descriptor, int code) {
         if (!isFeatureEnabled("binder_firewall")) return false;
@@ -1078,28 +1145,40 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                 "/system/etc/gps.conf"
             };
             
+            // The server runs at shell UID (2000), which cannot write under /data/adb (0700 root).
+            // Stage the shadow copies in the canonical shell-writable dir instead, or the mkdirs()
+            // and copy below silently fail and the redirect points at an unwritable path.
+            String proxyDir = "/data/local/tmp/shizuku_proxy";
             for (int i = 0; i < cmd.length; i++) {
                 if (cmd[i] == null) continue;
                 for (String target : proxyTargets) {
                     if (cmd[i].contains(target)) {
                         String fileName = new java.io.File(target).getName();
-                        String proxyPath = "/data/adb/shizuku/" + fileName;
-                        
+                        String proxyPath = proxyDir + "/" + fileName;
+
+                        boolean ready = false;
                         try {
-                            new java.io.File("/data/adb/shizuku").mkdirs();
+                            new java.io.File(proxyDir).mkdirs();
                             java.io.File dest = new java.io.File(proxyPath);
                             if (!dest.exists()) {
-                                java.nio.file.Files.copy(
-                                    java.nio.file.Paths.get(target),
-                                    java.nio.file.Paths.get(proxyPath)
-                                );
+                                java.io.File src = new java.io.File(target);
+                                if (src.exists()) {
+                                    java.nio.file.Files.copy(src.toPath(), dest.toPath());
+                                } else {
+                                    dest.createNewFile();
+                                }
                             }
+                            ready = dest.exists();
                         } catch (Exception e) {
                             LOGGER.e(e, "SUBridge: failed to prepare proxy file for " + target);
                         }
-                        
-                        cmd[i] = cmd[i].replace(target, proxyPath);
-                        LOGGER.i("SUBridge: dynamically rewrote " + target + " to " + proxyPath);
+
+                        // Only redirect once the writable shadow is in place; otherwise leave the
+                        // original path so reads still resolve the real file instead of a dead one.
+                        if (ready) {
+                            cmd[i] = cmd[i].replace(target, proxyPath);
+                            LOGGER.i("SUBridge: dynamically rewrote " + target + " to " + proxyPath);
+                        }
                     }
                 }
             }
@@ -1260,6 +1339,13 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     LOGGER.i("SUBridge: mocking SELinux policy injection for " + baseCmd);
                     return newProcessInternal(new String[]{"true"}, env, dir);
                 } else if ((baseCmd.equals("iptables") || baseCmd.equals("ip6tables") || baseCmd.endsWith("/iptables") || baseCmd.endsWith("/ip6tables")) && isFeatureEnabled("root_iptables_mocking")) {
+                    // Prefer a real framework mapping for per-app (--uid-owner) rules: at shell UID
+                    // the kernel netfilter tables are off-limits, but INetworkPolicyManager /
+                    // `cmd netpolicy` can genuinely restrict a UID's traffic. Only fall back to
+                    // exec (and finally to a mocked success) when no real mapping is possible.
+                    if (mapIptablesToNetworkPolicy(cmd)) {
+                        return newProcessInternal(new String[]{"true"}, env, dir);
+                    }
                     LOGGER.i("SUBridge: executing and mocking iptables command -> " + String.join(" ", cmd));
                     java.lang.Process p = null;
                     try {
@@ -1477,6 +1563,35 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     }
                 } else if (baseCmd.equals("resetprop")) {
                     if (isFeatureEnabled("root_magisk_mocking")) {
+                        // Magisk's resetprop was a pure ghost here. Make it genuinely functional
+                        // where shell UID is permitted: "resetprop <name> <value>" applies via
+                        // SystemProperties.set (the change then surfaces in real getprop), and
+                        // "resetprop <name>" answers a read. Deletes and unsupported flags fall
+                        // back to a mocked success so callers don't error out.
+                        java.util.List<String> rpArgs = new java.util.ArrayList<>();
+                        boolean rpDeleting = false;
+                        for (int i = 1; i < cmd.length; i++) {
+                            String a = cmd[i];
+                            if (a == null) continue;
+                            if (a.equals("--delete") || a.equals("-d")) { rpDeleting = true; continue; }
+                            if (a.startsWith("-")) continue; // skip -n, -p, -v, --file, etc.
+                            rpArgs.add(a);
+                        }
+                        if (!rpDeleting && rpArgs.size() >= 2) {
+                            String name = rpArgs.get(0);
+                            String value = rpArgs.get(1);
+                            LOGGER.i("SUBridge: resetprop applying %s=%s via SystemProperties", name, value);
+                            try {
+                                android.os.SystemProperties.set(name, value);
+                            } catch (Exception e) {
+                                LOGGER.w(e, "SUBridge: resetprop could not set %s (read-only/SELinux), mocking success", name);
+                            }
+                            return newProcessInternal(new String[]{"true"}, env, dir);
+                        } else if (!rpDeleting && rpArgs.size() == 1) {
+                            String value = android.os.SystemProperties.get(rpArgs.get(0), "");
+                            LOGGER.i("SUBridge: resetprop read %s -> %s", rpArgs.get(0), value);
+                            return newProcessInternal(new String[]{"echo", value}, env, dir);
+                        }
                         LOGGER.i("SUBridge: mocking resetprop " + String.join(" ", cmd));
                         return newProcessInternal(new String[]{"true"}, env, dir);
                     }
@@ -1714,35 +1829,26 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                         String target = cmd[cmd.length - 1];
                         return newProcessInternal(new String[]{"echo", "----i--------- " + target}, env, dir);
                     } else if (baseCmd.equals("chmod") || baseCmd.equals("chown")) {
-                        LOGGER.i("SUBridge: intercepting " + baseCmd + ", returning mock success");
+                        // Try the real operation first: chmod/chown on shell-writable targets
+                        // (app data, /data/local/tmp, /sdcard) genuinely succeed at shell UID and
+                        // should actually apply. Only mock success for privileged targets (e.g.
+                        // /system) that would need root, so callers don't error out.
+                        java.lang.Process cp = null;
+                        try {
+                            cp = Runtime.getRuntime().exec(cmd);
+                            if (cp.waitFor() == 0) {
+                                LOGGER.i("SUBridge: " + baseCmd + " applied for real");
+                                return newProcessInternal(new String[]{"true"}, env, dir);
+                            }
+                            LOGGER.i("SUBridge: " + baseCmd + " failed on privileged target, returning mock success");
+                        } catch (Exception e) {
+                            LOGGER.w(e, "SUBridge: " + baseCmd + " exec failed, returning mock success");
+                        } finally {
+                            if (cp != null) cp.destroy();
+                        }
                         return newProcessInternal(new String[]{"true"}, env, dir);
                     } else if (baseCmd.equals("iptables") || baseCmd.equals("ip6tables")) {
-                        String fullCmd = String.join(" ", cmd);
-                        if (fullCmd.contains("--uid-owner")) {
-                            try {
-                                // Extract UID from "--uid-owner <uid>"
-                                int index = -1;
-                                for (int i = 0; i < cmd.length; i++) {
-                                    if (cmd[i].equals("--uid-owner")) { index = i + 1; break; }
-                                }
-                                if (index != -1 && index < cmd.length) {
-                                    int uid = Integer.parseInt(cmd[index]);
-                                    boolean restricted = !fullCmd.contains("-D"); // -A or -I means add/restrict, -D means delete/unrestrict
-                                    LOGGER.i("SUBridge: mapping iptables for UID " + uid + " to NetworkPolicy (restricted=" + restricted + ")");
-                                    
-                                    IBinder binder = ServiceManager.getService("netpolicy");
-                                    if (binder != null) {
-                                        Object service = Class.forName("android.net.INetworkPolicyManager$Stub")
-                                            .getMethod("asInterface", IBinder.class).invoke(null, binder);
-                                        // 1 = POLICY_REJECT_METERED_BACKGROUND, 4 = POLICY_REJECT_ALL (if available on target android version)
-                                        int policy = restricted ? 1 : 0; 
-                                        service.getClass().getMethod("setUidPolicy", int.class, int.class).invoke(service, uid, policy);
-                                    }
-                                }
-                            } catch (Exception e) {
-                                LOGGER.e("SUBridge: failed to map iptables to NetworkPolicy", e);
-                            }
-                        }
+                        mapIptablesToNetworkPolicy(cmd);
                         return newProcessInternal(new String[]{"true"}, env, dir);
                     } else if ((baseCmd.equals("tar") || baseCmd.equals("cp")) && (String.join(" ", cmd).contains("/data/data/") || String.join(" ", cmd).contains("/data/app/") || String.join(" ", cmd).contains("/data/user/"))) {
                         String fullCmd = String.join(" ", cmd);
@@ -2042,31 +2148,9 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     return syntheticProcess(1, null);
                 }
             } else if ((baseCmd.equals("iptables") || baseCmd.equals("ip6tables")) && cmd.length >= 2) {
-                // iptables --uid-owner <uid> → INetworkPolicyManager.setUidPolicy (Binder IPC, no exec)
-                String fullCmd = String.join(" ", cmd);
-                if (fullCmd.contains("--uid-owner")) {
-                    try {
-                        int uidIndex = -1;
-                        for (int i = 0; i < cmd.length; i++) {
-                            if (cmd[i].equals("--uid-owner")) { uidIndex = i + 1; break; }
-                        }
-                        if (uidIndex != -1 && uidIndex < cmd.length) {
-                            int targetUid = Integer.parseInt(cmd[uidIndex]);
-                            boolean restrict = !fullCmd.contains("-D");
-                            IBinder npBinder = ServiceManager.getService("netpolicy");
-                            if (npBinder != null) {
-                                Object svc = Class.forName("android.net.INetworkPolicyManager$Stub")
-                                    .getMethod("asInterface", IBinder.class).invoke(null, npBinder);
-                                int policy = restrict ? (android.os.Build.VERSION.SDK_INT >= 29 ? 4 : 1) : 0;
-                                LOGGER.i("Plus: iptables uid %d → NetworkPolicy %d", targetUid, policy);
-                                svc.getClass().getMethod("setUidPolicy", int.class, int.class)
-                                    .invoke(svc, targetUid, policy);
-                            }
-                        }
-                    } catch (Exception e) {
-                        LOGGER.e("Plus: iptables → NetworkPolicy failed", e);
-                    }
-                }
+                // iptables --uid-owner <uid> → real per-app NetworkPolicy restriction (Binder IPC,
+                // with a cmd netpolicy fallback). No kernel netfilter access at shell UID.
+                mapIptablesToNetworkPolicy(cmd);
                 return newProcessInternal(new String[]{"true"}, env, dir);
             } else if (baseCmd.equals("cmd") && cmd.length >= 3 && "overlay".equals(cmd[1]) && isFeatureEnabled("overlay_manager_plus")) {
                 // Intercept `cmd overlay <sub> ...` and route through IOverlayManagerPlus (direct
