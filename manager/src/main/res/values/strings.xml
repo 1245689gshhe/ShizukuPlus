@@ -1429,6 +1429,12 @@
     <string name="device_control_shutdown_confirm">Are you sure you want to shut down the device?</string>
     <string name="nav_back">Back</string>
 
+    <!-- Stealth Mode -->
+    <string name="settings_stealth_mode">Stealth Mode</string>
+    <string name="settings_stealth_mode_summary">Hide ShizukuPlus and Shizuku from app package queries so security SDKs cannot detect them</string>
+    <string name="help_stealth_mode_title">Stealth Mode</string>
+    <string name="help_stealth_mode_detail">Intercepts PackageManager queries at the Binder level and returns "not installed" for ShizukuPlus and Shizuku packages. Apps that use PM to detect root tools (banking apps, DRM checks) will not find them. Note: this only hides them from PackageManager queries — developer mode and USB debugging are still visible to apps that check Android settings directly.</string>
+
     <!-- Permission Manager card &amp; screen -->
     <string name="home_permission_manager_title">Permission Manager</string>
     <string name="home_permission_manager_summary">Grant shell-level permissions to any app without root</string>

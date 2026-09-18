@@ -119,6 +119,15 @@
         android:defaultValue="false">
 
         <af.shizuku.manager.settings.PlusFeaturePreference
+            android:key="stealth_mode"
+            android:title="@string/settings_stealth_mode"
+            android:summary="@string/settings_stealth_mode_summary"
+            android:icon="@drawable/ic_visibility_off_24"
+            android:defaultValue="false"
+            app:infoTitle="@string/help_stealth_mode_title"
+            app:infoDetail="@string/help_stealth_mode_detail" />
+
+        <af.shizuku.manager.settings.PlusFeaturePreference
             android:key="root_iptables_mocking_enabled"
             android:title="Firewall Success Mocking"
             android:summary="Intercept and fake success for iptables rules when local netfilter permissions fail"

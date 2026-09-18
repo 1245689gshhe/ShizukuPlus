@@ -1113,6 +1113,16 @@ public class ShizukuSettings {
         if (p != null) p.edit().putBoolean(Keys.KEY_ROOT_BUSYBOX_MOCKING_ENABLED, enable).apply();
     }
 
+    public static boolean isStealthModeEnabled() {
+        SharedPreferences p = getPreferences();
+        return p != null && p.getBoolean(Keys.KEY_STEALTH_MODE, false);
+    }
+
+    public static void setStealthModeEnabled(boolean enable) {
+        SharedPreferences p = getPreferences();
+        if (p != null) p.edit().putBoolean(Keys.KEY_STEALTH_MODE, enable).apply();
+    }
+
     public static boolean isRootBuildPropRedirectEnabled() {
         SharedPreferences p = getPreferences();
         return p != null && p.getBoolean(Keys.KEY_ROOT_BUILD_PROP_REDIRECT_ENABLED, false);
@@ -1228,6 +1238,7 @@ public class ShizukuSettings {
                 service.updatePlusFeatureEnabled("root_power_ghosting", isRootPowerGhostingEnabled());
                 service.updatePlusFeatureEnabled("bootloader_flash_ota", isBootloaderFlashOtaEnabled());
                 service.updatePlusFeatureEnabled("bootloader_fastbootd_reboot", isBootloaderFastbootdRebootEnabled());
+                service.updatePlusFeatureEnabled("stealth_mode", isStealthModeEnabled());
 
                 String suPathUri = getExportDirUri();
                 if (suPathUri != null) {

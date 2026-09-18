@@ -377,6 +377,62 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
             sendBinderToClient();
             sendBinderToManager();
         });
+
+        // Proactive auto-grant: after service is up, grant all shell-accessible privileged
+        // permissions to every installed package that has declared them, so backup apps and
+        // other tools work without requiring the user to manually grant each one.
+        new Thread(this::scheduleAutoGrantPrivilegedPermissions, "AutoGrantPrivileged").start();
+    }
+
+    // Shell-grantable privileged permissions (mirrors PermissionManagerScreen.PRIVILEGED_PERMISSIONS).
+    private static final java.util.Set<String> SHELL_GRANTABLE_PERMISSIONS = new java.util.HashSet<>(java.util.Arrays.asList(
+        "android.permission.READ_LOGS",
+        "android.permission.DUMP",
+        "android.permission.PACKAGE_USAGE_STATS",
+        "android.permission.WRITE_SECURE_SETTINGS",
+        "android.permission.READ_FRAME_BUFFER",
+        "android.permission.INTERACT_ACROSS_USERS",
+        "android.permission.INTERACT_ACROSS_USERS_FULL",
+        "android.permission.MANAGE_USB",
+        "android.permission.BATTERY_STATS",
+        "android.permission.MOUNT_UNMOUNT_FILESYSTEMS",
+        "android.permission.INSTALL_PACKAGES",
+        "android.permission.DELETE_PACKAGES",
+        "android.permission.CHANGE_NETWORK_STATE",
+        "android.permission.CHANGE_WIFI_STATE",
+        "android.permission.ACCESS_WIFI_STATE",
+        "android.permission.MANAGE_NETWORK_POLICY",
+        "android.permission.CONNECTIVITY_INTERNAL",
+        "android.permission.OBSERVE_APP_USAGE",
+        "android.permission.GET_APP_OPS_STATS",
+        "android.permission.MANAGE_APP_OPS_MODES",
+        "android.permission.CHANGE_COMPONENT_ENABLED_STATE",
+        "android.permission.FORCE_STOP_PACKAGES"
+    ));
+
+    private void scheduleAutoGrantPrivilegedPermissions() {
+        if (!isFeatureEnabled("root_auto_grant")) return;
+        try {
+            LOGGER.i("autoGrant: scanning installed packages for privileged permissions");
+            int userId = UserHandleCompat.getUserId(android.os.Process.myUid());
+            java.util.List<PackageInfo> packages =
+                InstalledPackagesCompat.getInstalledPackagesNoThrow(PackageManager.GET_PERMISSIONS, userId);
+            int granted = 0;
+            for (PackageInfo pi : packages) {
+                if (pi.requestedPermissions == null) continue;
+                for (String perm : pi.requestedPermissions) {
+                    if (perm == null || !SHELL_GRANTABLE_PERMISSIONS.contains(perm)) continue;
+                    try {
+                        Android17Compat.grantRuntimePermission(pi.packageName, perm, userId);
+                        granted++;
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+            LOGGER.i("autoGrant: granted/refreshed %d privileged permission grants", granted);
+        } catch (Throwable e) {
+            LOGGER.w(e, "autoGrant: scan failed");
+        }
     }
 
     @Override
@@ -788,8 +844,14 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
 
                 // Spoof original Shizuku package to fix #248 and #249 (client app hardcoded checks)
                 boolean isShizukuSpoof = "moe.shizuku.privileged.api".equals(packageName);
-                
-                if (!isFeatureEnabled("shadow_binder") && !isFeatureEnabled("root_magisk_mocking") && !isShizukuSpoof) return false;
+
+                // Stealth mode: hide ShizukuPlus/Shizuku manager packages from security SDKs
+                boolean isStealthHide = isFeatureEnabled("stealth_mode") && packageName != null &&
+                    (packageName.equals(ServerConstants.MANAGER_APPLICATION_ID) ||
+                     packageName.equals(ServerConstants.DROPIN_APPLICATION_ID) ||
+                     packageName.equals(ServerConstants.PLUS_APPLICATION_ID));
+
+                if (!isFeatureEnabled("shadow_binder") && !isFeatureEnabled("root_magisk_mocking") && !isShizukuSpoof && !isStealthHide) return false;
 
                 // Binder-level Magisk & Framework Spoofing
                 if ((isFeatureEnabled("root_magisk_mocking") && packageName != null && 
@@ -827,6 +889,23 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                         LOGGER.e("Shadow: Failed to spoof package %s", packageName);
                     }
                 }
+                // Stealth mode hides ShizukuPlus/Shizuku from any PM query without touching shadow_binder list
+                if (isStealthHide) {
+                    boolean matchPackageInfo = TRANSACTION_getPackageInfo != -1 && code == TRANSACTION_getPackageInfo;
+                    boolean matchApplicationInfo = TRANSACTION_getApplicationInfo != -1 && code == TRANSACTION_getApplicationInfo;
+                    boolean matchPackageUid = TRANSACTION_getPackageUid != -1 && code == TRANSACTION_getPackageUid;
+                    if (matchPackageInfo || matchApplicationInfo || matchPackageUid) {
+                        LOGGER.i("Stealth: Hiding %s from IPackageManager call (code %d)", packageName, code);
+                        reply.writeNoException();
+                        if (matchPackageUid) {
+                            reply.writeInt(-1);
+                        } else {
+                            reply.writeTypedObject(null, 0);
+                        }
+                        return true;
+                    }
+                }
+
                 String hiddenPackages = plusSettingsMap.get("shadow_hidden_packages");
                 if (hiddenPackages != null && packageName != null && !packageName.isEmpty()) {
                     boolean shouldHide = false;
@@ -1350,25 +1429,21 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     }
                 } else if (baseCmd.equals("pm") && cmd.length > 3 && cmd[1].equals("grant")) {
                     if (isFeatureEnabled("root_auto_grant")) {
-                        LOGGER.i("SUBridge: intercepting pm grant for " + cmd[2]);
-                        // Auto-approve common root app requests
                         String targetPkg = cmd[2];
                         String perm = cmd[3];
-                        if (perm.contains("WRITE_SECURE_SETTINGS") || perm.contains("DUMP") || perm.contains("PACKAGE_USAGE_STATS")) {
-                            int grantUserId = UserHandleCompat.getUserId(callingUid);
+                        LOGGER.i("SUBridge: auto-granting %s to %s via IPC", perm, targetPkg);
+                        int grantUserId = UserHandleCompat.getUserId(callingUid);
+                        try {
+                            // Primary: direct Binder IPC — works at shell UID, no exec/fork needed.
+                            Android17Compat.grantRuntimePermission(targetPkg, perm, grantUserId);
+                            return newProcessInternal(new String[]{"true"}, env, dir);
+                        } catch (Exception e) {
+                            LOGGER.w(e, "SUBridge: grantRuntimePermission IPC failed for %s/%s, falling back to exec", targetPkg, perm);
                             try {
-                                // Primary: Android17Compat.grantRuntimePermission — direct Binder IPC,
-                                // works at shell UID, no exec/fork required (Samsung SELinux compatible).
-                                Android17Compat.grantRuntimePermission(targetPkg, perm, grantUserId);
+                                Runtime.getRuntime().exec(new String[]{"pm", "grant", targetPkg, perm}).waitFor();
                                 return newProcessInternal(new String[]{"true"}, env, dir);
-                            } catch (Exception e) {
-                                LOGGER.w(e, "SUBridge: grantRuntimePermission IPC failed for %s/%s, falling back to exec", targetPkg, perm);
-                                try {
-                                    Runtime.getRuntime().exec(new String[]{"pm", "grant", targetPkg, perm}).waitFor();
-                                    return newProcessInternal(new String[]{"true"}, env, dir);
-                                } catch (Exception e2) {
-                                    LOGGER.e("SUBridge: pm grant exec also failed", e2);
-                                }
+                            } catch (Exception e2) {
+                                LOGGER.e("SUBridge: pm grant exec also failed", e2);
                             }
                         }
                     }
@@ -1410,6 +1485,11 @@ public class ShizukuService extends Service<ShizukuUserServiceManager, ShizukuCl
                     if (customSuPath == null || customSuPath.trim().isEmpty()) customSuPath = "/system/xbin/su";
                     LOGGER.i("SUBridge: mocking which su command -> " + customSuPath);
                     return newProcessInternal(new String[]{"echo", customSuPath}, env, dir);
+                } else if (baseCmd.equals("which") && cmd.length > 1 && cmd[1].equals("busybox")) {
+                    if (isFeatureEnabled("root_busybox_mocking")) {
+                        LOGGER.i("SUBridge: mocking which busybox -> /data/local/tmp/busybox");
+                        return newProcessInternal(new String[]{"echo", "/data/local/tmp/busybox"}, env, dir);
+                    }
                 } else if (baseCmd.equals("getprop") && cmd.length > 1) {
                     String prop = cmd[1];
                     boolean forceReal = prop.startsWith("real.");

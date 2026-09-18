@@ -127,6 +127,7 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
         }
 
         val rootModules = listOf(
+            "stealth_mode",
             "root_build_prop_redirect_enabled",
             "root_iptables_mocking_enabled",
             "root_magisk_mocking_enabled",
