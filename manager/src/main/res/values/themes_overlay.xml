@@ -11,19 +11,23 @@
         <item name="colorSurfaceDim">@android:color/black</item>
         <item name="colorSurfaceContainerLowest">@android:color/black</item>
         <item name="colorSurfaceContainerLow">@android:color/black</item>
-        <!-- Cards/settings groups use colorSurfaceContainerHigh (see home_item_container.xml,
-             M3ECardItemDecoration) - dial it down one tone step so AMOLED cards stay close to
-             true black instead of inheriting the base theme's full-contrast High tone. -->
-        <item name="colorSurfaceContainerHigh">?colorSurfaceContainer</item>
-        <!-- shape_edit_control_background.xml (home-card edit-mode drag/remove chip) uses
-             Highest - same one-step-down treatment. This resolves through the High remap above
-             (Android's ?attr resolution is against the fully merged theme, not each item's
-             pre-overlay value), so Highest ties with High/Container here, same as Low already
-             ties with Lowest above. That's fine for this chip specifically: both icons inside it
-             (ic_drag_handle, ic_close_24) are tinted independently via colorControlNormal/
-             colorError, not derived from this background, so they stay visible even if the
-             chip's own background blends into the card behind it. -->
-        <item name="colorSurfaceContainerHighest">?colorSurfaceContainerHigh</item>
+        <!-- Mid-tone container: explicit near-black rather than relying on ?attr forwarding.
+             ?colorSurfaceContainer was resolving to the base M3 dark palette value (~#1D1D22)
+             because colorSurfaceContainer itself wasn't declared in this overlay. Now all six
+             container/surface tones are pinned, so the SearchBar suggestion pane (Highest),
+             settings-search card header (High), and home cards (High) all stay near-black. -->
+        <item name="colorSurfaceContainer">#0A0A0A</item>
+        <!-- Cards/settings groups (home_item_container.xml, M3ECardItemDecoration) and the
+             SearchBar input field use High. One tone step above Container so cards read as
+             slightly elevated without breaking the AMOLED appearance.
+             Value kept in sync with AppTheme.kt colorScheme.copy(surfaceContainerHigh). -->
+        <item name="colorSurfaceContainerHigh">#0D0D0D</item>
+        <!-- SearchBar suggestion pane + edit-mode drag/remove chip uses Highest.
+             Both icons inside the chip (ic_drag_handle, ic_close_24) are tinted independently
+             via colorControlNormal/colorError, so they stay visible even if this background
+             blends into the card behind it.
+             Value kept in sync with AppTheme.kt colorScheme.copy(surfaceContainerHighest). -->
+        <item name="colorSurfaceContainerHighest">#111111</item>
     </style>
 
     <style name="ThemeOverlay.DynamicColors.Light" parent="ThemeOverlay.Material3.DynamicColors.Light.Shizuku"/>
