@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.text.InputType
 import androidx.preference.EditTextPreference
 import androidx.preference.Preference
-import androidx.preference.PreferenceCategory
 import androidx.preference.TwoStatePreference
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import af.shizuku.manager.R
@@ -31,6 +30,11 @@ class BehaviorSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSha
     private lateinit var deviceHardeningPreference: TwoStatePreference
     private lateinit var tcpModePreference: TwoStatePreference
     private lateinit var tcpPortPreference: EditTextPreference
+    private lateinit var networkCategory: CollapsiblePreferenceCategory
+    private lateinit var startupCategory: CollapsiblePreferenceCategory
+    // True when tcp_mode is logically available on this device (TLS-capable or TV).
+    // Used to gate syncTcpPortVisibility() so root-mode hides are not undone.
+    private var tcpModeAvailable = false
 
     private val stateListener: (ShizukuStateMachine.State) -> Unit = {
         if (ShizukuStateMachine.isRunning()) {
@@ -48,6 +52,8 @@ class BehaviorSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSha
         deviceHardeningPreference = requireNotNull(findPreference(KEY_DEVICE_HARDENING_ENABLED))
         tcpModePreference = requireNotNull(findPreference(KEY_TCP_MODE))
         tcpPortPreference = requireNotNull(findPreference(KEY_TCP_PORT))
+        networkCategory = requireNotNull(findPreference("category_network"))
+        startupCategory = requireNotNull(findPreference("category_startup"))
 
         startOnBootPreference.apply {
             isChecked = ShizukuSettings.getStartOnBoot(context)
@@ -121,6 +127,7 @@ class BehaviorSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSha
 
         tcpModePreference.apply {
             if (EnvironmentUtils.isTlsSupported()) {
+                tcpModeAvailable = true
                 summary = context.getString(R.string.settings_tcp_mode_summary)
                 icon = maybeGetRestartIcon(KEY_TCP_MODE)
                 setOnPreferenceChangeListener { _, newValue ->
@@ -142,10 +149,14 @@ class BehaviorSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSha
                     false
                 }
             } else if (EnvironmentUtils.isTelevision()) {
+                tcpModeAvailable = true
                 isEnabled = false
                 isChecked = true
             } else {
-                isVisible = false
+                // Non-TLS device: hide tcp_mode and tcp_port through the category so
+                // expand/collapse cycles don't accidentally restore them.
+                networkCategory.setChildAvailable(KEY_TCP_MODE, false)
+                networkCategory.setChildAvailable(KEY_TCP_PORT, false)
             }
         }
 
@@ -221,23 +232,28 @@ class BehaviorSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSha
             ShizukuSettings.getLastLaunchMode() == ShizukuSettings.LaunchMethod.ROOT
         val isAdbMode = !isRootMode
 
-        // ADB-only preferences -- hide when running as root.
-        // Only override when root mode is confirmed; otherwise respect existing TLS/TV logic.
+        // Route through setChildAvailable so the category's expand/collapse cycle
+        // does not restore preferences that should stay hidden in root mode.
         if (isRootMode) {
-            tcpModePreference.isVisible = false
-            tcpPortPreference.isVisible = false
+            networkCategory.setChildAvailable(KEY_TCP_MODE, false)
+            networkCategory.setChildAvailable(KEY_TCP_PORT, false)
+        } else if (tcpModeAvailable) {
+            networkCategory.setChildAvailable(KEY_TCP_MODE, true)
+            syncTcpPortVisibility()
         }
-        findPreference<Preference>(KEY_AUTO_RECONNECT_MDNS)?.isVisible = isAdbMode
+        startupCategory.setChildAvailable(KEY_AUTO_RECONNECT_MDNS, isAdbMode)
 
         // Category summaries as mode indicators
-        findPreference<PreferenceCategory>("category_network")?.summary =
-            if (isRootMode) getString(R.string.settings_mode_indicator_root) else null
-        findPreference<PreferenceCategory>("category_startup")?.summary =
-            if (isRootMode) getString(R.string.settings_mode_indicator_root) else null
+        networkCategory.summary = if (isRootMode) getString(R.string.settings_mode_indicator_root) else null
+        startupCategory.summary = if (isRootMode) getString(R.string.settings_mode_indicator_root) else null
     }
 
     private fun syncTcpPortVisibility() {
-        tcpPortPreference.isVisible = tcpModePreference.isVisible && tcpModePreference.isChecked
+        val isRootMode = EnvironmentUtils.isRooted() ||
+            ShizukuSettings.getLastLaunchMode() == ShizukuSettings.LaunchMethod.ROOT
+        if (tcpModeAvailable && !isRootMode) {
+            networkCategory.setChildAvailable(KEY_TCP_PORT, tcpModePreference.isChecked)
+        }
     }
 
     override fun onResume() {

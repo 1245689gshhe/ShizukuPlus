@@ -31,7 +31,6 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
 
     override fun getTitle(): CharSequence? = getString(R.string.settings_category_appearance)
 
-    private var colorThemeCategory: CollapsiblePreferenceCategory? = null
     private lateinit var nightModePreference: IntegerSimpleMenuPreference
     private lateinit var blackNightThemePreference: TwoStatePreference
     private lateinit var useSystemColorPreference: TwoStatePreference
@@ -53,7 +52,6 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
         val context = requireContext()
 
         // 1. Theme and Color Controls
-        colorThemeCategory = findPreference("category_color_theme")
         nightModePreference = requireNotNull(findPreference(KEY_NIGHT_MODE))
         blackNightThemePreference = requireNotNull(findPreference(KEY_BLACK_NIGHT_THEME))
         useSystemColorPreference = requireNotNull(findPreference(KEY_USE_SYSTEM_COLOR))
@@ -130,7 +128,7 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
 
         // Only meaningful for the Two-Tone icon style — updated dynamically below so the
         // color-mode row appears/disappears without requiring a fragment recreate.
-        iconColorModePreference.isVisible = iconStylePreference.value == "twotone"
+        setChildAvailable(iconColorModePreference, iconStylePreference.value == "twotone")
 
         expressiveShapesPreference.setOnPreferenceChangeListener { _, _ ->
             applyTheme(requiresRecreate = false)
@@ -146,7 +144,7 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
 
         iconStylePreference.setOnPreferenceChangeListener { _, newValue ->
             // Show/hide the color-mode sub-option immediately rather than on next recreate.
-            iconColorModePreference.isVisible = newValue == "twotone"
+            setChildAvailable(iconColorModePreference, newValue == "twotone")
             applyTheme(requiresRecreate = false)
             refreshIconStyles()
             true
@@ -196,7 +194,7 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
         edgeToEdgePreference.isChecked = ShizukuSettings.isEdgeToEdgeEnabled()
         // Android 15+ (API 35) enforces E2E for targetSdk-35 apps — the toggle has no effect
         // there, so hide it to avoid confusing users (#483).
-        edgeToEdgePreference.isVisible = Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM
+        setChildAvailable(edgeToEdgePreference, Build.VERSION.SDK_INT < Build.VERSION_CODES.VANILLA_ICE_CREAM)
         edgeToEdgePreference.setOnPreferenceChangeListener { _, _ ->
             applyTheme(requiresRecreate = false)
             true
@@ -204,7 +202,7 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
 
         blurUiPreference = requireNotNull(findPreference(KEY_BLUR_UI))
         blurUiPreference.isChecked = ShizukuSettings.isBlurUiEnabled()
-        blurUiPreference.isVisible = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
+        setChildAvailable(blurUiPreference, Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
         blurUiPreference.setOnPreferenceChangeListener { _, _ ->
             // window.setBackgroundBlurRadius is set in onCreate; a recreate is needed for it to take
             // effect. The AppBar translucency also needs onPostCreate to re-run (#449).
@@ -296,9 +294,9 @@ class PersonalizationSettingsFragment : BaseSettingsFragment() {
      * visibility change if the child isn't inside a [CollapsiblePreferenceCategory].
      */
     private fun setChildAvailable(pref: Preference, available: Boolean) {
-        val category = colorThemeCategory
         val key = pref.key
-        if (category != null && key != null) {
+        val category = pref.parent as? CollapsiblePreferenceCategory
+        if (key != null && category != null) {
             category.setChildAvailable(key, available)
         } else {
             pref.isVisible = available
