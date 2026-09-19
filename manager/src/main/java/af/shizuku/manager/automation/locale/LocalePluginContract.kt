@@ -7,10 +7,6 @@ package af.shizuku.manager.automation.locale
  * just the string contract), so the literal values below must match exactly.
  */
 object LocalePluginContract {
-    const val ACTION_EDIT_SETTING = "com.twofortyfouram.locale.intent.action.EDIT_SETTING"
-    const val ACTION_FIRE_SETTING = "com.twofortyfouram.locale.intent.action.FIRE_SETTING"
-    const val ACTION_EDIT_CONDITION = "com.twofortyfouram.locale.intent.action.EDIT_CONDITION"
-    const val ACTION_QUERY_CONDITION = "com.twofortyfouram.locale.intent.action.QUERY_CONDITION"
 
     const val EXTRA_BUNDLE = "com.twofortyfouram.locale.intent.extra.BUNDLE"
     const val EXTRA_STRING_BLURB = "com.twofortyfouram.locale.intent.extra.BLURB"

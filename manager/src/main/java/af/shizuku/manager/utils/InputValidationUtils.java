@@ -10,8 +10,6 @@ import java.util.regex.Pattern;
  */
 public class InputValidationUtils {
 
-    private static final String TAG = "InputValidationUtils";
-
     // Whitelist of valid spoof target device identifiers
     private static final List<String> VALID_SPOOF_TARGETS = Arrays.asList(
         "auto",

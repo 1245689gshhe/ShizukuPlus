@@ -10,11 +10,8 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
-import java.io.FileWriter
 import java.text.SimpleDateFormat
 import java.util.Collections
 import java.util.Date
@@ -218,10 +215,6 @@ object ActivityLogManager {
         }
     }
     
-    fun getRecords(): List<ActivityLogRecord> = synchronized(records) {
-        records.toList()
-    }
-    
     fun clear() {
         synchronized(records) {
             records.clear()
@@ -237,47 +230,10 @@ object ActivityLogManager {
         }
     }
     
-    fun updateRetentionCount(count: Int) {
-        val newRetention = count.coerceIn(10, 1000)
-        retentionCount = newRetention
-        settings?.setActivityLogRetention(newRetention)
-        cleanupOldRecords()
-    }
-    
-    fun getRetentionCount(): Int = retentionCount
-    
-    suspend fun exportToJson(directory: File, filename: String? = null): File? = withContext(Dispatchers.IO) {
-        try {
-            val logs = dao?.getAll()?.first() ?: emptyList()
-            if (logs.isEmpty()) return@withContext null
-            
-            val exportFile = File(directory, filename ?: "activity_logs_${getTimestampFilename()}.json")
-            FileWriter(exportFile).use { writer ->
-                writer.appendLine("[")
-                logs.forEachIndexed { index, log ->
-                    writer.appendLine("  {")
-                    writer.appendLine("    \"timestamp\": ${log.timestamp},")
-                    writer.appendLine("    \"appName\": \"${escapeJson(log.appName)}\",")
-                    writer.appendLine("    \"packageName\": \"${escapeJson(log.packageName)}\",")
-                    writer.appendLine("    \"action\": \"${escapeJson(log.action)}\"")
-                    writer.appendLine("  }${if (index < logs.size - 1) "," else ""}")
-                }
-                writer.appendLine("]")
-            }
-            exportFile
-        } catch (e: Exception) {
-            null
-        }
-    }
-
     private fun getTimestampFilename(): String {
         return SimpleDateFormat("yyyyMMdd_HHmmss", Locale.US).format(Date())
     }
     
-    private fun escapeJson(str: String): String {
-        return str.replace("\\", "\\\\").replace("\"", "\\\"")
-    }
-
     private fun handleDatabaseError(e: Throwable) {
         val context = appContext ?: return
         
@@ -355,51 +311,4 @@ object ActivityLogManager {
         }
     }
 
-    suspend fun manualRecoverDatabase(context: android.content.Context, backupFile: File, method: String): String {
-        if (!backupFile.exists()) return "Backup file not found."
-        
-        val storageContext = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-            context.createDeviceProtectedStorageContext()
-        } else {
-            context
-        }
-        val newDbFile = storageContext.getDatabasePath("shizuku_activity_logs.db")
-        
-        return withContext(Dispatchers.IO) {
-            try {
-                when (method) {
-                    "recover" -> {
-                        val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", "sqlite3 ${backupFile.absolutePath} '.recover' | sqlite3 ${newDbFile.absolutePath}"))
-                        try {
-                            if (process.waitFor() == 0) "Recovery successful via SQLite .recover" else "SQLite .recover failed."
-                        } finally {
-                            process.destroy()
-                        }
-                    }
-                    "dump" -> {
-                        val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", "sqlite3 ${backupFile.absolutePath} '.dump' | sqlite3 ${newDbFile.absolutePath}"))
-                        try {
-                            if (process.waitFor() == 0) "Recovery successful via SQLite .dump" else "SQLite .dump failed."
-                        } finally {
-                            process.destroy()
-                        }
-                    }
-                    "raw_text_extraction" -> {
-                        // Raw binary scraping for partial recovery of readable text logs
-                        val content = backupFile.readBytes()
-                        val text = String(content, Charsets.US_ASCII)
-                        val regex = Regex("[A-Za-z0-9_{}\\\":., -]{15,}")
-                        val matches = regex.findAll(text).map { it.value }.toList()
-                        
-                        val exportFile = File(context.filesDir, "partial_text_recovery_${getTimestampFilename()}.txt")
-                        exportFile.writeText(matches.joinToString("\n"))
-                        "Partial text extracted to ${exportFile.name}"
-                    }
-                    else -> "Unknown recovery method."
-                }
-            } catch (e: Exception) {
-                "Recovery failed: ${e.message}"
-            }
-        }
-    }
 }

@@ -209,7 +209,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                                     adapter.notifyItemChanged(0)
                                 }
                             }
-                        } catch (e: SecurityException) {
+                        } catch (_: SecurityException) {
                             val uidCheck = runCatching { Shizuku.getUid() }.getOrDefault(-1)
                             withContext(Dispatchers.Main) {
                                 if (uidCheck != 0) showAdbLimitedDialog(context)
@@ -227,13 +227,13 @@ class AppViewHolder(private val binding: AppListItemBinding) :
 
             // Freeze/Unfreeze — binder calls are safe here since buildEnabledActions runs on IO
             if (ShizukuSettings.isCustomApiEnabled()) {
-                val shizukuService = try { Shizuku.getBinder() } catch (e: Exception) { null }
+                val shizukuService = try { Shizuku.getBinder() } catch (_: Exception) { null }
                 if (shizukuService != null) {
                     val amPlus = try {
                         moe.shizuku.server.IShizukuService.Stub.asInterface(shizukuService).activityManagerPlus
-                    } catch (e: Exception) { null }
+                    } catch (_: Exception) { null }
                     if (amPlus != null) {
-                        val isFrozen = try { amPlus.isAppFrozen(capturedPackage) } catch (e: Exception) { false }
+                        val isFrozen = try { amPlus.isAppFrozen(capturedPackage) } catch (_: Exception) { false }
                         val freezeLabel = context.getString(if (isFrozen) R.string.lp_action_unfreeze_app else R.string.lp_action_freeze_app)
                         add(LpAction(freezeLabel) {
                             CoroutineScope(Dispatchers.IO).launch {
@@ -292,7 +292,7 @@ class AppViewHolder(private val binding: AppListItemBinding) :
                         adapter.notifyItemChanged(0)
                     }
                 }
-            } catch (e: SecurityException) {
+            } catch (_: SecurityException) {
                 val uidCheck = runCatching { Shizuku.getUid() }.getOrDefault(-1)
                 withContext(Dispatchers.Main) {
                     if (uidCheck != 0) showAdbLimitedDialog(context)

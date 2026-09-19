@@ -1,14 +1,11 @@
 package rikka.shizuku.server.util
 
-import android.text.TextUtils
 import java.util.regex.Pattern
 
 /**
  * Utility class for input validation to prevent injection attacks and ensure system stability.
  */
 object InputValidationUtils {
-
-    private const val TAG = "InputValidationUtils"
 
     // Valid DNS mode values
     private val VALID_DNS_MODES = listOf(
@@ -181,7 +178,7 @@ object InputValidationUtils {
             ALLOWED_STORAGE_PREFIXES.any { prefix ->
                 canonicalPath.startsWith(prefix) || canonicalPath == prefix.removeSuffix("/")
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // If canonicalization fails, assume the path is unsafe
             false
         }

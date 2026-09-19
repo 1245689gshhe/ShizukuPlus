@@ -88,18 +88,6 @@ class CollapsiblePreferenceCategory @JvmOverloads constructor(
         )
     }
 
-    fun isExpanded() = expanded
-
-    fun setExpanded(expanded: Boolean) {
-        if (this.expanded != expanded) {
-            this.expanded = expanded
-            if (shouldPersist()) persistBoolean(expanded)
-            updateChildren()
-            onExpansionChanged?.invoke(expanded)
-            notifyChanged()
-        }
-    }
-
     /**
      * Declare whether a child should participate in the expand/collapse cycle. A child marked
      * unavailable stays hidden regardless of the expanded state. Owners should call this instead

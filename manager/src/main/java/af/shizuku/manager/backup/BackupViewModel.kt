@@ -93,7 +93,7 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                         val label = try {
                             val info = pm.getApplicationInfo(pkg, 0)
                             pm.getApplicationLabel(info).toString()
-                        } catch (e: Exception) { pkg }
+                        } catch (_: Exception) { pkg }
                         AppEntry(
                             packageName = pkg,
                             label = label,
@@ -262,22 +262,22 @@ class BackupViewModel(app: Application) : AndroidViewModel(app) {
                     ShizukuPlusAPI.BackupRestorePlus.forceStop(pkg)
                     prepared = try {
                         ShizukuPlusAPI.ApkPatcher.prepareTempDebug(pkg)
-                    } catch (e: Exception) { false }
+                    } catch (_: Exception) { false }
 
                     var backedUpSomething = false
-                    val dataPfd = try { ShizukuPlusAPI.ApkPatcher.streamDataDir(pkg) } catch (e: Exception) { null }
+                    val dataPfd = try { ShizukuPlusAPI.ApkPatcher.streamDataDir(pkg) } catch (_: Exception) { null }
                     if (dataPfd != null) {
                         if (writeBackupStream(safTreeUri, outputDir, pkg, "data.tar.gz", cr) { out ->
                             dataPfd.use { pfd -> FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) } }
                         }) backedUpSomething = true
                     }
-                    val extPfd = try { ShizukuPlusAPI.BackupRestorePlus.backupExternalData(pkg) } catch (e: Exception) { null }
+                    val extPfd = try { ShizukuPlusAPI.BackupRestorePlus.backupExternalData(pkg) } catch (_: Exception) { null }
                     if (extPfd != null) {
                         if (writeBackupStream(safTreeUri, outputDir, pkg, "external.tar.gz", cr) { out ->
                             extPfd.use { pfd -> FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) } }
                         }) backedUpSomething = true
                     }
-                    val obbPfd = try { ShizukuPlusAPI.BackupRestorePlus.backupObbData(pkg) } catch (e: Exception) { null }
+                    val obbPfd = try { ShizukuPlusAPI.BackupRestorePlus.backupObbData(pkg) } catch (_: Exception) { null }
                     if (obbPfd != null) {
                         if (writeBackupStream(safTreeUri, outputDir, pkg, "obb.tar.gz", cr) { out ->
                             obbPfd.use { pfd -> FileInputStream(pfd.fileDescriptor).use { it.copyTo(out) } }

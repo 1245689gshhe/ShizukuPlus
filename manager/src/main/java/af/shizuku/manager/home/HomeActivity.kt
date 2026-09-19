@@ -1,31 +1,22 @@
 package af.shizuku.manager.home
-import af.shizuku.core.ui.EmptyStateView
 
 import android.Manifest
 import android.app.NotificationManager
 import android.content.Context
-import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.os.Process
 import android.text.method.LinkMovementMethod
 import timber.log.Timber
-import android.util.TypedValue
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.MenuItem
 import android.view.View
 import android.widget.TextView
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import com.airbnb.mvrx.MavericksView
 import com.airbnb.mvrx.viewModel
 import com.airbnb.mvrx.withState
 import com.airbnb.mvrx.Success
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
@@ -38,24 +29,19 @@ import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.adb.AdbPairingService
 import af.shizuku.manager.worker.AdbStartWorker
-import af.shizuku.core.ui.AppBarActivity
 import af.shizuku.manager.app.SnackbarHelper
-import af.shizuku.manager.databinding.AboutDialogBinding
-import af.shizuku.manager.databinding.HomeActivityBinding
 import af.shizuku.manager.home.showAccessibilityDialog
 import af.shizuku.manager.ktx.toHtml
 import af.shizuku.manager.management.AppsViewModel
 import af.shizuku.manager.settings.SettingsActivity
 import af.shizuku.manager.update.UpdateChecker
 import af.shizuku.manager.update.UpdateManager
-import af.shizuku.manager.utils.AppIconCache
 import af.shizuku.manager.utils.EnvironmentUtils
 import io.noties.markwon.Markwon
 import af.shizuku.manager.utils.HapticUtils
 import af.shizuku.manager.utils.SettingsHelper
 import af.shizuku.manager.utils.SettingsPage
 import af.shizuku.manager.utils.ShizukuStateMachine
-import rikka.core.content.asActivity
 import rikka.core.ktx.unsafeLazy
 import rikka.lifecycle.Status
 import rikka.recyclerview.addEdgeSpacing
@@ -67,7 +53,6 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.ui.platform.LocalContext
 import af.shizuku.core.ui.AppActivity
 import af.shizuku.manager.home.compose.HomeScreen
@@ -77,7 +62,6 @@ open class HomeActivity : AppActivity(), MavericksView {
     private val homeModel: HomeViewModel by viewModel()
     private val appsModel: AppsViewModel by viewModels()
     private val adapter by unsafeLazy { HomeAdapter(homeModel, appsModel, lifecycleScope) }
-    private var versionClickCount = 0
     private var activeUpdateManager: UpdateManager? = null
 
     // Registered unconditionally (required before onStart); only invoked on API 33+. The
@@ -209,7 +193,7 @@ open class HomeActivity : AppActivity(), MavericksView {
                 } else {
                     provider.remove()
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 runCatching { provider.remove() }
             }
         }

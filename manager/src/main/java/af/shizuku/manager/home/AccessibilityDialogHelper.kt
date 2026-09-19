@@ -12,7 +12,6 @@ import android.text.style.TypefaceSpan
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import af.shizuku.manager.R
 import af.shizuku.manager.adb.AdbPairingAccessibilityService
-import af.shizuku.manager.utils.SettingsHelper
 import af.shizuku.manager.utils.SettingsPage
 
 fun Context.showAccessibilityDialog() {

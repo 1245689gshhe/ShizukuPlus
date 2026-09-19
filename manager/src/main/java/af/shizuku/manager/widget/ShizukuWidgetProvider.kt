@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetProvider
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Build
 import android.view.View
 import android.widget.RemoteViews
 import af.shizuku.manager.MainActivity
@@ -25,7 +24,7 @@ class ShizukuWidgetProvider : AppWidgetProvider() {
     override fun onReceive(context: Context, intent: Intent) {
         try {
             super.onReceive(context, intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Ignore NPEs from OEM AppWidgetManager implementations (e.g., restricted profiles)
         }
         // Refresh all widgets on server state changes or other events
@@ -37,7 +36,7 @@ class ShizukuWidgetProvider : AppWidgetProvider() {
                     onUpdate(context, manager, ids)
                 }
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Ignore potential NPEs or RemoteExceptions from OEM AppWidgetManager implementations
         }
     }

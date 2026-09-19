@@ -271,7 +271,7 @@ object UpdateChecker {
     /** Extracts the build number from "13.6.0.r1488-shizukuplus" → 1488 */
     fun parseVersionCode(versionName: String): Int = try {
         """\.\br(\d+)\b""".toRegex().find(versionName)?.groupValues?.get(1)?.toIntOrNull() ?: 0
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         0
     }
 
@@ -279,7 +279,7 @@ object UpdateChecker {
         val input = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
             .apply { timeZone = TimeZone.getTimeZone("UTC") }
         SimpleDateFormat("MMM dd, yyyy", Locale.getDefault()).format(input.parse(dateString) as Date)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         dateString
     }
 }

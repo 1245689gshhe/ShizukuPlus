@@ -14,7 +14,6 @@ import io.mockk.mockkObject
 import io.mockk.mockkStatic
 import io.mockk.unmockkAll
 import java.net.URL
-import timber.log.Timber
 
 class RemoteDbSyncWorkerTest : FunSpec({
 

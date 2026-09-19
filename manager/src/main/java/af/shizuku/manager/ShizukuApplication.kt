@@ -303,7 +303,7 @@ class ShizukuApplication : Application(), Configuration.Provider {
                         if (af.shizuku.manager.utils.EnvironmentUtils.isTCL()) {
                             event.setTag("vendor", "tcl")
                         }
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         // Ignore errors during state collection
                     }
 
@@ -574,7 +574,7 @@ class ShizukuApplication : Application(), Configuration.Provider {
 
         // Clear the Sentry quota flag only when the app version advances, not on every cold start.
         // Resetting unconditionally would silently re-enable Sentry for a user who hit the quota.
-        val currentCode = try { packageManager.getPackageInfo(packageName, 0).versionCode } catch (e: Exception) { 0 }
+        val currentCode = try { packageManager.getPackageInfo(packageName, 0).versionCode } catch (_: Exception) { 0 }
         if (currentCode > ShizukuSettings.getLastSeenVersion()) {
             ShizukuSettings.setSentryLimitReached(false)
             ShizukuSettings.setLastSeenVersion(currentCode)

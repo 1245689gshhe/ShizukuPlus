@@ -1,15 +1,10 @@
 package af.shizuku.manager.utils
 
-import android.app.UiModeManager
 import android.content.Context
-import android.content.pm.PackageManager
-import android.content.res.Configuration
-import android.os.Build
 import android.os.SystemProperties
 import android.provider.Settings
 import af.shizuku.manager.ShizukuApplication
 import af.shizuku.manager.ShizukuSettings
-import com.topjohnwu.superuser.Shell
 
 private val appContext: Context
     get() = try {
@@ -96,9 +91,6 @@ object EnvironmentUtils {
         }
         return false
     }
-
-    @JvmStatic
-    fun getFullSdkVersion(): Int = af.shizuku.common.util.EnvironmentUtils.getFullSdkVersion()
 
     @JvmStatic
     fun isSamsung(): Boolean = af.shizuku.common.util.EnvironmentUtils.isSamsung()
@@ -189,7 +181,7 @@ object EnvironmentUtils {
 
             val path = basePath.replace("//", "/") + "/" + filename
             path.replace("//", "/")
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

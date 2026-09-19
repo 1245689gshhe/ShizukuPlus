@@ -22,7 +22,7 @@ object StockShizukuCompat {
             val ownSignatures = getSigningCertificates(context, context.packageName) ?: return false
             val targetSignatures = getSigningCertificates(context, PACKAGE) ?: return false
             ownSignatures.intersect(targetSignatures).isEmpty()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -40,7 +40,7 @@ object StockShizukuCompat {
                 @Suppress("DEPRECATION")
                 info.signatures?.map { it.toByteArray().toHexString() }?.toSet()
             }
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             null
         }
     }
@@ -57,7 +57,7 @@ object StockShizukuCompat {
         return try {
             context.packageManager.getPackageInfo(PACKAGE, 0)
             true
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             false
         }
     }
@@ -87,23 +87,7 @@ object StockShizukuCompat {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(intent)
             true
-        } catch (e: Exception) {
-            false
-        }
-    }
-
-    fun startViaStockShizuku(): Boolean {
-        if (!rikka.shizuku.Shizuku.pingBinder()) return false
-        return try {
-            val starterCmd = af.shizuku.manager.starter.Starter.internalCommand
-            // Spawn a fully detached process that waits 1 second, then starts our server.
-            // We immediately force-stop the original Shizuku so the ports/ServiceManager are freed up.
-            val cmd = "nohup sh -c 'sleep 1 && $starterCmd' >/dev/null 2>&1 & am force-stop $PACKAGE"
-            // Process is intentionally fire-and-forget (nohup detaches it); destroy immediately
-            // to avoid leaking the process handle. Null return → not running yet, still return true.
-            rikka.shizuku.Shizuku.newProcess(arrayOf("sh", "-c", cmd), null, null)?.destroy()
-            true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

@@ -81,7 +81,7 @@ class NetworkGovernorPlusImpl : INetworkGovernorPlus.Stub() {
             val method = service.javaClass.getMethod("setUidPolicy", Int::class.java, Int::class.java)
             method.invoke(service, uid, policy)
             true
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -102,7 +102,7 @@ class NetworkGovernorPlusImpl : INetworkGovernorPlus.Stub() {
             val method = service.javaClass.getMethod("getUidPolicy", Int::class.java)
             val policy = method.invoke(service, uid) as Int
             policy != 0
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

@@ -1,11 +1,8 @@
 package af.shizuku.manager
 
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.widget.Toast
 import timber.log.Timber
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import io.sentry.Breadcrumb
@@ -16,8 +13,6 @@ import kotlinx.coroutines.withContext
 import af.shizuku.manager.R
 import af.shizuku.manager.home.ChangelogDialogFragment
 import af.shizuku.manager.home.HomeActivity
-import af.shizuku.manager.migration.MigrationHelper
-import af.shizuku.manager.onboarding.OnboardingActivity
 import af.shizuku.manager.update.UpdateChecker
 import af.shizuku.manager.utils.ShizukuStateMachine
 
@@ -99,7 +94,7 @@ class MainActivity : HomeActivity() {
      * time the user opens the app).
      */
     private fun checkAndShowChangelog() {
-        val currentCode = try { packageManager.getPackageInfo(packageName, 0).versionCode } catch (e: Exception) { 0 }
+        val currentCode = try { packageManager.getPackageInfo(packageName, 0).versionCode } catch (_: Exception) { 0 }
         if (currentCode <= ShizukuSettings.getLastSeenChangelogVersion()) return
 
         val versionPart = Regex("""\d+\.\d+\.\d+\.r\d+""").find(BuildConfig.VERSION_NAME)?.value
@@ -133,32 +128,6 @@ class MainActivity : HomeActivity() {
         }
     }
 
-    private fun showMigrationDialog() {
-        lifecycleScope.launch {
-            val hasRoot = withContext(Dispatchers.IO) { MigrationHelper.isRootAvailable() }
-            if (isFinishing || isDestroyed) return@launch
-            try {
-                val builder = if (hasRoot) {
-                    MaterialAlertDialogBuilder(this@MainActivity)
-                        .setTitle(R.string.migration_dialog_title)
-                        .setMessage(R.string.migration_dialog_message_root)
-                        .setPositiveButton(R.string.migration_migrate_settings) { _, _ -> performMigration() }
-                        .setNeutralButton(R.string.migration_uninstall_old) { _, _ -> launchUninstall(MigrationHelper.OLD_PACKAGE) }
-                        .setNegativeButton(R.string.migration_dismiss, null)
-                } else {
-                    MaterialAlertDialogBuilder(this@MainActivity)
-                        .setTitle(R.string.migration_dialog_title)
-                        .setMessage(R.string.migration_no_root_message)
-                        .setPositiveButton(R.string.migration_uninstall_old) { _, _ -> launchUninstall(MigrationHelper.OLD_PACKAGE) }
-                        .setNegativeButton(R.string.migration_dismiss, null)
-                }
-                builder.show()
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to show migration dialog")
-            }
-        }
-    }
-
     private fun showCrashReportDialog() {
         // Sentry already captured the original crash; this dialog lets users share a
         // human-readable report. It is optional — if the themed context is unavailable
@@ -182,44 +151,4 @@ class MainActivity : HomeActivity() {
         }
     }
 
-    private fun performMigration() {
-        lifecycleScope.launch {
-            val success = withContext(Dispatchers.IO) {
-                MigrationHelper.migrateSettings(this@MainActivity)
-            }
-
-            if (isFinishing || isDestroyed) return@launch
-
-            val (title, message) = if (success) {
-                Pair(R.string.migration_success_title, R.string.migration_success_message)
-            } else {
-                Pair(R.string.migration_failure_title, R.string.migration_failure_message)
-            }
-
-            try {
-                MaterialAlertDialogBuilder(this@MainActivity)
-                    .setTitle(title)
-                    .setMessage(message)
-                    .setPositiveButton(R.string.migration_uninstall_old) { _, _ ->
-                        launchUninstall(MigrationHelper.OLD_PACKAGE)
-                    }
-                    .setNegativeButton(R.string.migration_dismiss, null)
-                    .show()
-            } catch (e: Exception) {
-                Timber.e(e, "Failed to show migration result dialog")
-            }
-        }
-    }
-
-    private fun launchUninstall(packageName: String) {
-        try {
-            val intent = Intent(Intent.ACTION_DELETE).apply {
-                data = Uri.parse("package:$packageName")
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            startActivity(intent)
-        } catch (e: Exception) {
-            Timber.e(e, "Failed to launch uninstall for $packageName")
-        }
-    }
 }

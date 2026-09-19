@@ -48,7 +48,6 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
     val grantedCount = _grantedCount as LiveData<Resource<Int>>
 
     private val _hiddenCount = MutableLiveData<Int>(hiddenPackages.size)
-    val hiddenCount = _hiddenCount as LiveData<Int>
 
     fun setSortOrder(order: SortOrder) {
         sortOrder = order
@@ -119,7 +118,7 @@ class AppsViewModel(application: Application) : AndroidViewModel(application) {
                 }
                 _grantedCount.postValue(Resource.success(granted))
                 _hiddenCount.postValue(hiddenPackages.size)
-            } catch (e: CancellationException) {
+            } catch (_: CancellationException) {
                 // ignore
             } catch (e: Throwable) {
                 _packages.postValue(Resource.error(e, null))

@@ -4,8 +4,6 @@ import android.app.Activity
 import android.app.ActivityOptions
 import android.content.Context
 import android.content.Intent
-import android.os.Build
-import android.os.UserManager
 import android.util.Pair
 import android.util.TypedValue
 import android.view.View
@@ -45,18 +43,3 @@ val Context.application: ShizukuApplication
         return applicationContext as ShizukuApplication
     }
 
-fun Context.createDeviceProtectedStorageContextCompat(): Context {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-        createDeviceProtectedStorageContext()
-    } else {
-        this
-    }
-}
-
-fun Context.createDeviceProtectedStorageContextCompatWhenLocked(): Context {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && getSystemService(UserManager::class.java)?.isUserUnlocked != true) {
-        createDeviceProtectedStorageContext()
-    } else {
-        this
-    }
-}

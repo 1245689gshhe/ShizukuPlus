@@ -13,7 +13,6 @@ import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.databinding.HomeStartRootBinding
 import af.shizuku.manager.ktx.themeColor
 import af.shizuku.manager.utils.MotionUtils.applySpringTouch
-import af.shizuku.manager.utils.StockShizukuCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 
@@ -61,7 +60,7 @@ class StartStockShizukuViewHolder(
                         val p = rikka.shizuku.Shizuku.newProcess(arrayOf("sh", "-c", cmd), null, null)
                         p?.waitFor()
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Ignore
                 }
                 kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.Main) {

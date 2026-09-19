@@ -7,7 +7,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import af.shizuku.manager.R
 import af.shizuku.manager.databinding.FragmentServerMetricsBinding
 import rikka.shizuku.Shizuku
 import af.shizuku.server.IAICorePlus

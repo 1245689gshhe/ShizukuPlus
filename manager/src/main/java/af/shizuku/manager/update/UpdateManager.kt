@@ -4,11 +4,8 @@ import af.shizuku.manager.R
 import android.annotation.SuppressLint
 import android.app.DownloadManager
 import android.app.PendingIntent
-import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -17,7 +14,6 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
-import af.shizuku.manager.home.HomeActivity
 import af.shizuku.manager.ShizukuSettings
 import java.io.File
 import kotlinx.coroutines.*

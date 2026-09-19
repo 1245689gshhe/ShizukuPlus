@@ -11,7 +11,6 @@ import android.os.IBinder
 import android.os.ServiceManager
 import com.rosan.dhizuku.IDhizuku
 import af.shizuku.manager.utils.ShizukuStateMachine
-import rikka.shizuku.Shizuku
 
 class DhizukuProvider : ContentProvider() {
 
@@ -33,7 +32,7 @@ class DhizukuProvider : ContentProvider() {
 
             return try {
                 ServiceManager.getService(Context.DEVICE_POLICY_SERVICE)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 null
             }
         }
@@ -69,7 +68,7 @@ class DhizukuProvider : ContentProvider() {
             if (code == FIRST_CALL_TRANSACTION + 10) { // TRANSACT_CODE_REMOTE_BINDER
                 try {
                     data.enforceInterface("com.rosan.dhizuku.server")
-                } catch (e: SecurityException) {
+                } catch (_: SecurityException) {
                     try {
                         data.setDataPosition(0)
                         data.enforceInterface("com.rosan.dhizuku.aidl.IDhizuku")
@@ -92,7 +91,7 @@ class DhizukuProvider : ContentProvider() {
                 var isV2 = true
                 try {
                     data.enforceInterface("com.rosan.dhizuku.aidl.IDhizuku")
-                } catch (e: SecurityException) {
+                } catch (_: SecurityException) {
                     data.setDataPosition(0)
                     try {
                         data.enforceInterface("com.rosan.dhizuku.IDhizuku")
@@ -113,7 +112,7 @@ class DhizukuProvider : ContentProvider() {
                             val binder = if (isCallerAuthorized() && ShizukuStateMachine.isRunning()) {
                                 try {
                                     ServiceManager.getService(Context.DEVICE_POLICY_SERVICE)
-                                } catch (e: Exception) {
+                                } catch (_: Exception) {
                                     null
                                 }
                             } else null

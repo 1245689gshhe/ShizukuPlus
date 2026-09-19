@@ -388,7 +388,7 @@ class OverlayManagerPlusImpl : IOverlayManagerPlus.Stub() {
                 try {
                     val ctor = builderClass.getConstructor(String::class.java, String::class.java)
                     ctor.newInstance(overlayName, targetPackage)
-                } catch (e: NoSuchMethodException) {
+                } catch (_: NoSuchMethodException) {
                     Log.w(TAG, "injectResourceOverlay: 2-arg Builder not found, trying 3-arg fallback")
                     val ctor = builderClass.getConstructor(
                         String::class.java, String::class.java, String::class.java

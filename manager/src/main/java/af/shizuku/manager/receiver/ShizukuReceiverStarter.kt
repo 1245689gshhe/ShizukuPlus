@@ -10,7 +10,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
-import android.provider.Settings
 import timber.log.Timber
 import androidx.core.app.NotificationCompat
 import com.topjohnwu.superuser.Shell

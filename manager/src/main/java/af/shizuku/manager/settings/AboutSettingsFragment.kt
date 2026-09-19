@@ -260,7 +260,7 @@ class AboutSettingsFragment : BaseSettingsFragment() {
             val intent = Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES)
                 .setData(Uri.parse("package:${context.packageName}"))
             startActivity(intent)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             MaterialAlertDialogBuilder(context)
                 .setTitle(R.string.update_permission_required_title)
                 .setMessage(R.string.update_permission_required_message)

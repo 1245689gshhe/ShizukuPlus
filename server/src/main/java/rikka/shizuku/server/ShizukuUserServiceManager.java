@@ -17,7 +17,6 @@ import af.shizuku.common.util.UserHandleCompat;
 public class ShizukuUserServiceManager extends UserServiceManager {
 
     private final Map<UserServiceRecord, ApkChangedListener> apkChangedListeners = new ArrayMap<>();
-    private final Map<String, List<UserServiceRecord>> userServiceRecords = Collections.synchronizedMap(new ArrayMap<>());
 
     public ShizukuUserServiceManager() {
         super();
