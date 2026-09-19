@@ -38,14 +38,14 @@ class LegacyIsNotSupportedActivity : AppActivity() {
 
         val ai = try {
             packageManager.getApplicationInfo(callingComponent.packageName, PackageManager.GET_META_DATA)
-        } catch (e: Throwable) {
+        } catch (_: Throwable) {
             finish()
             return
         }
 
         val label = try {
             ai.loadLabel(packageManager)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             ai.packageName
         }
 

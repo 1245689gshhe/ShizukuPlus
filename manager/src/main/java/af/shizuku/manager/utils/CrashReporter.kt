@@ -122,7 +122,7 @@ object CrashReporter {
         if (parent == null || parent.exists()) {
             try {
                 file.writeText(report)
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // cacheDir may be unwritable (full disk, storage mount race); don't crash
                 // the app while it's trying to report a crash.
                 return

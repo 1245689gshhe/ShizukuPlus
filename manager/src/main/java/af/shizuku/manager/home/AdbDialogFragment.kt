@@ -2,7 +2,6 @@ package af.shizuku.manager.home
 
 import android.Manifest.permission.WRITE_SECURE_SETTINGS
 import android.app.Dialog
-import android.content.ActivityNotFoundException
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -64,7 +63,7 @@ class AdbDialogFragment : DialogFragment() {
                     }
                     try {
                         context.startActivity(intent)
-                    } catch (e: Exception) {
+                    } catch (_: Exception) {
                         SettingsPage.Developer.WirelessDebugging.launch(context)
                     }
                 }

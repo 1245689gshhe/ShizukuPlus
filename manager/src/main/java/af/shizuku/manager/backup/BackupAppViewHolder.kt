@@ -26,7 +26,7 @@ class BackupAppViewHolder(private val binding: ItemBackupAppBinding) :
         try {
             val info = pm.getApplicationInfo(entry.packageName, 0)
             binding.appIcon.setImageDrawable(pm.getApplicationIcon(info))
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             binding.appIcon.setImageResource(R.drawable.ic_server_error_24)
         }
 

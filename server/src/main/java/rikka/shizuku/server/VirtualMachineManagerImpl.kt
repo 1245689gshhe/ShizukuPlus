@@ -1,6 +1,5 @@
 package rikka.shizuku.server
 
-import android.content.Context
 import android.os.Bundle
 import android.os.ServiceManager
 import android.util.Log
@@ -322,8 +321,8 @@ class VirtualMachineManagerImpl : IVirtualMachineManager.Stub() {
      */
     private fun buildVmConfig(config: Bundle?): Any? {
         return try {
-            val configClass = Class.forName("android.system.virtualmachine.VirtualMachineConfig")
-            val builderClass = Class.forName("android.system.virtualmachine.VirtualMachineConfig\$Builder")
+            Class.forName("android.system.virtualmachine.VirtualMachineConfig")
+            Class.forName("android.system.virtualmachine.VirtualMachineConfig\$Builder")
 
             // Get Builder constructor - requires Context
             // Since we're in the server process, we need to work around this
@@ -333,7 +332,7 @@ class VirtualMachineManagerImpl : IVirtualMachineManager.Stub() {
             val memoryBytes = config?.getLong("memory_bytes", 512 * 1024 * 1024) ?: (512 * 1024 * 1024)
             val cpuCount = config?.getInt("cpu_count", 2) ?: 2
             val storageBytes = config?.getLong("storage_bytes", 100 * 1024 * 1024) ?: (100 * 1024 * 1024)
-            val debuggable = config?.getBoolean("debuggable", false) ?: false
+            config?.getBoolean("debuggable", false) ?: false
 
             Log.d(TAG, "Building VM config: protected=$protectedVm, memory=$memoryBytes, cpus=$cpuCount, storage=$storageBytes")
 

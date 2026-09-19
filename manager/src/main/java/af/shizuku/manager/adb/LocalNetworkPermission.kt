@@ -34,7 +34,7 @@ object LocalNetworkPermission {
         val permission = required() ?: return true
         return try {
             context.checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED
-        } catch (ignored: Throwable) {
+        } catch (_: Throwable) {
             true
         }
     }
@@ -50,7 +50,7 @@ object LocalNetworkPermission {
             if (activity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
                 activity.requestPermissions(arrayOf(permission), requestCode)
             }
-        } catch (ignored: Throwable) {
+        } catch (_: Throwable) {
         }
     }
 }

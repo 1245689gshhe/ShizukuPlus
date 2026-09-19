@@ -1,21 +1,17 @@
 package af.shizuku.manager.home
 
 import android.content.Intent
-import android.text.method.LinkMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import rikka.core.content.asActivity
-import af.shizuku.manager.Helps
 import af.shizuku.manager.R
 import af.shizuku.manager.databinding.HomeItemContainerBinding
 import af.shizuku.manager.databinding.HomeManageAppsItemBinding
 import af.shizuku.manager.ktx.startWithSceneTransition
-import af.shizuku.manager.ktx.toHtml
 import af.shizuku.manager.management.ApplicationManagementActivity
 import af.shizuku.manager.model.ServiceStatus
 import af.shizuku.manager.utils.IconStyleHelper
-import rikka.html.text.HtmlCompat
 import rikka.recyclerview.BaseViewHolder
 import rikka.recyclerview.BaseViewHolder.Creator
 

@@ -24,7 +24,7 @@ object HapticUtils {
         if (!ShizukuSettings.isHapticFeedbackEnabled()) return
         try {
             view.performHapticFeedback(constant)
-        } catch (e: SecurityException) {
+        } catch (_: SecurityException) {
             // Swallow - see comment above.
         }
     }
@@ -91,10 +91,4 @@ object HapticUtils {
         }
     }
 
-    /**
-     * Heavy "thud" feedback for significant UI events
-     */
-    fun heavyClick(view: View) {
-        safeHaptic(view, HapticFeedbackConstants.LONG_PRESS)
-    }
 }

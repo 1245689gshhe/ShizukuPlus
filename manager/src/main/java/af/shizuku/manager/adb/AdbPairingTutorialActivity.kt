@@ -5,11 +5,9 @@ import android.Manifest
 import android.app.AppOpsManager
 import android.app.ForegroundServiceStartNotAllowedException
 import android.app.NotificationManager
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import timber.log.Timber
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts

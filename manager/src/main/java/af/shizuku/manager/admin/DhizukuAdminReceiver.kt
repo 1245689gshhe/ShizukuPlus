@@ -14,7 +14,7 @@ class DhizukuAdminReceiver : DeviceAdminReceiver() {
             val dpm = context.getSystemService(Context.DEVICE_POLICY_SERVICE) as android.app.admin.DevicePolicyManager
             val componentName = android.content.ComponentName(context, DhizukuAdminReceiver::class.java)
             dpm.setBackupServiceEnabled(componentName, true)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Ignored, may not be device owner yet or method not available
         }
     }

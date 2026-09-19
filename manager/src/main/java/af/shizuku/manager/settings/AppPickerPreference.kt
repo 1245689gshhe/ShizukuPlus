@@ -3,7 +3,6 @@ package af.shizuku.manager.settings
 import android.content.Context
 import android.content.pm.ApplicationInfo
 import android.content.pm.PackageManager
-import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -52,9 +51,6 @@ class AppPickerPreference(context: Context, attrs: AttributeSet?) : Preference(c
             cachedApps ?: emptyList()
         }
 
-        fun invalidateCache() {
-            cachedApps = null
-        }
     }
 
     init {

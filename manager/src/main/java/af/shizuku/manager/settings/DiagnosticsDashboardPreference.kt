@@ -117,12 +117,12 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                             // what ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS did here
                             // before, despite the warning saying "Tap to exempt").
                             af.shizuku.manager.utils.SettingsHelper.requestIgnoreBatteryOptimizations(context)
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             try {
                                 val intent = Intent(Settings.ACTION_SETTINGS)
                                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                                 context.startActivity(intent)
-                            } catch (anfe: Exception) {
+                            } catch (_: Exception) {
                                 Toast.makeText(context, R.string.diagnostics_battery_settings_open_failed, Toast.LENGTH_SHORT).show()
                             }
                         }
@@ -162,7 +162,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
                         try {
                             context.startService(Intent(context, AutomationService::class.java))
                             notifyChanged()
-                        } catch (e: Exception) {
+                        } catch (_: Exception) {
                             Toast.makeText(context, R.string.diagnostics_automation_start_failed, Toast.LENGTH_SHORT).show()
                         }
                     }
@@ -194,7 +194,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
         return try {
             val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
             dpm.isDeviceOwnerApp(ctx.packageName) || dpm.isProfileOwnerApp(ctx.packageName)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -203,7 +203,7 @@ class DiagnosticsDashboardPreference @JvmOverloads constructor(
         return try {
             val pm = ctx.getSystemService(Context.POWER_SERVICE) as PowerManager
             pm.isIgnoringBatteryOptimizations(ctx.packageName)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             true // default to true to not raise warnings if system query fails
         }
     }

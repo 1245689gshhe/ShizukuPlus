@@ -5,8 +5,6 @@ import android.content.ComponentName
 import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
-import android.content.Intent
-import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import androidx.lifecycle.lifecycleScope
@@ -23,7 +21,6 @@ import af.shizuku.manager.security.BiometricLock
 import androidx.biometric.BiometricPrompt
 import af.shizuku.manager.ShizukuSettings.Keys.*
 import rikka.shizuku.Shizuku
-import moe.shizuku.server.IShizukuService
 
 import android.view.Menu
 import android.view.MenuInflater
@@ -235,7 +232,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 dpm.setScreenCaptureDisabled(admin, enabled)
                 Toast.makeText(ctx, if (enabled) R.string.dpm_screen_capture_disabled else R.string.dpm_screen_capture_enabled, Toast.LENGTH_SHORT).show()
                 true
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 Toast.makeText(ctx, R.string.dpm_requires_device_owner, Toast.LENGTH_LONG).show()
                 false
             }
@@ -256,7 +253,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                     Toast.makeText(ctx, R.string.dpm_usb_unlocked, Toast.LENGTH_SHORT).show()
                 }
                 true
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 Toast.makeText(ctx, R.string.dpm_requires_device_owner, Toast.LENGTH_LONG).show()
                 false
             }
@@ -295,7 +292,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                     withContext(Dispatchers.Main) {
                         message?.let { Toast.makeText(ctx, it, Toast.LENGTH_SHORT).show() }
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     withContext(Dispatchers.Main) {
                         Toast.makeText(ctx, R.string.dpm_requires_device_owner, Toast.LENGTH_LONG).show()
                     }
@@ -332,7 +329,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                             0 -> createBackupLauncher.launch("ShizukuPlus_Settings_$dateStr.json")
                             1 -> createPlainBackupLauncher.launch("ShizukuPlus_Settings_plain_$dateStr.json")
                         }
-                    } catch (e: android.content.ActivityNotFoundException) {
+                    } catch (_: android.content.ActivityNotFoundException) {
                         Toast.makeText(requireContext(), R.string.backup_no_file_manager_save, Toast.LENGTH_LONG).show()
                     }
                 }
@@ -344,7 +341,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         restoreSettingsPref?.setOnPreferenceClickListener {
             try {
                 restoreBackupLauncher.launch(arrayOf("application/json", "*/*"))
-            } catch (e: android.content.ActivityNotFoundException) {
+            } catch (_: android.content.ActivityNotFoundException) {
                 Toast.makeText(requireContext(), R.string.backup_no_file_manager_open, Toast.LENGTH_LONG).show()
             }
             true
@@ -518,7 +515,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         return try {
             val dpm = ctx.getSystemService(Context.DEVICE_POLICY_SERVICE) as DevicePolicyManager
             dpm.isDeviceOwnerApp(ctx.packageName) || dpm.isProfileOwnerApp(ctx.packageName)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -564,7 +561,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 dhizukuPref.isChecked = false
                 updateDhizukuDeviceOwnerStatus(dhizukuPref)
             }
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             Toast.makeText(ctx, R.string.dhizuku_clear_owner_failure, Toast.LENGTH_LONG).show()
         }
     }
@@ -643,7 +640,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             val found = integrations.mapValues { (_, apps) ->
                 apps.find { (pkg, _) ->
-                    try { pm.getPackageInfo(pkg, 0); true } catch (e: Exception) { false }
+                    try { pm.getPackageInfo(pkg, 0); true } catch (_: Exception) { false }
                 }
             }
             launch(Dispatchers.Main) {
@@ -707,7 +704,7 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
                 try {
                     listView.requestLayout()
                     listView.invalidate()
-                } catch (e: IllegalStateException) {
+                } catch (_: IllegalStateException) {
                     // Fragment view was destroyed between post() scheduling and execution
                 }
             }
@@ -775,11 +772,11 @@ class ShizukuPlusSettingsFragment : BaseSettingsFragment() {
         val prefs = preferenceManager.sharedPreferences ?: return
         try {
             prefs.getString(ShizukuSettings.Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, null)
-        } catch (e: ClassCastException) {
+        } catch (_: ClassCastException) {
             val oldSet = try {
                 @Suppress("UNCHECKED_CAST")
                 prefs.getStringSet(ShizukuSettings.Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, null)
-            } catch (ignored: Exception) { null }
+            } catch (_: Exception) { null }
             prefs.edit()
                 .putString(ShizukuSettings.Keys.KEY_AUTOMATION_TRUSTED_NETWORKS, oldSet?.joinToString(",") ?: "")
                 .apply()

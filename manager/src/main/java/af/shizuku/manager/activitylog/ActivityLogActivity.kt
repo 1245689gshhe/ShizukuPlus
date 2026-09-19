@@ -114,7 +114,7 @@ class ActivityLogFragment : Fragment() {
 
             lookupJob?.cancel()
             lookupJob = CoroutineScope(Dispatchers.IO).launch {
-                val ai = try { pm.getApplicationInfo(capturedPackage, 0) } catch (e: Exception) { null } ?: return@launch
+                val ai = try { pm.getApplicationInfo(capturedPackage, 0) } catch (_: Exception) { null } ?: return@launch
                 val label = AppIconCache.getLabel(context, ai)
                 withContext(Dispatchers.Main) {
                     if (binding.packageName.text == capturedPackage) {

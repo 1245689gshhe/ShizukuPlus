@@ -11,7 +11,6 @@ import android.content.pm.ServiceInfo
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
-import android.provider.Settings
 import timber.log.Timber
 import androidx.core.app.NotificationCompat
 import af.shizuku.manager.R

@@ -124,7 +124,7 @@ class AdbKey(private val adbKeyStore: AdbKeyStore, name: String) {
             Timber.tag(TAG).w("Failed to get key from KeyStore (common on Samsung), attempting reset: ${e.message}")
             try {
                 keyStore.deleteEntry(ENCRYPTION_KEY_ALIAS)
-            } catch (ignored: Exception) {}
+            } catch (_: Exception) {}
             null
         }
 
@@ -404,7 +404,7 @@ class AdbKey(private val adbKeyStore: AdbKeyStore, name: String) {
                 val md = MessageDigest.getInstance("SHA-256")
                 val digest = md.digest(encoded)
                 digest.joinToString(":") { "%02X".format(it) }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 "unavailable"
             }
         }
@@ -495,7 +495,7 @@ fun parseAdbPublicKey(keyStr: String): RSAPublicKey {
     val bytes = Base64.decode(base64, Base64.DEFAULT)
     val buffer = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN)
     val modulusSizeWords = buffer.int
-    val n0inv = buffer.int
+    buffer.int
     val modulusInts = IntArray(modulusSizeWords)
     for (i in 0 until modulusSizeWords) {
         modulusInts[i] = buffer.int

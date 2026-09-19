@@ -6,9 +6,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.work.WorkManager
 import timber.log.Timber
-import af.shizuku.manager.ShizukuSettings
 import af.shizuku.manager.receiver.ShizukuReceiverStarter
-import af.shizuku.manager.utils.EnvironmentUtils
 
 class NotifCancelReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

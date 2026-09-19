@@ -37,8 +37,8 @@ object CryptoUtils {
                 val key = keyStore.getKey(alias, null) as? SecretKey
                 if (key != null) return key
             }
-        } catch (e: Exception) {
-            try { keyStore.deleteEntry(alias) } catch (ignored: Exception) {}
+        } catch (_: Exception) {
+            try { keyStore.deleteEntry(alias) } catch (_: Exception) {}
         }
 
         val keyGenerator = KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, ANDROID_KEYSTORE)
@@ -74,14 +74,14 @@ object CryptoUtils {
             val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
             keyStore.load(null)
             keyStore.deleteEntry(keyAlias(userAuthRequired))
-        } catch (ignored: Exception) {}
+        } catch (_: Exception) {}
     }
 
     fun getCipherForEncryption(userAuthRequired: Boolean): Cipher {
         val cipher = Cipher.getInstance(TRANSFORMATION)
         try {
             cipher.init(Cipher.ENCRYPT_MODE, getOrCreateSecretKey(userAuthRequired))
-        } catch (e: KeyPermanentlyInvalidatedException) {
+        } catch (_: KeyPermanentlyInvalidatedException) {
             // Android invalidates the key by design when the device's biometrics/screen-lock
             // change (#332). Safe to regenerate here since we're encrypting a brand-new backup,
             // not trying to decrypt existing ciphertext tied to the old key material.
@@ -95,7 +95,7 @@ object CryptoUtils {
         val keyStore = KeyStore.getInstance(ANDROID_KEYSTORE)
         keyStore.load(null)
         keyStore.containsAlias(keyAlias(userAuthRequired))
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         false
     }
 

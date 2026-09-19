@@ -262,7 +262,7 @@ class AutomationService : Service() {
                         lastForegroundApp = currentApp
                         AutomationEngine.dispatchEvent(ForegroundAppEvent(currentApp), applicationContext)
                     }
-                } catch (e: Exception) {
+                } catch (_: Exception) {
                     // Ignore, maybe missing permissions
                 }
                 delay(2000) // Poll every 2 seconds

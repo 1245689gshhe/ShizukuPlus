@@ -16,10 +16,6 @@ import timber.log.Timber
 
 object RootCompatHelper {
 
-    /** Returns true if [packageName] can be auto-configured via global settings (no root needed).
-     *  These apps read their SU path from a global settings key that the ADB shell can write. */
-    fun canAutoSetupInAdbMode(packageName: String): Boolean = packageName in GLOBAL_SETTINGS_APPS
-
     /** Returns true if [packageName] supports Magic Setup in the current privilege mode.
      *  Pass [rootMode] = true when Shizuku is running as UID 0 or ADB mode (UID 2000).
      *  This is the single source of truth for whether the Magic Setup button should be enabled. */
@@ -111,7 +107,7 @@ object RootCompatHelper {
     private fun isShizukuRoot(): Boolean {
         return try {
             Shizuku.pingBinder() && (Shizuku.getUid() == 0 || Shizuku.getUid() == 2000)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }
@@ -119,7 +115,7 @@ object RootCompatHelper {
     private fun isShizukuAvailable(): Boolean {
         return try {
             Shizuku.pingBinder()
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             false
         }
     }

@@ -11,7 +11,6 @@ import android.graphics.Color
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.provider.DocumentsContract
 import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.Menu
@@ -271,7 +270,7 @@ class RootCompatibilityActivity : AppBarActivity() {
         try {
             packageManager.getPackageInfo(pkg, 0)
             true
-        } catch (e: PackageManager.NameNotFoundException) {
+        } catch (_: PackageManager.NameNotFoundException) {
             false
         }
 
@@ -567,7 +566,7 @@ class RootCompatibilityActivity : AppBarActivity() {
                             }
                         }
                     }
-                } catch (e: PackageManager.NameNotFoundException) {
+                } catch (_: PackageManager.NameNotFoundException) {
                     holder.binding.title.text = pkg.split(".").last().replaceFirstChar { it.uppercase() }
                     holder.binding.icon.load(R.drawable.ic_system_icon) {
                         crossfade(true)

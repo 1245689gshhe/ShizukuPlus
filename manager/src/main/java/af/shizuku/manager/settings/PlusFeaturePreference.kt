@@ -11,7 +11,6 @@ import android.text.style.ReplacementSpan
 import android.util.AttributeSet
 import android.widget.TextView
 import androidx.preference.PreferenceViewHolder
-import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.materialswitch.MaterialSwitch
 import com.google.android.material.button.MaterialButton
@@ -25,7 +24,6 @@ class PlusFeaturePreference(context: Context, attrs: AttributeSet) : GrayableIco
     private val badgeType: Int
     private val severityBadge: Int
     private var integrationPackage: String? = null
-    private var integrationAppName: String? = null
 
     init {
         val a = context.obtainStyledAttributes(attrs, R.styleable.PlusFeaturePreference)
@@ -38,7 +36,6 @@ class PlusFeaturePreference(context: Context, attrs: AttributeSet) : GrayableIco
 
     fun setIntegration(packageName: String, appName: String) {
         this.integrationPackage = packageName
-        this.integrationAppName = appName
         notifyChanged()
     }
 

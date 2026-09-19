@@ -8,7 +8,6 @@ import java.security.MessageDigest
 import java.security.PrivateKey
 import java.security.PublicKey
 import java.security.Signature
-import java.security.cert.X509Certificate
 import java.util.zip.ZipEntry
 import java.util.zip.ZipInputStream
 import java.util.zip.ZipOutputStream
@@ -195,10 +194,10 @@ internal object ApkSigner {
         val oidSignedData     = oid(1, 2, 840, 113549, 1, 7, 2)
         val oidSha256         = oid(2, 16, 840, 1, 101, 3, 4, 2, 1)
         val oidRsa            = oid(1, 2, 840, 113549, 1, 1, 1)
-        val oidSha256WithRsa  = oid(1, 2, 840, 113549, 1, 1, 11)
+        oid(1, 2, 840, 113549, 1, 1, 11)
 
         val certBytes = certDer
-        val digest = MessageDigest.getInstance("SHA-256").digest(toBeSigned)
+        MessageDigest.getInstance("SHA-256").digest(toBeSigned)
 
         val rawSig = Signature.getInstance("SHA256withRSA").apply {
             initSign(privateKey)

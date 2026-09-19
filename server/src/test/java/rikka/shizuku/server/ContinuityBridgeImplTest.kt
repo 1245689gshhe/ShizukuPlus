@@ -47,7 +47,7 @@ class ContinuityBridgeImplTest {
             modifiersField.setInt(field, field.modifiers and Modifier.FINAL.inv())
 
             field.set(null, sdkInt)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             // Ignored, might fail depending on Java version / platform
         }
     }

@@ -162,7 +162,7 @@ object AppIconCache {
 
             val bitmap = try {
                 getOrLoadBitmap(context, info, userId, size)
-            } catch (e: CancellationException) {
+            } catch (_: CancellationException) {
                 null
             } catch (e: SecurityException) {
                 Timber.tag(TAG).w("Skipping badged icon for $packageName: ${e.message}")

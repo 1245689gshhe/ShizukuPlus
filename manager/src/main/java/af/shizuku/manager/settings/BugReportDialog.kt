@@ -67,7 +67,7 @@ class BugReportDialog : DialogFragment() {
                 try {
                     context.startActivity(intent)
                     dismiss()
-                } catch (e: ActivityNotFoundException) {
+                } catch (_: ActivityNotFoundException) {
                     Toast.makeText(context, context.getString(R.string.toast_no_email_app), Toast.LENGTH_SHORT).show()
                 }
             }
