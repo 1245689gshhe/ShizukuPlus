@@ -59,37 +59,57 @@ fun DeviceControlScreen(onBackClick: () -> Unit) {
     var showRebootDialog by remember { mutableStateOf(false) }
     var showShutdownDialog by remember { mutableStateOf(false) }
 
-    // Load initial state from device
+    // Load initial state from device. Reads happen on IO; the Compose state is applied
+    // back on the main thread (matching the other screens) to avoid off-main mutation.
     LaunchedEffect(Unit) {
         withContext(Dispatchers.IO) {
             try {
                 val dc = ShizukuPlusAPI.DeviceControl
-                airplane = dc.getSetting("global", "airplane_mode_on") == "1"
+                val airplaneV = dc.getSetting("global", "airplane_mode_on") == "1"
                 // wifi_on: 0=off, 1=on (Settings.Global)
-                wifi = dc.getSetting("global", "wifi_on") == "1"
+                val wifiV = dc.getSetting("global", "wifi_on") == "1"
                 // bluetooth_on: 0=off, 1=on
-                bluetooth = dc.getSetting("global", "bluetooth_on") == "1"
+                val bluetoothV = dc.getSetting("global", "bluetooth_on") == "1"
                 // mobile_data: 0=off, 1=on
-                mobileData = dc.getSetting("global", "mobile_data") == "1"
+                val mobileDataV = dc.getSetting("global", "mobile_data") == "1"
                 // nfc_on is in secure namespace on most Android versions
-                nfc = dc.getSetting("secure", "nfc_on") == "1"
-                dnsMode = dc.getSetting("global", "private_dns_mode") ?: "opportunistic"
-                dnsHostname = dc.getSetting("global", "private_dns_specifier") ?: ""
+                val nfcV = dc.getSetting("secure", "nfc_on") == "1"
+                val dnsModeV = dc.getSetting("global", "private_dns_mode") ?: "opportunistic"
+                val dnsHostnameV = dc.getSetting("global", "private_dns_specifier") ?: ""
 
-                autoBrightness = dc.getSetting("system", "screen_brightness_mode") == "1"
-                brightness = dc.getSetting("system", "screen_brightness")?.toIntOrNull() ?: 128
-                screenTimeoutMs = dc.getSetting("system", "screen_off_timeout")?.toIntOrNull() ?: 60000
-                autoRotate = dc.getSetting("system", "accelerometer_rotation") == "1"
-                animations = dc.getSetting("global", "window_animation_scale") != "0.0"
-                fontScale = dc.getSetting("system", "font_scale")?.toFloatOrNull() ?: 1.0f
+                val autoBrightnessV = dc.getSetting("system", "screen_brightness_mode") == "1"
+                val brightnessV = dc.getSetting("system", "screen_brightness")?.toIntOrNull() ?: 128
+                val screenTimeoutMsV = dc.getSetting("system", "screen_off_timeout")?.toIntOrNull() ?: 60000
+                val autoRotateV = dc.getSetting("system", "accelerometer_rotation") == "1"
+                val animationsV = dc.getSetting("global", "window_animation_scale") != "0.0"
+                val fontScaleV = dc.getSetting("system", "font_scale")?.toFloatOrNull() ?: 1.0f
 
-                volumeMedia = dc.getStreamVolume(STREAM_MUSIC).coerceIn(0, VOLUME_MAX)
-                volumeRing = dc.getStreamVolume(STREAM_RING).coerceIn(0, VOLUME_MAX)
-                volumeAlarm = dc.getStreamVolume(STREAM_ALARM).coerceIn(0, VOLUME_MAX)
+                val volumeMediaV = dc.getStreamVolume(STREAM_MUSIC).coerceIn(0, VOLUME_MAX)
+                val volumeRingV = dc.getStreamVolume(STREAM_RING).coerceIn(0, VOLUME_MAX)
+                val volumeAlarmV = dc.getStreamVolume(STREAM_ALARM).coerceIn(0, VOLUME_MAX)
+
+                withContext(Dispatchers.Main) {
+                    airplane = airplaneV
+                    wifi = wifiV
+                    bluetooth = bluetoothV
+                    mobileData = mobileDataV
+                    nfc = nfcV
+                    dnsMode = dnsModeV
+                    dnsHostname = dnsHostnameV
+                    autoBrightness = autoBrightnessV
+                    brightness = brightnessV
+                    screenTimeoutMs = screenTimeoutMsV
+                    autoRotate = autoRotateV
+                    animations = animationsV
+                    fontScale = fontScaleV
+                    volumeMedia = volumeMediaV
+                    volumeRing = volumeRingV
+                    volumeAlarm = volumeAlarmV
+                }
             } catch (e: Exception) {
                 Timber.w(e, "DeviceControl: failed to read initial state")
             } finally {
-                isLoading = false
+                withContext(Dispatchers.Main) { isLoading = false }
             }
         }
     }

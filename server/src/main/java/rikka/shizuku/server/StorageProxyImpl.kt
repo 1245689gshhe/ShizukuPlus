@@ -268,7 +268,7 @@ class StorageProxyImpl : IStorageProxy.Stub() {
     override fun tarDirectory(dirPath: String?, packageContext: String?): ParcelFileDescriptor? {
         val dir = dirPath ?: return null
         if (!InputValidationUtils.isSafePath(dir)) return null
-        return if (!packageContext.isNullOrBlank() && serverUid == 2000 &&
+        return if (InputValidationUtils.isValidPackageName(packageContext) && serverUid == 2000 &&
             (dir.startsWith("/data/data/") || dir.startsWith("/data/user/"))) {
             // run-as <pkg> tar for debuggable-app data directories
             openViaShellPipe(arrayOf("run-as", packageContext, "tar", "-czf", "-", "-C", dir, "."))
@@ -284,7 +284,7 @@ class StorageProxyImpl : IStorageProxy.Stub() {
     ): Boolean {
         val dir = destDirPath ?: return false
         if (!InputValidationUtils.isSafePath(dir) || tarPfd == null) return false
-        val cmd = if (!packageContext.isNullOrBlank() && serverUid == 2000 &&
+        val cmd = if (InputValidationUtils.isValidPackageName(packageContext) && serverUid == 2000 &&
             (dir.startsWith("/data/data/") || dir.startsWith("/data/user/"))) {
             arrayOf("run-as", packageContext, "tar", "-xf", "-", "-C", dir)
         } else {

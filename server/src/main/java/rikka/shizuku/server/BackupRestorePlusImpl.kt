@@ -14,7 +14,9 @@ import af.shizuku.common.compat.InstalledPackagesCompat
 import af.shizuku.common.util.UserHandleCompat
 import rikka.hidden.compat.ActivityManagerApis
 import rikka.shizuku.server.api.IContentProviderUtils
+import rikka.shizuku.server.util.InputValidationUtils
 import java.io.File
+import java.io.InputStream
 
 class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
 
@@ -52,12 +54,24 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
         try { proc.waitFor() } finally { proc.destroy() }
     } catch (_: Exception) { -1 }
 
+    // Reads and discards a stream on a daemon thread, so a chatty child process can't
+    // fill its stderr/stdout pipe buffer and deadlock the copy we actually care about.
+    private fun drainQuietly(stream: InputStream) {
+        Thread {
+            try { stream.use { val buf = ByteArray(4096); while (it.read(buf) >= 0) { /* discard */ } } }
+            catch (_: Exception) {}
+        }.also { it.isDaemon = true }.start()
+    }
+
     private fun pipe(vararg args: String): ParcelFileDescriptor? = try {
         val (readSide, writeSide) = ParcelFileDescriptor.createPipe()
         Thread {
             try {
                 val proc = Runtime.getRuntime().exec(args)
                 try {
+                    // stderr must be drained separately — it can't be merged into stdout
+                    // here because stdout is the tar data stream we forward to the caller.
+                    drainQuietly(proc.errorStream)
                     proc.inputStream.use { src ->
                         ParcelFileDescriptor.AutoCloseOutputStream(writeSide).use { dst ->
                             src.copyTo(dst)
@@ -222,12 +236,15 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
         try {
             val pm = packageManagerService() ?: error("no package service")
             val latch = java.util.concurrent.CountDownLatch(1)
+            val succeeded = java.util.concurrent.atomic.AtomicBoolean(false)
             val stubClass = Class.forName("android.content.pm.IPackageDataObserver\$Stub")
             val observer = java.lang.reflect.Proxy.newProxyInstance(
                 stubClass.classLoader,
                 arrayOf(Class.forName("android.content.pm.IPackageDataObserver"), IBinder::class.java)
-            ) { _, method, _ ->
+            ) { _, method, args ->
                 if (method.name == "onRemoveCompleted") {
+                    // signature: onRemoveCompleted(String packageName, boolean succeeded)
+                    succeeded.set(args?.getOrNull(1) as? Boolean ?: false)
                     latch.countDown()
                 }
                 null
@@ -235,8 +252,9 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
             val method = pm.javaClass.methods.firstOrNull { it.name == "clearApplicationUserData" }
                 ?: error("clearApplicationUserData not found")
             method.invoke(pm, packageName, observer, userId)
-            latch.await(5, java.util.concurrent.TimeUnit.SECONDS)
-            return true
+            // Only trust the IPC path if the observer actually reported success in time;
+            // otherwise fall through to the `pm clear` fallback rather than lying.
+            if (latch.await(30, java.util.concurrent.TimeUnit.SECONDS) && succeeded.get()) return true
         } catch (e: Exception) {
             Log.w(TAG, "clearAppData IPC failed for $packageName, falling back", e)
         }
@@ -282,7 +300,7 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
     // ── External Storage Backup / Restore ─────────────────────────────────────
 
     override fun backupExternalData(packageName: String?): ParcelFileDescriptor? {
-        if (packageName.isNullOrBlank()) return null
+        if (!InputValidationUtils.isValidPackageName(packageName)) return null
         val dir = listOf(
             "/sdcard/Android/data/$packageName",
             "/storage/emulated/0/Android/data/$packageName"
@@ -291,11 +309,13 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
     }
 
     override fun restoreExternalData(packageName: String?, tarStream: ParcelFileDescriptor?): Boolean {
-        if (packageName.isNullOrBlank() || tarStream == null) return false
+        if (!InputValidationUtils.isValidPackageName(packageName) || tarStream == null) return false
         val dir = "/sdcard/Android/data/$packageName"
         File(dir).mkdirs()
         return try {
-            val proc = ProcessBuilder("tar", "-xzf", "-", "-C", dir).start()
+            val proc = ProcessBuilder("tar", "-xzf", "-", "-C", dir)
+                .redirectErrorStream(true).start()
+            drainQuietly(proc.inputStream)
             Thread {
                 try {
                     ParcelFileDescriptor.AutoCloseInputStream(tarStream).use { src ->
@@ -496,7 +516,7 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
     // ── OBB Data Backup / Restore ─────────────────────────────────────────────
 
     override fun backupObbData(packageName: String?): ParcelFileDescriptor? {
-        if (packageName.isNullOrBlank()) return null
+        if (!InputValidationUtils.isValidPackageName(packageName)) return null
         val dir = listOf(
             "/sdcard/Android/obb/$packageName",
             "/storage/emulated/0/Android/obb/$packageName"
@@ -505,11 +525,13 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
     }
 
     override fun restoreObbData(packageName: String?, tarStream: ParcelFileDescriptor?): Boolean {
-        if (packageName.isNullOrBlank() || tarStream == null) return false
+        if (!InputValidationUtils.isValidPackageName(packageName) || tarStream == null) return false
         val dir = "/sdcard/Android/obb/$packageName"
         File(dir).mkdirs()
         return try {
-            val proc = ProcessBuilder("tar", "-xzf", "-", "-C", dir).start()
+            val proc = ProcessBuilder("tar", "-xzf", "-", "-C", dir)
+                .redirectErrorStream(true).start()
+            drainQuietly(proc.inputStream)
             Thread {
                 try {
                     ParcelFileDescriptor.AutoCloseInputStream(tarStream).use { src ->

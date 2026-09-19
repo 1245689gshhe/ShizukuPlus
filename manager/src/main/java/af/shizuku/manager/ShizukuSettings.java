@@ -1336,17 +1336,6 @@ public class ShizukuSettings {
         if (p != null) p.edit().putBoolean(Keys.KEY_COMPANION_FALLBACK, enable).apply();
     }
 
-    public static boolean isStealthModeEnabled() {
-        SharedPreferences p = getPreferences();
-        return p != null && p.getBoolean(Keys.KEY_STEALTH_MODE, false);
-    }
-
-    public static void setStealthModeEnabled(boolean enable) {
-        SharedPreferences p = getPreferences();
-        if (p != null) p.edit().putBoolean(Keys.KEY_STEALTH_MODE, enable).apply();
-    }
-
-
     public static boolean isLiveActivityEnabled() {
         SharedPreferences p = getPreferences();
         return p == null || p.getBoolean(Keys.KEY_LIVE_ACTIVITY_ENABLED, true);

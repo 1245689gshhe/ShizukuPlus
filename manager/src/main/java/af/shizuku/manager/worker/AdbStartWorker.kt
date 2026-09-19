@@ -56,8 +56,7 @@ class AdbStartWorker(context: Context, params: WorkerParameters) : CoroutineWork
             // Give the system ~1.5 s to finish initializing after reboot before toggling ADB.
             // On first attempt with ADB currently disabled, this avoids an immediate connect failure.
             if (runAttemptCount == 0) {
-                val adbCurrentlyEnabled = Settings.Global.getInt(cr, Settings.Global.ADB_ENABLED, 0)
-                if (adbCurrentlyEnabled == 0) delay(1500L)
+                if (!EnvironmentUtils.isAdbEnabled()) delay(1500L)
             }
 
             Settings.Global.putInt(cr, Settings.Global.ADB_ENABLED, 1)

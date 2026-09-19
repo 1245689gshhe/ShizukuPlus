@@ -19,7 +19,10 @@ class DeviceControlPlusImpl : IDeviceControlPlus.Stub() {
         private const val TAG = "DeviceControlPlus"
         private val VALID_NAMESPACES = setOf("system", "secure", "global")
         private val VALID_USB_FUNCTIONS = setOf("mtp", "adb", "charging", "none", "rndis", "midi", "ncm")
-        private val VALID_REBOOT_REASONS = setOf(null, "recovery", "bootloader", "fastboot", "edl", "quiescent")
+        // "edl" (Emergency Download) is deliberately excluded: it drops the device into a
+        // vendor flash mode that most users can't exit without a PC + firmware, so exposing
+        // it across an untrusted Binder boundary is a bricking foot-gun.
+        private val VALID_REBOOT_REASONS = setOf(null, "recovery", "bootloader", "fastboot", "quiescent")
         private val VALID_STREAMS = 0..5
     }
 
