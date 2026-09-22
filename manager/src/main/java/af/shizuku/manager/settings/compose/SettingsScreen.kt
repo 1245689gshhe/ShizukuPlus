@@ -260,7 +260,7 @@ fun SettingsScreen(
                     },
                     trailingIcon = if (searchQuery.isEmpty()) null else ({
                         IconButton(onClick = { searchQuery = ""; onSearchQueryChanged("") }) {
-                            Icon(painterResource(R.drawable.ic_close_24), null)
+                            Icon(painterResource(R.drawable.ic_close_24), stringResource(R.string.cd_settings_search_clear))
                         }
                     }),
                     placeholder = { Text(stringResource(R.string.settings_search_hint)) },
