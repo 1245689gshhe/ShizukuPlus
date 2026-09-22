@@ -9,6 +9,8 @@ import android.util.Log
 import af.shizuku.server.IPackageGovernorPlus
 import af.shizuku.common.compat.Android17Compat
 import af.shizuku.common.util.UserHandleCompat
+import rikka.shizuku.server.util.InputValidationUtils
+import rikka.shizuku.server.util.ShellExecutor
 import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 
@@ -21,10 +23,6 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
     }
 
     private fun callingUserId() = UserHandleCompat.getUserId(Binder.getCallingUid())
-
-    private fun exec(vararg args: String): Boolean = try {
-        Runtime.getRuntime().exec(args).waitFor() == 0
-    } catch (_: Exception) { false }
 
     private fun packageManagerService(): Any? = try {
         val binder = ServiceManager.getService("package") ?: return null
@@ -41,7 +39,7 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
             true
         } catch (e: Exception) {
             Log.w(TAG, "grantPermission IPC failed for $packageName/$permission, falling back", e)
-            exec("pm", "grant", "--user", "0", packageName, permission)
+            ShellExecutor.execBool("pm", "grant", "--user", "0", packageName, permission)
         }
     }
 
@@ -52,7 +50,7 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
             true
         } catch (e: Exception) {
             Log.w(TAG, "revokePermission IPC failed for $packageName/$permission, falling back", e)
-            exec("pm", "revoke", "--user", "0", packageName, permission)
+            ShellExecutor.execBool("pm", "revoke", "--user", "0", packageName, permission)
         }
     }
 
@@ -73,24 +71,18 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
         }
         // Fallback: pm dump parse
         return try {
-            val proc = Runtime.getRuntime().exec(arrayOf("pm", "dump", packageName))
-            try {
-                val output = proc.inputStream.bufferedReader().use { it.readText() }
-                proc.waitFor()
-                val granted = mutableListOf<String>()
-                var inGrantedSection = false
-                for (line in output.lines()) {
-                    val trimmed = line.trim()
-                    when {
-                        trimmed == "granted permissions:" -> inGrantedSection = true
-                        inGrantedSection && trimmed.startsWith("android.permission.") -> granted.add(trimmed)
-                        inGrantedSection && !trimmed.startsWith("android.") && trimmed.isNotEmpty() -> inGrantedSection = false
-                    }
+            val output = ShellExecutor.exec("pm", "dump", packageName)
+            val granted = mutableListOf<String>()
+            var inGrantedSection = false
+            for (line in output.lines()) {
+                val trimmed = line.trim()
+                when {
+                    trimmed == "granted permissions:" -> inGrantedSection = true
+                    inGrantedSection && trimmed.startsWith("android.permission.") -> granted.add(trimmed)
+                    inGrantedSection && !trimmed.startsWith("android.") && trimmed.isNotEmpty() -> inGrantedSection = false
                 }
-                granted
-            } finally {
-                proc.destroy()
             }
+            granted
         } catch (_: Exception) { emptyList() }
     }
 
@@ -132,7 +124,7 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
         } catch (e: Exception) {
             Log.w(TAG, "uninstallForUser IPC failed for $packageName, falling back", e)
         }
-        return exec("pm", "uninstall", "--user", "0", packageName)
+        return ShellExecutor.execBool("pm", "uninstall", "--user", "0", packageName)
     }
 
     override fun restoreSystemApp(packageName: String?): Boolean {
@@ -156,7 +148,7 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
         } catch (e: Exception) {
             Log.w(TAG, "restoreSystemApp IPC failed for $packageName, falling back", e)
         }
-        return exec("pm", "install-existing", "--user", "0", packageName)
+        return ShellExecutor.execBool("pm", "install-existing", "--user", "0", packageName)
     }
 
     override fun suspendApp(packageName: String?): Boolean {
@@ -176,7 +168,7 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
         } catch (e: Exception) {
             Log.w(TAG, "suspendApp IPC failed for $packageName, falling back", e)
         }
-        return exec("pm", "suspend", "--user", "0", packageName)
+        return ShellExecutor.execBool("pm", "suspend", "--user", "0", packageName)
     }
 
     override fun unsuspendApp(packageName: String?): Boolean {
@@ -195,7 +187,7 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
         } catch (e: Exception) {
             Log.w(TAG, "unsuspendApp IPC failed for $packageName, falling back", e)
         }
-        return exec("pm", "unsuspend", "--user", "0", packageName)
+        return ShellExecutor.execBool("pm", "unsuspend", "--user", "0", packageName)
     }
 
     // Build args for setPackagesSuspendedAsUser — signature changed across API levels.
@@ -221,21 +213,13 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
             Log.w(TAG, "isAppSuspended IPC failed for $packageName, falling back", e)
         }
         // Fallback: pm dump parse
-        return try {
-            val proc = Runtime.getRuntime().exec(arrayOf("pm", "dump", packageName))
-            try {
-                val text = proc.inputStream.bufferedReader().use { it.readText() }
-                proc.waitFor()
-                text.lines().any { it.trim() == "suspended=true" }
-            } finally {
-                proc.destroy()
-            }
-        } catch (_: Exception) { false }
+        return ShellExecutor.exec("pm", "dump", packageName).lines().any { it.trim() == "suspended=true" }
     }
 
     override fun installApk(apkPath: String?): Boolean {
         if (apkPath.isNullOrBlank()) return false
-        return exec("pm", "install", "-g", apkPath)
+        if (!InputValidationUtils.isSafePath(apkPath)) return false
+        return ShellExecutor.execBool("pm", "install", "-g", apkPath)
     }
 
     override fun isAppDebuggable(packageName: String?): Boolean {
@@ -248,7 +232,7 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
             Log.w(TAG, "isAppDebuggable IPC failed for $packageName, falling back", e)
         }
         // Fallback: run-as exits 0 only for debuggable apps
-        return exec("run-as", packageName, "true")
+        return ShellExecutor.execBool("run-as", packageName, "true")
     }
 
     override fun isBackupAllowed(packageName: String?): Boolean {
@@ -261,16 +245,7 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
             Log.w(TAG, "isBackupAllowed IPC failed for $packageName, falling back", e)
         }
         // Fallback: pm dump parse
-        return try {
-            val proc = Runtime.getRuntime().exec(arrayOf("pm", "dump", packageName))
-            try {
-                val text = proc.inputStream.bufferedReader().use { it.readText() }
-                proc.waitFor()
-                text.lines().any { it.trim().equals("allowBackup=true", ignoreCase = true) }
-            } finally {
-                proc.destroy()
-            }
-        } catch (_: Exception) { false }
+        return ShellExecutor.exec("pm", "dump", packageName).lines().any { it.trim().equals("allowBackup=true", ignoreCase = true) }
     }
 
     override fun getAppDataDir(packageName: String?): String? {
@@ -284,18 +259,9 @@ class PackageGovernorPlusImpl : IPackageGovernorPlus.Stub() {
             Log.w(TAG, "getAppDataDir IPC failed for $packageName, falling back", e)
         }
         // Fallback: pm dump parse
-        return try {
-            val proc = Runtime.getRuntime().exec(arrayOf("pm", "dump", packageName))
-            try {
-                val text = proc.inputStream.bufferedReader().use { it.readText() }
-                proc.waitFor()
-                text.lines()
-                    .firstOrNull { it.trim().startsWith("dataDir=") }
-                    ?.trim()?.removePrefix("dataDir=")?.trim()
-                    ?.takeIf { it.isNotEmpty() }
-            } finally {
-                proc.destroy()
-            }
-        } catch (_: Exception) { null }
+        return ShellExecutor.exec("pm", "dump", packageName).lines()
+            .firstOrNull { it.trim().startsWith("dataDir=") }
+            ?.trim()?.removePrefix("dataDir=")?.trim()
+            ?.takeIf { it.isNotEmpty() }
     }
 }
