@@ -1565,4 +1565,11 @@
     <string name="permission_manager_section_privileged">Privileged Permissions (shell-grantable)</string>
     <string name="permission_manager_section_runtime">Runtime Permissions</string>
     <string name="permission_manager_privileged_note">These permissions are normally restricted to system or root apps, but can be granted by the ADB shell process. Useful for backup apps (Neo Backup, Swift Backup) that need DUMP, READ_LOGS, or similar access.</string>
+
+    <!-- Home layout simulator accessibility labels (decorative preview widget — a11y toggles) -->
+    <string name="accessibility_sim_toggle_adb">Toggle ADB start card visibility</string>
+    <string name="accessibility_sim_toggle_terminal">Toggle Terminal card visibility</string>
+    <string name="accessibility_sim_toggle_automation">Toggle Automation card visibility</string>
+    <string name="accessibility_sim_toggle_activity_log">Toggle Activity Log card visibility</string>
+    <string name="accessibility_sim_toggle_learn_more">Toggle Learn More card visibility</string>
 </resources>
