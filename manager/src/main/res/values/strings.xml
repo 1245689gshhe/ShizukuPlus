@@ -892,6 +892,9 @@
     <string name="wadb_notification_title">Starting Shizuku…</string>
     <string name="wadb_notification_wifi_required">Awaiting Wi-Fi connection before proceeding</string>
     <string name="wadb_notification_retry">Waiting to retry</string>
+    <string name="wadb_mdns_blocked_title">mDNS discovery repeatedly failing</string>
+    <string name="wadb_mdns_blocked_text">Port discovery keeps timing out. Your device may be blocking multicast traffic (common on Vivo/FunTouchOS). Try enabling TCP Mode in settings for a reliable connection without Wi-Fi.</string>
+    <string name="wadb_mdns_switch_tcp_action">Open TCP Settings</string>
     <string name="wadb_error_title">Error while starting on boot</string>
     <string name="wadb_error_notify_dev">Tap to notify the developer.</string>
     <string name="wadb_error_cannot_connect">Could not reach ADB service — check Wireless Debugging is enabled</string>
@@ -1044,6 +1047,33 @@
     <string name="empty_state_description_activity_log_empty">Shizuku API calls and events will appear here when activity logging is enabled.</string>
     <string name="empty_state_title_hidden_apps">No hidden apps</string>
     <string name="empty_state_description_hidden_apps">Apps you hide from the management list will appear here.</string>
+
+    <!-- Settings diagnostics preference (settings_advanced.xml) -->
+    <string name="settings_diagnostics_enabled">Settings Diagnostics</string>
+    <string name="settings_diagnostics_enabled_summary">Scan configurations for conflicts and anomalies proactively</string>
+
+    <!-- Verified install preferences (settings_app_management.xml) -->
+    <string name="settings_verify_apk_local_title">Local Signature Matching</string>
+    <string name="settings_verify_apk_local_summary">Verify updates match the installed app\'s signature. Fast and fully offline.</string>
+    <string name="settings_verify_apk_fdroid_title">F-Droid / IzzyOnDroid Index</string>
+    <string name="settings_verify_apk_fdroid_summary">Verify APK hashes locally against trusted open-source metadata.</string>
+    <string name="settings_verify_apk_virustotal_title">VirusTotal Scan</string>
+    <string name="settings_verify_apk_virustotal_summary">Scan APK hashes against VirusTotal before installation. Requires API key.</string>
+    <string name="settings_verify_apk_pithus_title">Pithus Threat Intel</string>
+    <string name="settings_verify_apk_pithus_summary">Check hashes against Pithus to detect malware traits.</string>
+
+    <!-- Custom accent color preference (settings_personalization.xml) -->
+    <string name="settings_custom_accent_title">Custom Accent Color</string>
+
+    <!-- AI Bridge feature preference (settings_shizuku_plus.xml) -->
+    <string name="settings_ai_bridge_npu_title">AI Bridge &amp; NPU</string>
+
+    <!-- Backup error messages (ShizukuPlusSettingsFragment.kt) -->
+    <string name="backup_error_prefix_backup_failed">Backup failed</string>
+    <string name="backup_error_prefix_restore_failed">Restore failed</string>
+    <string name="backup_error_key_invalidated_backup">your device\'s screen lock or biometrics changed since this backup\'s encryption key was created, which permanently invalidates it by design. Please try again to generate a new key.</string>
+    <string name="backup_error_key_invalidated_restore">your device\'s screen lock or biometrics changed since this backup\'s encryption key was created, which permanently invalidates it by design. This backup can no longer be decrypted.</string>
+    <string name="backup_error_wrong_install">this backup could not be decrypted. It was most likely created by a different installation of Shizuku+ — backups are encrypted per-install and can\'t be restored after reinstalling or clearing the app\'s data.</string>
 
     <!-- Update Settings -->
     <string name="settings_update_category">Updates</string>
