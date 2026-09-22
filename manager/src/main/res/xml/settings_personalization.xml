@@ -54,7 +54,7 @@
             android:title="@string/settings_bold_typography"
             android:summary="@string/settings_bold_typography_summary"
             android:defaultValue="false"
-            android:icon="@drawable/ic_code_24" />
+            android:icon="@drawable/ic_format_bold_24" />
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="expanded_headers_enabled"
@@ -175,14 +175,14 @@
             android:title="@string/settings_haptic_feedback"
             android:summary="@string/settings_haptic_feedback_summary"
             android:defaultValue="true"
-            android:icon="@drawable/ic_bolt_24" />
+            android:icon="@drawable/ic_vibration_24" />
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="follow_system_haptics"
             android:title="@string/settings_follow_system_haptics"
             android:summary="@string/settings_follow_system_haptics_summary"
             android:defaultValue="false"
-            android:icon="@drawable/ic_bolt_24" />
+            android:icon="@drawable/ic_vibration_24" />
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="edge_to_edge_enabled"

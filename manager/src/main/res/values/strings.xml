@@ -758,6 +758,7 @@
     <string name="lp_action_freeze_app">Freeze App (Disable)</string>
     <string name="lp_action_unfreeze_app">Unfreeze App (Enable)</string>
     <string name="su_path_preset_applied">SU path preset applied: %1$s</string>
+    <string name="su_path_invalid">Invalid path. Must be an absolute path (starts with /) using only letters, numbers, slashes, underscores, dots, and hyphens.</string>
     <string name="stock_shizuku_conflict_title">Incompatible Server Detected</string>
     <string name="stock_shizuku_conflict_description">The original Shizuku server is running in the background. It is incompatible with Shizuku+ and blocks it from starting.</string>
     <string name="stock_shizuku_conflict_fix_button">Fix Conflict</string>
