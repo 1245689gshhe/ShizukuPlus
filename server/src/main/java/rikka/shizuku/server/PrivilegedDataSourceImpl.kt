@@ -651,8 +651,7 @@ class PrivilegedDataSourceImpl : IPrivilegedDataSource.Stub() {
         return exec("cmd", "clipboard", "get-text")
     }
 
-    override fun setClipboard(text: String?): Boolean {
-        if (text == null) return false
+    override fun setClipboard(text: String): Boolean {
         val userId = UserHandleCompat.getUserId(Binder.getCallingUid())
         // Primary: IClipboard.setPrimaryClip — works at shell UID on all Android versions.
         // ClipData is a public API so we can instantiate it directly.

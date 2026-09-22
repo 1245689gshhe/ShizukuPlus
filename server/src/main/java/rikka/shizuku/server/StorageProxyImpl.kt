@@ -270,8 +270,8 @@ class StorageProxyImpl : IStorageProxy.Stub() {
         if (!InputValidationUtils.isSafePath(dir)) return null
         return if (InputValidationUtils.isValidPackageName(packageContext) && serverUid == 2000 &&
             (dir.startsWith("/data/data/") || dir.startsWith("/data/user/"))) {
-            // run-as <pkg> tar for debuggable-app data directories
-            openViaShellPipe(arrayOf("run-as", packageContext, "tar", "-czf", "-", "-C", dir, "."))
+            // run-as <pkg> tar for debuggable-app data directories; isValidPackageName guards non-null
+            openViaShellPipe(arrayOf("run-as", packageContext!!, "tar", "-czf", "-", "-C", dir, "."))
         } else {
             openViaShellPipe(arrayOf("tar", "-czf", "-", "-C", dir, "."))
         }
@@ -286,7 +286,7 @@ class StorageProxyImpl : IStorageProxy.Stub() {
         if (!InputValidationUtils.isSafePath(dir) || tarPfd == null) return false
         val cmd = if (InputValidationUtils.isValidPackageName(packageContext) && serverUid == 2000 &&
             (dir.startsWith("/data/data/") || dir.startsWith("/data/user/"))) {
-            arrayOf("run-as", packageContext, "tar", "-xf", "-", "-C", dir)
+            arrayOf("run-as", packageContext!!, "tar", "-xf", "-", "-C", dir)
         } else {
             arrayOf("tar", "-xf", "-", "-C", dir)
         }
