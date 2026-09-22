@@ -105,15 +105,6 @@
         <item>3</item>
     </string-array>
 
-    <string-array name="status_card_outline_styles">
-        <item>Material (колір теми)</item>
-        <item>Зелений / Червоний (колір статусу)</item>
-    </string-array>
-    <string-array name="status_card_outline_styles_value">
-        <item>material</item>
-        <item>status</item>
-    </string-array>
-
     <string name="home_status_service_running_tile_sublabel">Працює</string>
     <string name="home_status_service_stopped_tile_sublabel">Зупинено</string>
 
