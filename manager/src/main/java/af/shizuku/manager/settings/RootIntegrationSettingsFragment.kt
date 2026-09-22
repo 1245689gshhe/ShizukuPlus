@@ -305,15 +305,10 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
     }
 
     private fun isBootloaderUnlocked(): Boolean {
-        fun readProp(prop: String): String? = try {
-            val p = Runtime.getRuntime().exec(arrayOf("getprop", prop))
-            try {
-                val result = java.io.BufferedReader(java.io.InputStreamReader(p.inputStream)).use { it.readLine() }
-                p.waitFor()
-                result
-            } finally {
-                p.destroy()
-            }
+        fun readProp(key: String): String? = try {
+            Class.forName("android.os.SystemProperties")
+                .getMethod("get", String::class.java, String::class.java)
+                .invoke(null, key, "") as? String
         } catch (_: Exception) { null }
         return readProp("ro.boot.flash.locked") == "0" ||
                readProp("ro.boot.verifiedbootstate") == "orange"

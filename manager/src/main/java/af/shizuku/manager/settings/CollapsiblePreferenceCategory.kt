@@ -8,6 +8,7 @@ import androidx.preference.PreferenceCategory
 import androidx.preference.PreferenceManager
 import androidx.preference.PreferenceViewHolder
 import af.shizuku.manager.R
+import af.shizuku.manager.ShizukuSettings
 
 class CollapsiblePreferenceCategory @JvmOverloads constructor(
     context: Context,
