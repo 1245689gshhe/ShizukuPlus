@@ -3,12 +3,14 @@ package rikka.shizuku.server
 import android.net.Uri
 import android.os.Binder
 import android.os.Bundle
+import android.os.Parcel
 import android.os.ParcelFileDescriptor
 import android.util.Log
 import af.shizuku.server.IStorageProxy
 import af.shizuku.common.util.UserHandleCompat
 import rikka.hidden.compat.ActivityManagerApis
 import rikka.shizuku.server.util.InputValidationUtils
+import rikka.shizuku.server.util.BinderCallLogger
 import rikka.shizuku.server.util.ShellExecutor
 import java.io.File
 
@@ -16,6 +18,12 @@ class StorageProxyImpl : IStorageProxy.Stub() {
 
     // Cached once per process — getuid() is a syscall, not a field.
     private val serverUid: Int by lazy { android.system.Os.getuid() }
+
+    override fun onTransact(code: Int, data: Parcel, reply: Parcel?, flags: Int): Boolean {
+        BinderCallLogger.log(Log.isLoggable("BinderCall", Log.INFO),
+            IStorageProxy.Stub::class.java, code, Binder.getCallingUid())
+        return super.onTransact(code, data, reply, flags)
+    }
 
     override fun openFile(path: String?, mode: Int): ParcelFileDescriptor? {
         val path = path ?: return null

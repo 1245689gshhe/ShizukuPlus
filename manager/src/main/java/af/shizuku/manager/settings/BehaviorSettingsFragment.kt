@@ -439,7 +439,7 @@ class BehaviorSettingsFragment : BaseSettingsFragment(), SharedPreferences.OnSha
             builder
                 .setMessage(getString(R.string.update_available_message, info.versionName))
                 .setPositiveButton(R.string.update_download) { _, _ ->
-                    updateManager.downloadUpdate(info.downloadUrl, info.versionName)
+                    updateManager.downloadUpdate(info.downloadUrl, info.versionName, manual = true)
                 }
         }
 
