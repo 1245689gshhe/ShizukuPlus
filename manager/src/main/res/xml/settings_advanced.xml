@@ -14,8 +14,8 @@
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="diagnostics_enabled"
-            android:title="Settings Diagnostics"
-            android:summary="Scan configurations for conflicts and anomalies proactively"
+            android:title="@string/settings_diagnostics_enabled"
+            android:summary="@string/settings_diagnostics_enabled_summary"
             android:icon="@drawable/ic_warning_24"
             android:defaultValue="true" />
 
