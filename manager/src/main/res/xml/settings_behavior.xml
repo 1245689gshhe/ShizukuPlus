@@ -50,7 +50,8 @@
             android:key="tcp_port"
             android:title="@string/settings_tcp_port"
             android:icon="@drawable/ic_lan_24"
-            android:inputType="number" />
+            android:inputType="number"
+            app:useSimpleSummaryProvider="true" />
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
             android:key="auto_disable_usb_debugging"

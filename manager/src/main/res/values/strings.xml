@@ -475,6 +475,43 @@
     <string name="settings_network_governor_plus_summary">Privileged network control. Used by AFWall+ for robust system-wide filtering.</string>
     <string name="settings_activity_manager_plus">↳ Deep Process Control</string>
     <string name="settings_activity_manager_plus_summary">Native process control. Allows MacroDroid, Tasker, and Naptime to deeply force-stop apps and set standby buckets.</string>
+    <!-- Plus feature short titles (used in settings preference titles) -->
+    <string name="settings_network_governor_plus_title">DNS Governor</string>
+    <string name="settings_continuity_bridge_title">Continuity Bridge</string>
+    <string name="settings_activity_manager_plus_title">Process Control</string>
+    <string name="settings_status_bar_governor_plus_title">Status Bar Control</string>
+    <string name="settings_package_governor_plus_title">Package Governor</string>
+    <string name="settings_avf_manager_title">VM Manager</string>
+
+    <!-- Dhizuku admin tools -->
+    <string name="settings_dhizuku_screencap_lockdown">Screen Capture Lockdown</string>
+    <string name="settings_dhizuku_screencap_lockdown_summary">Disable screenshots and screen recordings globally across the device</string>
+    <string name="settings_dhizuku_usb_lockdown">USB Data Lockdown</string>
+    <string name="settings_dhizuku_usb_lockdown_summary">Disallow USB file transfer (MTP) and secure device physically</string>
+    <string name="settings_dhizuku_suspended_packages">Suspended Applications</string>
+    <string name="settings_dhizuku_suspended_packages_summary">Select applications to freeze and block from running completely</string>
+
+    <!-- Backup / Restore settings -->
+    <string name="settings_backup_settings">Backup Settings</string>
+    <string name="settings_backup_settings_summary">Export your configurations and enhancements securely using Biometric encryption.</string>
+    <string name="settings_restore_settings">Restore Settings</string>
+    <string name="settings_restore_settings_summary">Restore your configurations from an encrypted backup.</string>
+
+    <!-- Experimental Plus settings (developer section) -->
+    <string name="settings_ai_core_master">AI Core Master</string>
+    <string name="settings_ai_core_master_summary">Enable privileged AI operations: NPU scheduling and window hierarchy access</string>
+    <string name="settings_npu_acceleration">NPU Acceleration</string>
+    <string name="settings_npu_acceleration_summary">Delegate AI inference tasks to the device Neural Processing Unit when available</string>
+    <string name="settings_window_crawler">Window Hierarchy Crawler</string>
+    <string name="settings_window_crawler_summary">Allow AI automation to read the active window view hierarchy without Accessibility Services</string>
+    <string name="settings_ai_automation_experimental">Experimental AI Automation</string>
+    <string name="settings_ai_automation_experimental_summary">Enable gesture simulation, pixel capture, and text injection for AI-driven automation</string>
+    <string name="settings_keystore_fallback">Software KeyStore Fallback</string>
+    <string name="settings_keystore_fallback_summary">Cache the ADB RSA key encrypted with a software AES key when hardware KeyStore fails (e.g., Samsung Knox). Reduces pairing prompts but decreases security.</string>
+    <string name="settings_samsung_uid_escalation">Samsung System UID Escalation</string>
+    <string name="settings_samsung_uid_escalation_summary">Attempt to escalate to UID 1000 (system) using an exploit specific to unpatched Samsung devices (by pascua28). Use at your own risk.</string>
+    <string name="settings_display_tuner_plus_title">Display Tuner</string>
+
     <string name="settings_plus_app_found">Integrated app detected: %1$s. Tap for setup.</string>
     <string name="settings_plus_app_setup_title">Setup Integration</string>
     <string name="settings_plus_app_open">Open App</string>
@@ -1031,6 +1068,37 @@
     <string name="settings_root_category_rootless_bridges">Rootless Bridges</string>
     <string name="settings_root_category_mocking">Mocking &amp; Simulation</string>
     <string name="settings_root_category_bootloader">Bootloader Integration</string>
+
+    <!-- SU Bridge configuration -->
+    <string name="settings_custom_su_path">Custom SU Path</string>
+    <string name="settings_custom_su_path_summary">Path the SU Bridge exposes as the \'su\' binary. Leave blank to auto-detect from common locations.</string>
+
+    <!-- Root modules — Rootless Bridges -->
+    <string name="settings_root_build_prop_redirect">build.prop Redirection</string>
+    <string name="settings_root_build_prop_redirect_summary">Redirect system build property modifications to a writable proxy file rootless</string>
+    <string name="help_root_build_prop_title">About build.prop Redirection</string>
+    <string name="help_root_build_prop_detail">This module automatically shadow-copies the original build.prop to a user-writable path and redirects all writes to it, allowing tweakers to safely modify system values rootless.</string>
+    <string name="settings_root_iptables_mocking">Firewall Success Mocking</string>
+    <string name="settings_root_iptables_mocking_summary">Intercept and fake success for iptables rules when local netfilter permissions fail</string>
+    <string name="help_root_iptables_title">About Firewall Mocking</string>
+    <string name="help_root_iptables_detail">Fakes execution success for iptables commands when rootless limitations prevent real rules from being set, letting firewall apps continue functioning.</string>
+
+    <!-- Root modules — Mocking &amp; Simulation -->
+    <string name="settings_overlay_fs_proxy">OverlayFS System Ghosting</string>
+    <string name="settings_overlay_fs_proxy_summary">[Developer] Seamlessly mount virtual overlay filesystems to simulate rw /system for root apps. Warning: Highly experimental.</string>
+    <string name="settings_root_kernel_ghosting">Kernel Driver Ghosting</string>
+    <string name="settings_root_kernel_ghosting_summary">[Developer] Silently simulate success for insmod/rmmod kernel commands without loading the kernel modules.</string>
+    <string name="settings_root_partition_ghosting">Partition Flash Ghosting</string>
+    <string name="settings_root_partition_ghosting_summary">[Developer] Intercept and fake \'dd\' operations targeting /dev/block/. Prevents ROM flashers from crashing while doing nothing.</string>
+    <string name="settings_root_power_ghosting">Power State Ghosting</string>
+    <string name="settings_root_power_ghosting_summary">[Developer] Intercept reboot, recovery, and soft-reboot commands and silently ignore them to prevent unwanted device restarts.</string>
+
+    <!-- Bootloader Integration settings -->
+    <string name="settings_bootloader_flash_ota">Systemless OTA Flashing</string>
+    <string name="settings_bootloader_flash_ota_summary">Flash OTA payloads to inactive slot without root or custom recovery</string>
+    <string name="settings_bootloader_fastbootd">FastbootD Transition</string>
+    <string name="settings_bootloader_fastbootd_summary">Restart directly into fastbootd user space from Shizuku shell</string>
+
     <string name="settings_developer_category_debug">Debug &amp; Diagnostics</string>
     <string name="settings_plus_category_device_owner_tools">Device Owner Tools</string>
     <string name="settings_update_title">Updates</string>
