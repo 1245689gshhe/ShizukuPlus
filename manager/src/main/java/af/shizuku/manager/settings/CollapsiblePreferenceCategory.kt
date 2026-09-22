@@ -46,6 +46,22 @@ class CollapsiblePreferenceCategory @JvmOverloads constructor(
 
         holder.itemView.tag = "category_header"
 
+        val cornerStyle = ShizukuSettings.getPreferences().getString("settings_card_corner_style", "global") ?: "global"
+        if (cornerStyle != "global") {
+            val card = holder.itemView as? com.google.android.material.card.MaterialCardView
+            if (card != null) {
+                val density = card.context.resources.displayMetrics.density
+                card.radius = when (cornerStyle) {
+                    "sharp" -> 0f
+                    "rounded" -> 12f * density
+                    "large" -> 24f * density
+                    "squircle" -> 28f * density
+                    "xlarge" -> 36f * density
+                    else -> card.radius
+                }
+            }
+        }
+
         val arrow = holder.findViewById(R.id.category_arrow)
         if (!collapsible) {
             arrow?.visibility = android.view.View.GONE

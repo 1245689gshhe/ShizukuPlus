@@ -23,7 +23,7 @@
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_connectivity"
-        android:title="Networking &amp; Connectivity"
+        android:title="@string/settings_plus_category_connectivity"
         android:defaultValue="false">
 
         <af.shizuku.manager.settings.PlusFeaturePreference
@@ -64,7 +64,7 @@
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_system"
-        android:title="System &amp; Performance"
+        android:title="@string/settings_plus_category_system_performance"
         android:defaultValue="false">
 
         <af.shizuku.manager.settings.PlusFeaturePreference
@@ -117,11 +117,21 @@
             app:infoDetail="@string/help_avf_manager_detail"
             app:badgeType="plus" />
 
+        <af.shizuku.manager.settings.PlusFeaturePreference
+            android:key="storage_proxy_enabled"
+            android:title="Storage Bridge"
+            android:summary="@string/settings_storage_proxy_summary"
+            android:icon="@drawable/ic_folder_24"
+            android:defaultValue="true"
+            app:infoTitle="@string/help_storage_proxy_title"
+            app:infoDetail="@string/help_storage_proxy_detail"
+            app:badgeType="plus" />
+
     </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_security"
-        android:title="Security &amp; Access"
+        android:title="@string/settings_plus_category_security_access"
         android:defaultValue="false">
 
         <af.shizuku.manager.settings.PlusFeaturePreference
@@ -143,7 +153,7 @@
 
         <af.shizuku.manager.settings.CollapsiblePreferenceCategory
             android:key="category_dhizuku_admin"
-            android:title="Device Owner Tools"
+            android:title="@string/settings_plus_category_device_owner_tools"
             android:dependency="dhizuku_mode"
             android:defaultValue="false">
 
@@ -194,25 +204,8 @@
     </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
-        android:key="category_storage"
-        android:title="Storage &amp; Files"
-        android:defaultValue="false">
-
-        <af.shizuku.manager.settings.PlusFeaturePreference
-            android:key="storage_proxy_enabled"
-            android:title="Storage Bridge"
-            android:summary="@string/settings_storage_proxy_summary"
-            android:icon="@drawable/ic_folder_24"
-            android:defaultValue="true"
-            app:infoTitle="@string/help_storage_proxy_title"
-            app:infoDetail="@string/help_storage_proxy_detail"
-            app:badgeType="plus" />
-
-    </af.shizuku.manager.settings.CollapsiblePreferenceCategory>
-
-    <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_backup"
-        android:title="Backup &amp; Restore"
+        android:title="@string/settings_plus_category_backup_restore"
         android:defaultValue="false">
 
         <Preference
@@ -231,7 +224,7 @@
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_developer"
-        android:title="@string/settings_plus_category_developer"
+        android:title="@string/settings_plus_category_experimental"
         android:visible="false"
         android:defaultValue="false">
 

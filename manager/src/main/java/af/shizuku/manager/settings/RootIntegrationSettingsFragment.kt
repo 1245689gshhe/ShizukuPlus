@@ -53,12 +53,11 @@ class RootIntegrationSettingsFragment : BaseSettingsFragment() {
                 true
             }
         }
-        findPreference<Preference>("launch_stock_shizuku")?.apply {
-            isVisible = StockShizukuCompat.isInstalled(requireContext())
-            setOnPreferenceClickListener {
-                StockShizukuCompat.launch(it.context)
-                true
-            }
+        findPreference<CollapsiblePreferenceCategory>("category_stock_shizuku_compat")
+            ?.setChildAvailable("launch_stock_shizuku", StockShizukuCompat.isInstalled(requireContext()))
+        findPreference<Preference>("launch_stock_shizuku")?.setOnPreferenceClickListener {
+            StockShizukuCompat.launch(it.context)
+            true
         }
 
         findPreference<TwoStatePreference>("adb_proxy_enabled")?.setOnPreferenceChangeListener { _, newValue ->

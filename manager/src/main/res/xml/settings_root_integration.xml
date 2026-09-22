@@ -4,7 +4,7 @@
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_adb_connection"
-        android:title="ADB Connection"
+        android:title="@string/settings_root_category_adb_connection"
         android:defaultValue="true">
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
@@ -32,7 +32,7 @@
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_stock_shizuku_compat"
-        android:title="Stock Shizuku Compatibility"
+        android:title="@string/settings_root_category_stock_compat"
         android:defaultValue="true">
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
@@ -52,7 +52,7 @@
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_su_bridge"
-        android:title="SU Bridge Configuration"
+        android:title="@string/settings_root_category_su_bridge"
         android:defaultValue="true">
 
         <af.shizuku.manager.settings.GrayableIconSwitchPreference
@@ -75,7 +75,7 @@
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_root_modules"
-        android:title="Rootless Bridges"
+        android:title="@string/settings_root_category_rootless_bridges"
         android:defaultValue="true">
 
         <Preference
@@ -115,7 +115,7 @@
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_ghost_bridge"
-        android:title="Mocking &amp; Simulation"
+        android:title="@string/settings_root_category_mocking"
         android:defaultValue="false">
 
         <af.shizuku.manager.settings.PlusFeaturePreference
@@ -186,7 +186,7 @@
 
     <af.shizuku.manager.settings.CollapsiblePreferenceCategory
         android:key="category_unlocked_bootloader"
-        android:title="Bootloader Integration"
+        android:title="@string/settings_root_category_bootloader"
         android:defaultValue="false">
 
         <af.shizuku.manager.settings.PlusFeaturePreference
