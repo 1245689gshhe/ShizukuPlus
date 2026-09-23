@@ -176,7 +176,7 @@ fun HomeScreen(
                             .padding(
                                 start = startPadding,
                                 end = endPadding,
-                                top = if (curvedFraction > 0.8f) 0.dp else 24.dp
+                                top = lerp(start = 24.dp, stop = 0.dp, fraction = curvedFraction)
                             ),
                         contentAlignment = BiasAlignment(horizontalBias, 0f)
                     ) {
@@ -212,8 +212,19 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
+        // innerPadding.top decreases as the bar collapses during scroll. Using it directly
+        // causes recyclerViewProvider to call setPadding with shrinking values every frame,
+        // which fights the RecyclerView's own scroll and pulls content upward mid-scroll.
+        // Fix: track the maximum top seen — that's the fully-expanded bar height + insets,
+        // which is the correct permanent RecyclerView top padding. It only rises (never drops
+        // during scroll), so the RecyclerView padding is stable once the bar is first rendered.
+        val stableTop = remember { mutableStateOf(0.dp) }
+        SideEffect {
+            val t = innerPadding.calculateTopPadding()
+            if (t > stableTop.value) stableTop.value = t
+        }
         val adjustedPadding = PaddingValues(
-            top = innerPadding.calculateTopPadding(),
+            top = stableTop.value,
             bottom = innerPadding.calculateBottomPadding() + 72.dp
         )
         AnimatedGradientBackground {
