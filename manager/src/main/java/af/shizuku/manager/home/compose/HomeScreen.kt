@@ -153,7 +153,7 @@ fun HomeScreen(
                     // horizontalBias: 0 = center, -1 = start.
                     val horizontalBias = -curvedFraction
                     val startPadding = lerp(start = 24.dp, stop = 20.dp, fraction = curvedFraction)
-                    val endPadding = lerp(start = 24.dp, stop = 140.dp, fraction = curvedFraction)
+                    val endPadding = lerp(start = 24.dp, stop = 160.dp, fraction = curvedFraction)
                     val titleFontSize = lerp(
                         start = if (isOneUi) 32.sp else 28.sp,
                         stop = 20.sp,
