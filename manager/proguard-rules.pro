@@ -92,6 +92,18 @@
 -keep class af.shizuku.manager.settings.HomeLayoutSimulatorPreference {
     public <init>(android.content.Context, android.util.AttributeSet);
 }
+-keep class af.shizuku.manager.settings.PlusNavPreference {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+-keep class af.shizuku.manager.settings.PlusFeaturePreference {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+-keep class af.shizuku.manager.settings.DiagnosticsDashboardPreference {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
+-keep class af.shizuku.manager.settings.AppPickerPreference {
+    public <init>(android.content.Context, android.util.AttributeSet);
+}
 
 # Keep WorkManager workers instantiated by name via reflection.
 # Both RemoteDbSyncWorker and AdbStartWorker must maintain their class names.

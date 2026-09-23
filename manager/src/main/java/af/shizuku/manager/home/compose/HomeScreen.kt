@@ -49,6 +49,11 @@ fun HomeScreen(
     val configuration = LocalConfiguration.current
     val screenHeightDp = configuration.screenHeightDp.dp
 
+    // Status bar height — must be included in the Surface height so content sits below it,
+    // not behind it. The inner Box gets windowInsetsPadding(statusBars) to push all content
+    // (icons, title) below the status bar without shrinking the available content area.
+    val statusBarPadding = WindowInsets.statusBars.asPaddingValues().calculateTopPadding()
+
     // When one-handed or One UI: expanded viewing area occupies ~36% of screen height,
     // letting the thumb reach the interaction zone below. Otherwise stay at a flat 64dp bar.
     val expandedHeight = if (isOneHanded || isOneUi) {
@@ -59,8 +64,10 @@ fun HomeScreen(
     val collapsedHeight = 64.dp
 
     val density = LocalDensity.current
-    val expandedHeightPx = with(density) { expandedHeight.toPx() }
-    val collapsedHeightPx = with(density) { collapsedHeight.toPx() }
+    // Include status bar in the px values so the offset limit is calculated against the full
+    // on-screen bar height (content + status bar), keeping collapse math correct.
+    val expandedHeightPx = with(density) { (expandedHeight + statusBarPadding).toPx() }
+    val collapsedHeightPx = with(density) { (collapsedHeight + statusBarPadding).toPx() }
     val heightOffsetLimit = -(expandedHeightPx - collapsedHeightPx)
 
     val topAppBarState = rememberTopAppBarState()
@@ -101,7 +108,7 @@ fun HomeScreen(
             Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(expandedHeight + with(density) { scrollBehavior.state.heightOffset.toDp() }),
+                    .height(expandedHeight + statusBarPadding + with(density) { scrollBehavior.state.heightOffset.toDp() }),
                 color = run {
                     val barAlpha = ((fraction - 0.6f) / 0.35f).coerceIn(0f, 1f)
                     if (ShizukuSettings.isBlurUiEnabled())
@@ -110,7 +117,7 @@ fun HomeScreen(
                         MaterialTheme.colorScheme.surfaceContainer.copy(alpha = barAlpha)
                 }
             ) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
                     // Action icons pinned at top-end inside the 64dp collapsed row
                     Row(
                         modifier = Modifier
