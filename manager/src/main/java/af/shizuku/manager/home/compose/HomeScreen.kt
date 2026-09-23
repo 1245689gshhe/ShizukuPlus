@@ -117,7 +117,12 @@ fun HomeScreen(
                         MaterialTheme.colorScheme.surfaceContainer.copy(alpha = barAlpha)
                 }
             ) {
-                Box(modifier = Modifier.fillMaxSize().windowInsetsPadding(WindowInsets.statusBars)) {
+                // Use pre-computed statusBarPadding (captured before the Scaffold) rather than
+                // windowInsetsPadding(WindowInsets.statusBars) inside the topBar slot. Scaffold
+                // in Material3 1.4+ consumes contentWindowInsets before composing its slots, so
+                // WindowInsets.statusBars inside the topBar returns 0, hiding the action buttons
+                // behind the status bar on Android 17+ (#528).
+                Box(modifier = Modifier.fillMaxSize().padding(top = statusBarPadding)) {
                     // Action icons pinned at top-end inside the 64dp collapsed row
                     Row(
                         modifier = Modifier
