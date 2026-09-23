@@ -146,11 +146,12 @@ fun PermissionManagerScreen(onBackClick: () -> Unit) {
                 isLoading = isLoadingPerms,
                 paddingValues = paddingValues,
                 onToggle = { perm, grant ->
+                    val app = selectedApp ?: return@onToggle
                     scope.launch(Dispatchers.IO) {
                         val ok = if (grant) {
-                            ShizukuPlusAPI.PackageGovernor.grantPermission(selectedApp!!.packageName, perm.name)
+                            ShizukuPlusAPI.PackageGovernor.grantPermission(app.packageName, perm.name)
                         } else {
-                            ShizukuPlusAPI.PackageGovernor.revokePermission(selectedApp!!.packageName, perm.name)
+                            ShizukuPlusAPI.PackageGovernor.revokePermission(app.packageName, perm.name)
                         }
                         if (ok) {
                             withContext(Dispatchers.Main) {
