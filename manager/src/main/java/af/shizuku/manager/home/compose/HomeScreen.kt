@@ -32,7 +32,7 @@ import af.shizuku.core.ui.compose.ButtonSize
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
     isEditMode: Boolean,
@@ -72,6 +72,7 @@ fun HomeScreen(
         }
     }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
+    val motionScheme = MaterialTheme.motionScheme
 
     // Snap fully open or fully closed when the user lifts their finger.
     val isScrollIdle = remember { mutableStateOf(true) }
@@ -83,7 +84,7 @@ fun HomeScreen(
                 val target = if (fraction >= 0.5f) state.heightOffsetLimit else 0f
                 Animatable(state.heightOffset).animateTo(
                     target,
-                    spring(stiffness = Spring.StiffnessMediumLow)
+                    motionScheme.defaultSpatialSpec<Float>()
                 ) { state.heightOffset = value }
             }
         }
@@ -101,13 +102,12 @@ fun HomeScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(expandedHeight + with(density) { scrollBehavior.state.heightOffset.toDp() }),
-                color = if (fraction > 0.85f) {
+                color = run {
+                    val barAlpha = ((fraction - 0.6f) / 0.35f).coerceIn(0f, 1f)
                     if (ShizukuSettings.isBlurUiEnabled())
-                        MaterialTheme.colorScheme.surface.copy(alpha = 0.82f)
+                        MaterialTheme.colorScheme.surface.copy(alpha = 0.82f * barAlpha)
                     else
-                        MaterialTheme.colorScheme.surfaceContainer
-                } else {
-                    Color.Transparent
+                        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = barAlpha)
                 }
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
@@ -218,7 +218,7 @@ fun HomeScreen(
         // Fix: track the maximum top seen — that's the fully-expanded bar height + insets,
         // which is the correct permanent RecyclerView top padding. It only rises (never drops
         // during scroll), so the RecyclerView padding is stable once the bar is first rendered.
-        val stableTop = remember { mutableStateOf(0.dp) }
+        val stableTop = remember(expandedHeight) { mutableStateOf(0.dp) }
         SideEffect {
             val t = innerPadding.calculateTopPadding()
             if (t > stableTop.value) stableTop.value = t

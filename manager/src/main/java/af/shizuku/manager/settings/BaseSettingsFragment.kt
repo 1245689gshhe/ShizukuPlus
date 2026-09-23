@@ -241,7 +241,9 @@ abstract class BaseSettingsFragment : PreferenceFragmentCompat() {
             (context.resources.displayMetrics.heightPixels * 0.16f).toInt()
         } else 0
         recyclerView.isVerticalScrollBarEnabled = true
-        recyclerView.setBackgroundColor(android.graphics.Color.TRANSPARENT)
+        val pageBgValue = TypedValue()
+        context.theme.resolveAttribute(R.attr.colorSurfaceContainerLow, pageBgValue, true)
+        recyclerView.setBackgroundColor(pageBgValue.data)
         recyclerView.setPadding(cardMarginPx + contentPaddingPx, oneHandedTopPx, cardMarginPx + contentPaddingPx, 0)
         recyclerView.clipToPadding = false
         recyclerView.addItemDecoration(SettingsItemDecoration(context))

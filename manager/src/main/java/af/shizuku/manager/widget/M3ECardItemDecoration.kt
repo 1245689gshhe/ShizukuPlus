@@ -26,6 +26,7 @@ import af.shizuku.manager.ktx.themeCornerSizePx
  */
 abstract class M3ECardItemDecoration(protected val context: Context) : RecyclerView.ItemDecoration() {
     protected val cardPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+    protected val headerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     protected val dividerPaint = Paint(Paint.ANTI_ALIAS_FLAG)
 
     // Outer corner radius — matches the ExtraLarge shape token used by all M3E cards.
@@ -51,6 +52,7 @@ abstract class M3ECardItemDecoration(protected val context: Context) : RecyclerV
 
     init {
         cardPaint.color = context.themeColor(R.attr.colorSurfaceContainerHigh)
+        headerPaint.color = context.themeColor(R.attr.colorSurfaceContainerHighest)
         dividerPaint.color = context.themeColor(R.attr.colorOutlineVariant)
         dividerPaint.strokeWidth = 1f * density
 
@@ -85,7 +87,7 @@ abstract class M3ECardItemDecoration(protected val context: Context) : RecyclerV
 
             if (isHeader(child)) {
                 // Header → standalone full-corner card (never connected to adjacent items)
-                drawSegment(c, parent, child, cornerRadius, cornerRadius)
+                drawSegment(c, parent, child, cornerRadius, cornerRadius, headerPaint)
             } else {
                 val isFirst = prev == null || isHeader(prev)
                 val isLast = next == null || isHeader(next)
@@ -103,7 +105,8 @@ abstract class M3ECardItemDecoration(protected val context: Context) : RecyclerV
         parent: RecyclerView,
         child: View,
         topRadius: Float,
-        bottomRadius: Float
+        bottomRadius: Float,
+        paint: Paint = cardPaint
     ) {
         val left = cardMargin
         val right = parent.width - cardMargin
@@ -113,19 +116,19 @@ abstract class M3ECardItemDecoration(protected val context: Context) : RecyclerV
         when {
             topRadius == bottomRadius -> {
                 // Fast path: uniform radius, no Path needed
-                c.drawRoundRect(left, top, right, bottom, topRadius, topRadius, cardPaint)
+                c.drawRoundRect(left, top, right, bottom, topRadius, topRadius, paint)
             }
             topRadius > bottomRadius -> {
                 segmentRect.set(left, top, right, bottom)
                 segmentPath.rewind()
                 segmentPath.addRoundRect(segmentRect, radiiTopOnly, Path.Direction.CW)
-                c.drawPath(segmentPath, cardPaint)
+                c.drawPath(segmentPath, paint)
             }
             else -> {
                 segmentRect.set(left, top, right, bottom)
                 segmentPath.rewind()
                 segmentPath.addRoundRect(segmentRect, radiiBottomOnly, Path.Direction.CW)
-                c.drawPath(segmentPath, cardPaint)
+                c.drawPath(segmentPath, paint)
             }
         }
     }
