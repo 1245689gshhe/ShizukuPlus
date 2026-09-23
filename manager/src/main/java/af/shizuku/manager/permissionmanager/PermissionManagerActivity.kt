@@ -20,6 +20,7 @@ class PermissionManagerActivity : AppActivity() {
             AppTheme(
                 darkTheme = isSystemInDarkTheme(),
                 isBlackNightTheme = ThemeHelper.isBlackNightTheme(context),
+                isAmoledPlus = ShizukuSettings.isAmoledPlusEnabled(),
                 isOneUi = ShizukuSettings.isOneUiThemeEnabled(),
                 isRoundedEdges = ShizukuSettings.isRoundedEdgesEnabled()
             ) {

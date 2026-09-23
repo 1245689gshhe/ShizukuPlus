@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,7 +37,7 @@ import af.shizuku.manager.settings.SettingsSearchEngine
 import android.widget.FrameLayout
 import androidx.compose.ui.Alignment
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen(
     title: String,
@@ -64,6 +65,7 @@ fun SettingsScreen(
     val isDarkTheme = isSystemInDarkTheme()
     val isBlackTheme = isDarkTheme && af.shizuku.manager.app.ThemeHelper.isBlackNightTheme(context)
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val motionScheme = MaterialTheme.motionScheme
 
     LaunchedEffect(Unit) { onScrollStateCreated(scrollBehavior.state) }
     LaunchedEffect(isScrollIdle) {
@@ -73,7 +75,7 @@ fun SettingsScreen(
             if (fraction > 0.001f && fraction < 0.999f) {
                 val target = if (fraction >= 0.5f) state.heightOffsetLimit else 0f
                 Animatable(state.heightOffset).animateTo(
-                    target, spring(stiffness = Spring.StiffnessMediumLow)
+                    target, motionScheme.defaultSpatialSpec()
                 ) { state.heightOffset = value }
             }
         }
