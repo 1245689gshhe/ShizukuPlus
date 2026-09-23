@@ -196,20 +196,24 @@ class ActivityManagerPlusImpl : IActivityManagerPlus.Stub() {
         return ShellExecutor.exec("ps", "-A", "-o", "NAME,RSS,PID").lines()
     }
 
-    private fun createPackageDataObserver(latch: java.util.concurrent.CountDownLatch): IBinder? {
-        return try {
-            val stubClass = Class.forName("android.content.pm.IPackageDataObserver\$Stub")
-            java.lang.reflect.Proxy.newProxyInstance(
-                stubClass.classLoader,
-                arrayOf(Class.forName("android.content.pm.IPackageDataObserver"), IBinder::class.java)
-            ) { _, method, _ ->
-                if (method.name == "onRemoveCompleted") {
-                    latch.countDown()
+    private fun createPackageDataObserver(latch: java.util.concurrent.CountDownLatch): IBinder {
+        // Parcel.writeStrongBinder() requires a real android.os.Binder subclass — a
+        // Proxy.newProxyInstance implementing IBinder cannot be marshaled cross-process and
+        // causes the pm IPC call to throw, silently always falling through to the exec fallback.
+        // IPackageDataObserver has one method (onRemoveCompleted) at FIRST_CALL_TRANSACTION.
+        return object : android.os.Binder() {
+            init { attachInterface(null, "android.content.pm.IPackageDataObserver") }
+            override fun onTransact(code: Int, data: android.os.Parcel, reply: android.os.Parcel?, flags: Int): Boolean {
+                return when (code) {
+                    IBinder.FIRST_CALL_TRANSACTION -> { // onRemoveCompleted(String packageName, boolean succeeded)
+                        data.enforceInterface("android.content.pm.IPackageDataObserver")
+                        latch.countDown()
+                        reply?.writeNoException()
+                        true
+                    }
+                    else -> super.onTransact(code, data, reply, flags)
                 }
-                null
-            } as? IBinder
-        } catch (_: Exception) {
-            null
+            }
         }
     }
 

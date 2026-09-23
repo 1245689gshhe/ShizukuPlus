@@ -76,16 +76,24 @@ class ApkPatcherImpl : IApkPatcher.Stub() {
             val pm = packageManagerService() ?: error("no package service")
             val latch = CountDownLatch(1)
             var result = -1
-            val stubClass = Class.forName("android.content.pm.IPackageDeleteObserver\$Stub")
-            val observer = java.lang.reflect.Proxy.newProxyInstance(
-                stubClass.classLoader,
-                arrayOf(Class.forName("android.content.pm.IPackageDeleteObserver"), IBinder::class.java)
-            ) { _, method, args ->
-                if (method.name == "packageDeleted") {
-                    result = (args?.getOrNull(1) as? Int) ?: -1
-                    latch.countDown()
+            // Parcel.writeStrongBinder() requires a real android.os.Binder — Proxy.newProxyInstance
+            // implementing IBinder can't be marshaled cross-process and causes the call to throw.
+            // IPackageDeleteObserver: packageDeleted(String packageName, int returnCode) at FIRST_CALL_TRANSACTION.
+            val observer = object : android.os.Binder() {
+                init { attachInterface(null, "android.content.pm.IPackageDeleteObserver") }
+                override fun onTransact(code: Int, data: android.os.Parcel, reply: android.os.Parcel?, flags: Int): Boolean {
+                    return when (code) {
+                        IBinder.FIRST_CALL_TRANSACTION -> {
+                            data.enforceInterface("android.content.pm.IPackageDeleteObserver")
+                            data.readString() // packageName (unused)
+                            result = data.readInt()
+                            latch.countDown()
+                            reply?.writeNoException()
+                            true
+                        }
+                        else -> super.onTransact(code, data, reply, flags)
+                    }
                 }
-                null
             }
             val invoked = pm.javaClass.methods
                 .filter { it.name == "deletePackageAsUser" }

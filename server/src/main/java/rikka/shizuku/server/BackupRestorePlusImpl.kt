@@ -209,17 +209,24 @@ class BackupRestorePlusImpl : IBackupRestorePlus.Stub() {
             val pm = packageManagerService() ?: error("no package service")
             val latch = java.util.concurrent.CountDownLatch(1)
             val succeeded = java.util.concurrent.atomic.AtomicBoolean(false)
-            val stubClass = Class.forName("android.content.pm.IPackageDataObserver\$Stub")
-            val observer = java.lang.reflect.Proxy.newProxyInstance(
-                stubClass.classLoader,
-                arrayOf(Class.forName("android.content.pm.IPackageDataObserver"), IBinder::class.java)
-            ) { _, method, args ->
-                if (method.name == "onRemoveCompleted") {
-                    // signature: onRemoveCompleted(String packageName, boolean succeeded)
-                    succeeded.set(args?.getOrNull(1) as? Boolean ?: false)
-                    latch.countDown()
+            // Parcel.writeStrongBinder() requires a real android.os.Binder — Proxy.newProxyInstance
+            // implementing IBinder can't be marshaled cross-process, causing the call to throw.
+            // IPackageDataObserver: onRemoveCompleted(String packageName, boolean succeeded) at FIRST_CALL_TRANSACTION.
+            val observer = object : android.os.Binder() {
+                init { attachInterface(null, "android.content.pm.IPackageDataObserver") }
+                override fun onTransact(code: Int, data: android.os.Parcel, reply: android.os.Parcel?, flags: Int): Boolean {
+                    return when (code) {
+                        IBinder.FIRST_CALL_TRANSACTION -> {
+                            data.enforceInterface("android.content.pm.IPackageDataObserver")
+                            data.readString() // packageName (unused)
+                            succeeded.set(data.readInt() != 0) // boolean succeeded
+                            latch.countDown()
+                            reply?.writeNoException()
+                            true
+                        }
+                        else -> super.onTransact(code, data, reply, flags)
+                    }
                 }
-                null
             }
             val method = pm.javaClass.methods.firstOrNull { it.name == "clearApplicationUserData" }
                 ?: error("clearApplicationUserData not found")
