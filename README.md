@@ -157,6 +157,34 @@ Full license texts and per-library details: [OPEN_SOURCE_LICENSES.md](OPEN_SOURC
 
 [Apache 2.0](LICENSE)
 
+### Contributors
+
+Thank you to everyone who has contributed code, translations, and testing to Shizuku+:
+
+**Code Contributors**
+
+| Contributor | Contribution |
+|-------------|--------------|
+| [thejaustin](https://github.com/thejaustin) | Project founder & primary maintainer — all core Plus features, UI/UX, and infrastructure |
+| [thedjchi](https://github.com/thedjchi) | Intermediate fork base; Android 17 (SDK 37) compatibility groundwork |
+| [Kevin Doremy](https://github.com/doremylover) | Dead code removal, unused import cleanup, layout & class refactoring |
+| [Ryfter](https://github.com/Ryfter) | mDNS timeout improvements, FGS subtype refactoring, notification UX |
+| [vvb2060](https://github.com/vvb2060) | AGP build system updates, LTO optimization, license clarifications |
+| [Haruue Icymoon](https://github.com/haruue) | Documentation & README improvements |
+
+**Translation Contributors**
+
+| Language | Contributor |
+|----------|-------------|
+| Brazilian Portuguese | [odorizzioficial](https://github.com/odorizzioficial) |
+| French | [Ryfter](https://github.com/Ryfter), [T. Clement](https://github.com/thibaultclement) |
+| Vietnamese | [ThePrimalPea](https://github.com/ThePrimalPea) |
+| Filipino | [IverCoder](https://github.com/IverCoder) |
+| Italian | [Dany-coder778](https://github.com/Dany-coder778) |
+| Japanese | [MES-mitutti](https://github.com/MES-mitutti) |
+
+*Plus many more via community translation through Weblate — thank you to all translators!*
+
 ### Acknowledgments
 - Special thanks to **AkayamiShurui42** for the proactive security research and stability patches (Reference: #239).
 - Thank you to **AlexeiCrystal** for identifying MIUI crash bugs and suggesting the Compat Hub workaround for legacy apps (#241, #242).

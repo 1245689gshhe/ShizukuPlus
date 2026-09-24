@@ -95,6 +95,8 @@ Hardening pass on the newly-added privileged Binder services, which are reachabl
   - Personalization: *Motion* + *Display* merged into *Motion & Display* (5 items)
   - Feature Hub: Storage Bridge moved from a solo one-item *Storage & Files* section into *System & Performance*, removing the isolated wrapper
 - **All settings category titles extracted to string resources** — every `CollapsiblePreferenceCategory` section title across all 9 settings screens now uses `@string/` references, making them fully translatable; hardcoded inline titles for categories are eliminated. Ukrainian translations added for all new keys.
+- **Completed Ukrainian translation** — 145 ShizukuPlus-specific string keys were missing from the Ukrainian locale (Device Control, App Backup, Permission Manager, corner styles, help dialogs, Settings entries for AI/NPU, OverlayFS, DHizuku, SU Bridge, and more). Ukrainian is now at 100% coverage.
+- **Completed Brazilian Portuguese translation** — 291 ShizukuPlus-specific string keys were missing from the Brazilian Portuguese locale. All keys are now covered, including doctor diagnostics, ADB dialogs, SU Bridge, Wireless ADB errors, and all new Settings categories. Thanks to [odorizzioficial](https://github.com/odorizzioficial) for the original pt-rBR contribution.
 
 #### UI / UX
 - **Material 3 Expressive (M3E) animation improvements** — home screen card entrances now use `m3_emphasized_decelerate` interpolator with a 0.92→1.0 scale-grow, matching the M3E motion spec. Spring press animations upgraded to `animateToFinalPosition()` with `STIFFNESS_MEDIUM + DAMPING_RATIO_NO_BOUNCY` for smooth mid-animation reversal. App Backup screen introduced as a new home card and detail screen.
