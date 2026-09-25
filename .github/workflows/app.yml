@@ -431,7 +431,11 @@ jobs:
             fi
             echo
 
-            ALL_COMMITS=$(git log "$RANGE" --no-merges --pretty=format:"- %s (%h)" || true)
+            # Strip conventional-commit type prefixes (feat(ui):, fix:, chore(i18n):, etc.) from
+            # bullet subjects so the rendered release notes are human-readable, not dev-jargon.
+            # The sed expression removes the type+scope prefix and capitalises the first letter.
+            ALL_COMMITS=$(git log "$RANGE" --no-merges --pretty=format:"- %s (%h)" | \
+              sed -E 's/^(- )(feat|fix|chore|refactor|perf|test|docs|build|ci|style|revert)(\([^)]+\))?: (.)(.*)$/\1\u\4\5/' || true)
 
             SECURITY=$(printf '%s\n' "$ALL_COMMITS" | grep -iE "^- (fix\(security\)|security)" || true)
             BREAKING=$(printf '%s\n' "$ALL_COMMITS" | grep -iE "BREAKING" || true)
@@ -485,7 +489,7 @@ jobs:
             fi
             echo "| Release | Highlight |"
             echo "|:--|:--|"
-            for t in $(git tag --list 'v*' --sort=-creatordate | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+\.r[0-9]+$' | head -5); do
+            for t in $(git tag --list --sort=-creatordate | grep -E '^(r[0-9]+|v[0-9]+\.[0-9]+\.[0-9]+\.r[0-9]+)$' | head -5); do
               SUBJ=$(git log -1 --pretty=%s "$t" 2>/dev/null | sed 's/|/\\|/g')
               MARK=""
               if [ "$t" = "$MAJOR_RELEASE" ]; then MARK=" 🚀 **major**"; fi
