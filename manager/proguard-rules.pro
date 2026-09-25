@@ -183,6 +183,14 @@
 # instead, so these references are never reached at runtime on API 28+ devices.
 -dontwarn android.hardware.fingerprint.**
 
+# androidx.window.extensions and androidx.window.sidecar are OEM extension interfaces
+# that are provided by device vendors at runtime via ServiceLoader/reflection, not by
+# the framework stub or the Jetpack AAR. AGP 9.4 / R8 9.4 strict mode requires explicit
+# dontwarn for all transitive missing classes; these are never invoked via reflection-only
+# paths that the ProGuard keep rules already guard.
+-dontwarn androidx.window.extensions.**
+-dontwarn androidx.window.sidecar.**
+
 -allowaccessmodification
 #-repackageclasses rikka.shizuku
 -keepattributes SourceFile,LineNumberTable
