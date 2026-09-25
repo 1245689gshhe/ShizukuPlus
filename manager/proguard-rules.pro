@@ -177,6 +177,12 @@
 -dontwarn io.sentry.compose.**
 -dontwarn androidx.compose.**
 
+# android.hardware.fingerprint.FingerprintManager and its inner classes were removed from
+# the compileSdk 37 stub library (Android 17). biometric:1.2.0-alpha05 references them via
+# FingerprintManagerCompat; the compat layer gates on SDK_INT and uses BiometricPrompt
+# instead, so these references are never reached at runtime on API 28+ devices.
+-dontwarn android.hardware.fingerprint.**
+
 -allowaccessmodification
 #-repackageclasses rikka.shizuku
 -keepattributes SourceFile,LineNumberTable
