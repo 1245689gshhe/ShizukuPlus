@@ -138,15 +138,12 @@ jobs:
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null || true
           [ -n "$SENTRY_DSN" ] && echo "SENTRY_DSN=${SENTRY_DSN}" >> gradle.properties || true
 
-          # Extract version from build.gradle
-          BASE_VERSION=$(grep "baseVersionName =" build.gradle | cut -d'"' -f2)
           GIT_COUNT=$(git rev-list --count HEAD)
-          
+          VERSION="r${GIT_COUNT}"
+
           if [ "$IS_PRERELEASE" = "true" ]; then
-            VERSION="v${BASE_VERSION}.r${GIT_COUNT}"
             ARGS="-Pbeta"
           else
-            VERSION="v${BASE_VERSION}.r${GIT_COUNT}"
             ARGS=""
           fi
           
@@ -396,9 +393,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           TAG_NAME="${VERSION}"
-          # Find the previous release tag (ignoring current). Pattern is version-agnostic so it
-          # works across both the legacy 13.6.0 era and the current 14.x era.
-          PREV_TAG=$(git tag --list 'v*' --sort=-creatordate | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+\.r[0-9]+$' | grep -v "^${TAG_NAME}$" | head -1)
+          # Find the previous release tag (ignoring current).
+          # Matches both the new r{N} format and legacy v{semver}.r{N} tags for continuity.
+          PREV_TAG=$(git tag --list --sort=-creatordate | grep -E '^(r[0-9]+|v[0-9]+\.[0-9]+\.[0-9]+\.r[0-9]+)$' | grep -v "^${TAG_NAME}$" | head -1)
 
           # Most recent MAJOR release to spotlight in every release's notes. Bump these two lines
           # when a new headline release ships (keep MAJOR_DESC to one short clause). For the CURRENT
