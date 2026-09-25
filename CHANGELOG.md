@@ -2,9 +2,11 @@
 
 All notable changes to ShizukuPlus are documented here. See [AI_ATTRIBUTIONS.md](AI_ATTRIBUTIONS.md) for full AI pair-programming provenance and commit mapping.
 
-## [Unreleased / Build r2648+]
+## [v14.0.0 — Stable Release / Build r2658+]
 
 *Co-developed with Antigravity & Claude Code*
+
+> **Major release** — Shizuku+ 14 brings a full Material 3 Expressive UI overhaul, compileSdk 37 / AGP 9.4 / Gradle 9.7 build infrastructure, 100% Ukrainian and Brazilian Portuguese localizations, and 30+ bug fixes across the server, manager UI, and Plus APIs. Minimum Android remains API 24 (Android 7); fully tested through Android 17 / One UI 9.
 
 ### 🔧 Build / Infrastructure
 - **Upgraded AGP to 9.4.0, Gradle to 9.7.1, compileSdk to 37, targetSdk to 36, buildToolsVersion to 36.0.0** — required by Compose BOM 2026.08.00 (→ Compose 1.12.0 requires AGP 9.1.0+ and compileSdk 37); enables Android 16 / One UI 9 readiness.

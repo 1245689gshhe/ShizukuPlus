@@ -20,7 +20,7 @@ def getGitCommitCount() {
 }
 
 def gitCommitCount = getGitCommitCount()
-def baseVersionName = "13.6.0"
+def baseVersionName = "14.0.0"
 ext {
     versionCode = gitCommitCount
     versionName = "Shizuku+ ${baseVersionName}.r${gitCommitCount}"
