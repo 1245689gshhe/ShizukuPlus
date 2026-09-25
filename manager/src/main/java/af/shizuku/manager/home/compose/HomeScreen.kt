@@ -32,7 +32,7 @@ import af.shizuku.core.ui.compose.ButtonSize
 import af.shizuku.manager.R
 import af.shizuku.manager.ShizukuSettings
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     isEditMode: Boolean,
@@ -79,8 +79,6 @@ fun HomeScreen(
         }
     }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(topAppBarState)
-    val motionScheme = MaterialTheme.motionScheme
-
     // Snap fully open or fully closed when the user lifts their finger.
     val isScrollIdle = remember { mutableStateOf(true) }
     LaunchedEffect(isScrollIdle.value) {
@@ -91,7 +89,7 @@ fun HomeScreen(
                 val target = if (fraction >= 0.5f) state.heightOffsetLimit else 0f
                 Animatable(state.heightOffset).animateTo(
                     target,
-                    motionScheme.defaultSpatialSpec<Float>()
+                    spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium)
                 ) { state.heightOffset = value }
             }
         }

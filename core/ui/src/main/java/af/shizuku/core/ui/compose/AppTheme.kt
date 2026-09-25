@@ -190,7 +190,6 @@ private val SharpShapes = Shapes(
     extraLarge = RoundedCornerShape(0.dp),
 )
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AppTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -232,7 +231,6 @@ fun AppTheme(
         colorScheme = colorScheme,
         shapes = shapes,
         typography = typography,
-        motionScheme = MotionScheme.expressive(),
         content = content
     )
 }
