@@ -1348,7 +1348,7 @@ PERIGO: Flashear uma carga incompatível RESULTARÁ em brick permanente ou bootl
     <string name="dialog_adb_pair_device">Emparelhar este dispositivo agora</string>
     <string name="dialog_adb_probing_loopback">Verificando porta local (127.0.0.1:5555)...</string>
     <string name="dialog_adb_samsung_hotspot_warning">💡 <b>Nota Samsung:</b> O One UI desabilita a Depuração sem fio enquanto o hotspot móvel está ativo. Conecte-se ao hotspot Wi-Fi de outro dispositivo (sem internet está ok) ou execute <code>adb tcpip 5555</code> via USB uma vez.</string>
-    <string name="dialog_adb_wifi_disconnected_warning"><b>Wi-Fi desconectado.</b><br>O Android não consegue descobrir a Depuração sem fio via dados móveis (5G/LTE).</string>
+    <string name="dialog_adb_wifi_disconnected_warning"><![CDATA[<b>Wi-Fi desconectado.</b><br>O Android não consegue descobrir a Depuração sem fio via dados móveis (5G/LTE).]]></string>
 
     <!-- Doctor / diagnostics -->
     <string name="doctor_action_clear_gms_cache">Limpar dados do Play Services</string>

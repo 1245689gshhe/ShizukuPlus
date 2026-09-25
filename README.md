@@ -1,9 +1,5 @@
 <div align="center">
 
-I've finished moving my development environment and am now on a new device! Goodbye S22 Ultra, Hello S26 Ultra!
-
-Please keep submitting issues you're experiencing, and feel free to open pull requests if you think you can help improve the codebase! I'm looking for contributors and collaborators to keep the vision alive and stabilize the project, so feel free to reach out!
-
 # Shizuku+
 
 The advanced privileged-process manager for Android.
@@ -17,6 +13,8 @@ Shizuku lets normal apps use system-level APIs directly via a privileged process
 [![Latest Release](https://img.shields.io/github/v/release/thejaustin/ShizukuPlus?style=for-the-badge&color=3060bf&labelColor=204080&label=Latest)](https://github.com/thejaustin/ShizukuPlus/releases/latest)
 
 </div>
+
+> **Contributors welcome!** If you've found a bug or want to improve the codebase, please open an issue or pull request — the project is actively looking for contributors and collaborators.
 
 ## ⬇️ Download
 
